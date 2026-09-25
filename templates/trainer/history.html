@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}History — SprintCoder{% endblock %}
+
+{% block content %}
+<div class="history-page">
+  <h1 class="page-title">Your Practice History</h1>
+
+  {% if attempts %}
+    <div class="history-stats">
+      <div class="stat-pill">{{ attempts|length }} sessions</div>
+    </div>
+    <div class="table-wrap">
+      <table class="history-table" id="history-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Language</th>
+            <th>Difficulty</th>
+            <th>Snippet</th>
+            <th>WPM</th>
+            <th>CPM</th>
+            <th>Accuracy</th>
+            <th>Time</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for attempt in attempts %}
+          <tr class="history-row">
+            <td class="col-date">{{ attempt.created_at|date:"M d, Y H:i" }}</td>
+            <td><span class="badge badge-lang">{{ attempt.snippet.language.icon }} {{ attempt.snippet.language.name }}</span></td>
+            <td><span class="badge badge-diff badge-{{ attempt.snippet.difficulty }}">{{ attempt.snippet.get_difficulty_display }}</span></td>
+            <td class="col-title">{{ attempt.snippet.title }}</td>
+            <td class="col-num"><strong>{{ attempt.wpm|floatformat:0 }}</strong></td>
+            <td class="col-num">{{ attempt.cpm|floatformat:0 }}</td>
+            <td class="col-acc {% if attempt.accuracy >= 95 %}acc-great{% elif attempt.accuracy >= 80 %}acc-ok{% else %}acc-bad{% endif %}">
+              {{ attempt.accuracy|floatformat:1 }}%
+            </td>
+            <td class="col-num">{{ attempt.time_seconds|floatformat:1 }}s</td>
+            <td>
+              <a href="{% url 'result' attempt.pk %}" class="btn btn-ghost btn-xs">View</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">⌨️</div>
+      <h2>No attempts yet</h2>
+      <p>Complete your first exercise to see your results here.</p>
+      <a href="{% url 'index' %}" class="btn btn-primary">Start Practicing</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

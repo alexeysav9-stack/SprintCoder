@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load static trainer_extras %}
+{% block title %}{{ snippet.title }} — SprintCoder{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"
+      media="(prefers-color-scheme: dark)" id="hljs-dark" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"
+      id="hljs-style" />
+{% endblock %}
+
+{% block content %}
+<div class="exercise-page">
+
+  <!-- Meta bar -->
+  <div class="exercise-meta">
+    <div class="meta-left">
+      <span class="badge badge-lang">{{ snippet.language.icon }} {{ snippet.language.name }}</span>
+      <span class="badge badge-diff badge-{{ snippet.difficulty }}">{{ snippet.get_difficulty_display }}</span>
+      <span class="meta-title">{{ snippet.title }}</span>
+    </div>
+    <div class="meta-right">
+      <span class="hint-text">Tab — 4 spaces &nbsp;·&nbsp; Ctrl+R — restart &nbsp;·&nbsp; Esc — quit</span>
+    </div>
+  </div>
+
+  <!-- HUD -->
+  <div class="hud" id="hud">
+    <div class="hud-stat" id="hud-wpm">
+      <span class="hud-value">0</span>
+      <span class="hud-label">WPM</span>
+    </div>
+    <div class="hud-stat" id="hud-acc">
+      <span class="hud-value">100</span>
+      <span class="hud-label">ACC %</span>
+    </div>
+    <div class="hud-stat" id="hud-time">
+      <span class="hud-value">0.0</span>
+      <span class="hud-label">SEC</span>
+    </div>
+    <div class="hud-stat" id="hud-errors">
+      <span class="hud-value">0</span>
+      <span class="hud-label">ERRORS</span>
+    </div>
+  </div>
+
+  <!-- Typing area -->
+  <div class="exercise-container" id="exercise-container">
+    <div class="code-display" id="code-display" aria-label="Code to type"></div>
+    <textarea
+      id="typing-input"
+      class="typing-input"
+      autocomplete="off"
+      autocorrect="off"
+      autocapitalize="off"
+      spellcheck="false"
+      aria-label="Type the code here"
+      style="pointer-events: none;"
+    ></textarea>
+
+    <!-- Overlay: click to start — inside container so z-index is unambiguous -->
+    <div class="start-overlay" id="start-overlay" tabindex="0" role="button" aria-label="Click to start">
+      <div class="start-overlay-inner">
+        <div class="start-icon">⌨️</div>
+        <p class="start-text">Click to focus and start typing</p>
+        <p class="start-sub">The timer starts on your first keystroke</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Hidden data for JS -->
+<script id="snippet-data" type="application/json">
+{
+  "snippet_id": {{ snippet.pk }},
+  "code": {{ snippet.code|jsonify }},
+  "save_url": "{% url 'save_attempt' %}",
+  "result_base_url": "{% url 'result' attempt_id=0 %}",
+  "csrf_token": "{{ csrf_token }}"
+}
+</script>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/trainer.js' %}?v=2"></script>
+{% endblock %}

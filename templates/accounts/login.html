@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Login — SprintCoder{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-header">
+      <span class="auth-icon">🔑</span>
+      <h1 class="auth-title">Welcome back</h1>
+      <p class="auth-sub">Sign in to track your progress</p>
+    </div>
+
+    <form method="post" class="auth-form" id="login-form">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="form-group {% if field.errors %}has-error{% endif %}">
+          <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}
+            <div class="form-error">{{ field.errors.0 }}</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+      <button type="submit" class="btn btn-primary btn-full" id="btn-login">Sign In</button>
+    </form>
+
+    <p class="auth-alt">Don't have an account? <a href="{% url 'register' %}">Sign up →</a></p>
+  </div>
+</div>
+{% endblock %}

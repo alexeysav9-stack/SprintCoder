@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Practice — SprintCoder{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <h1 class="hero-title">Type Code. <span class="accent">Ship Faster.</span></h1>
+  <p class="hero-subtitle">Train your muscle memory with real code snippets in your favourite language.</p>
+</section>
+
+<section class="picker-section">
+  <form id="picker-form" action="{% url 'random_snippet' %}" method="get">
+
+    <!-- Language grid -->
+    <div class="section-label">Choose a language</div>
+    <div class="lang-grid" id="lang-grid">
+      {% for lang in languages %}
+        <label class="lang-card {% if forloop.first %}selected{% endif %}" for="lang-{{ lang.slug }}">
+          <input type="radio" name="language" id="lang-{{ lang.slug }}"
+                 value="{{ lang.slug }}" {% if forloop.first %}checked{% endif %} hidden />
+          <span class="lang-icon">{{ lang.icon }}</span>
+          <span class="lang-name">{{ lang.name }}</span>
+        </label>
+      {% endfor %}
+    </div>
+
+    <!-- Difficulty -->
+    <div class="section-label" style="margin-top:2rem;">Choose difficulty</div>
+    <div class="difficulty-row">
+      {% for val, label in difficulty_choices %}
+        <label class="diff-btn {% if forloop.first %}selected{% endif %}" for="diff-{{ val }}">
+          <input type="radio" name="difficulty" id="diff-{{ val }}"
+                 value="{{ val }}" {% if forloop.first %}checked{% endif %} hidden />
+          {{ label }}
+        </label>
+      {% endfor %}
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-lg start-btn" id="start-btn">
+      Start Practice <span class="btn-arrow">→</span>
+    </button>
+  </form>
+</section>
+
+<section class="features-row">
+  <div class="feature-card">
+    <div class="feature-icon">⚡</div>
+    <h3>Real code snippets</h3>
+    <p>Type actual functions, classes and algorithms — not Lorem ipsum.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">📊</div>
+    <h3>Instant feedback</h3>
+    <p>WPM, CPM, accuracy and per-character error stats after every session.</p>
+  </div>
+  <div class="feature-card">
+    <div class="feature-icon">🏆</div>
+    <h3>Track progress</h3>
+    <p>History of all your attempts — see how fast you're improving.</p>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Language card selection
+  document.querySelectorAll('.lang-card').forEach(card => {
+    card.addEventListener('click', function () {
+      document.querySelectorAll('.lang-card').forEach(c => c.classList.remove('selected'));
+      this.classList.add('selected');
+    });
+  });
+
+  // Difficulty button selection
+  document.querySelectorAll('.diff-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
+      this.classList.add('selected');
+    });
+  });
+
+  // Start button ripple
+  document.getElementById('start-btn').addEventListener('click', function () {
+    this.classList.add('loading');
+  });
+</script>
+{% endblock %}

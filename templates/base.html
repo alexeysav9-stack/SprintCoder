@@ -1,0 +1,87 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="SprintCoder — typing speed trainer for programmers. Practice typing real code in Python, JavaScript, Java, C++, Go, and SQL." />
+  <title>{% block title %}SprintCoder{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'css/main.css' %}" />
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <header class="navbar">
+    <a href="{% url 'index' %}" class="navbar-brand">
+      <span class="brand-icon">⌨️</span>
+      <span class="brand-name">Sprint<span class="brand-accent">Coder</span></span>
+    </a>
+    <nav class="navbar-nav">
+      <a href="{% url 'index' %}" class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}">Practice</a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'history' %}" class="nav-link {% if request.resolver_match.url_name == 'history' %}active{% endif %}">History</a>
+        <a href="{% url 'profile' %}" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">Profile</a>
+        <span class="nav-user">{{ user.username }}</span>
+        <a href="{% url 'logout' %}" class="btn btn-ghost btn-sm">Logout</a>
+      {% else %}
+        <a href="{% url 'login' %}" class="nav-link">Login</a>
+        <a href="{% url 'register' %}" class="btn btn-primary btn-sm">Sign Up</a>
+      {% endif %}
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle dark/light theme">
+        <span class="theme-icon">🌙</span>
+      </button>
+    </nav>
+  </header>
+
+  {% if messages %}
+    <div class="messages-container">
+      {% for message in messages %}
+        <div class="message message-{{ message.tags }}">
+          {{ message }}
+          <button class="message-close" onclick="this.parentElement.remove()">×</button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <p>SprintCoder — Train your coding fingers 🚀</p>
+  </footer>
+
+  <script>
+    // Theme management
+    (function () {
+      const saved = localStorage.getItem('sc-theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', saved);
+      const btn = document.getElementById('theme-toggle');
+      if (btn) btn.querySelector('.theme-icon').textContent = saved === 'dark' ? '🌙' : '☀️';
+    })();
+
+    document.getElementById('theme-toggle')?.addEventListener('click', function () {
+      const html = document.documentElement;
+      const current = html.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      localStorage.setItem('sc-theme', next);
+      this.querySelector('.theme-icon').textContent = next === 'dark' ? '🌙' : '☀️';
+    });
+
+    // bfcache recovery: re-enable any disabled elements when page is restored from cache
+    window.addEventListener('pageshow', function (e) {
+      if (e.persisted) {
+        document.querySelectorAll('[disabled]').forEach(function (el) {
+          el.removeAttribute('disabled');
+          el.classList.remove('loading', 'disabled');
+        });
+      }
+    });
+  </script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

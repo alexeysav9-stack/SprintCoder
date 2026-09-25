@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+{% block title %}Profile — SprintCoder{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+
+  <!-- Header -->
+  <div class="profile-header">
+    <div class="profile-avatar">{{ user.username|slice:":1"|upper }}</div>
+    <div class="profile-info">
+      <h1 class="profile-name">{{ user.username }}</h1>
+      <p class="profile-email">{{ user.email }}</p>
+      <p class="profile-joined">Member since {{ user.date_joined|date:"M Y" }}</p>
+    </div>
+  </div>
+
+  <!-- Overall stats -->
+  <div class="overall-stats">
+    <div class="overall-card">
+      <div class="overall-value">{{ total_attempts }}</div>
+      <div class="overall-label">Total Sessions</div>
+    </div>
+    <div class="overall-card overall-card-accent">
+      <div class="overall-value">{{ overall_best_wpm }}</div>
+      <div class="overall-label">Best WPM</div>
+    </div>
+    <div class="overall-card">
+      <div class="overall-value">{{ overall_avg_wpm }}</div>
+      <div class="overall-label">Avg WPM</div>
+    </div>
+    <div class="overall-card">
+      <div class="overall-value">{{ lang_stats|length }}</div>
+      <div class="overall-label">Languages Practiced</div>
+    </div>
+  </div>
+
+  {% if lang_stats %}
+    <!-- Per-language sections -->
+    {% for slug, stats in lang_stats.items %}
+    <div class="lang-section" id="lang-{{ slug }}">
+      <div class="lang-section-header">
+        <span class="lang-section-icon">{{ stats.language.icon }}</span>
+        <h2 class="lang-section-title">{{ stats.language.name }}</h2>
+        <span class="lang-session-count">{{ stats.count }} session{{ stats.count|pluralize }}</span>
+      </div>
+
+      <div class="lang-section-body">
+        <!-- Stat pills -->
+        <div class="lang-stat-row">
+          <div class="lang-stat-card lang-stat-primary">
+            <div class="lang-stat-value">{{ stats.best_wpm }}</div>
+            <div class="lang-stat-label">Best WPM</div>
+          </div>
+          <div class="lang-stat-card">
+            <div class="lang-stat-value">{{ stats.avg_wpm }}</div>
+            <div class="lang-stat-label">Avg WPM</div>
+          </div>
+          <div class="lang-stat-card lang-stat-acc">
+            <div class="lang-stat-value">{{ stats.avg_acc }}<span class="lang-stat-unit">%</span></div>
+            <div class="lang-stat-label">Avg Accuracy</div>
+          </div>
+          <div class="lang-stat-card">
+            <div class="lang-stat-value">{{ stats.count }}</div>
+            <div class="lang-stat-label">Sessions</div>
+          </div>
+        </div>
+
+        <!-- WPM chart -->
+        {% if stats.count > 1 %}
+        <div class="chart-wrap">
+          <canvas id="chart-{{ slug }}" class="wpm-chart" aria-label="{{ stats.language.name }} WPM progress chart"></canvas>
+        </div>
+        {% else %}
+        <div class="chart-placeholder">
+          <p>Complete at least 2 sessions to see your progress chart.</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="lang-section-actions">
+        <a href="{% url 'random_snippet' %}?language={{ slug }}&difficulty=easy"
+           class="btn btn-primary btn-sm" id="btn-practice-{{ slug }}-easy">Practice Easy</a>
+        <a href="{% url 'random_snippet' %}?language={{ slug }}&difficulty=medium"
+           class="btn btn-ghost btn-sm" id="btn-practice-{{ slug }}-medium">Practice Medium</a>
+        <a href="{% url 'random_snippet' %}?language={{ slug }}&difficulty=hard"
+           class="btn btn-ghost btn-sm" id="btn-practice-{{ slug }}-hard">Practice Hard</a>
+      </div>
+    </div>
+    {% endfor %}
+
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📊</div>
+      <h2>No data yet</h2>
+      <p>Complete your first exercise to see your stats here.</p>
+      <a href="{% url 'index' %}" class="btn btn-primary" id="btn-start-practice">Start Practicing</a>
+    </div>
+  {% endif %}
+
+</div>
+
+<!-- Chart data -->
+<script id="chart-data" type="application/json">{{ lang_history_json|safe }}</script>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function () {
+  const historyData = JSON.parse(document.getElementById('chart-data').textContent);
+
+  // Resolve CSS variables for chart colors
+  const style = getComputedStyle(document.documentElement);
+  const accent   = style.getPropertyValue('--accent-2').trim()   || '#9e92ff';
+  const accentBg = style.getPropertyValue('--accent-glow').trim() || 'rgba(124,108,252,0.15)';
+  const fg3      = style.getPropertyValue('--fg-3').trim()        || '#6b7094';
+  const border   = style.getPropertyValue('--border').trim()      || '#2a2e4a';
+  const fg       = style.getPropertyValue('--fg').trim()          || '#e8eaf6';
+  const surface  = style.getPropertyValue('--surface').trim()     || '#1e2133';
+
+  Chart.defaults.color = fg3;
+  Chart.defaults.borderColor = border;
+  Chart.defaults.font.family = "'Inter', sans-serif";
+
+  Object.entries(historyData).forEach(([slug, entries]) => {
+    const canvas = document.getElementById('chart-' + slug);
+    if (!canvas || entries.length < 2) return;
+
+    const labels = entries.map(e => e.date);
+    const values = entries.map(e => e.wpm);
+
+    // Rolling average (window = 3)
+    const rolling = values.map((v, i, arr) => {
+      const window = arr.slice(Math.max(0, i - 2), i + 1);
+      return Math.round(window.reduce((a, b) => a + b, 0) / window.length * 10) / 10;
+    });
+
+    new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'WPM',
+            data: values,
+            borderColor: accent,
+            backgroundColor: accentBg,
+            pointBackgroundColor: accent,
+            pointStyle: 'circle',
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            borderWidth: 2,
+            fill: true,
+            tension: 0.3,
+          },
+          {
+            label: 'Rolling avg (3)',
+            data: rolling,
+            borderColor: 'rgba(251,191,36,0.8)',
+            backgroundColor: 'transparent',
+            pointStyle: 'circle',
+            pointRadius: 0,
+            pointHoverRadius: 0,
+            borderWidth: 2,
+            borderDash: [5, 4],
+            tension: 0.4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            labels: {
+              color: fg3,
+              boxWidth: 12,
+              boxHeight: 12,
+              borderRadius: 3,
+              font: { size: 12 },
+            },
+          },
+          tooltip: {
+            backgroundColor: surface,
+            borderColor: border,
+            borderWidth: 1,
+            titleColor: fg,
+            bodyColor: fg3,
+            padding: 10,
+            callbacks: {
+              label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y} WPM`,
+            },
+          },
+        },
+        scales: {
+          x: {
+            ticks: {
+              maxRotation: 30,
+              color: fg3,
+              maxTicksLimit: 8,
+              font: { size: 11 },
+            },
+            grid: { color: border },
+          },
+          y: {
+            beginAtZero: false,
+            ticks: { color: fg3, font: { size: 11 } },
+            grid: { color: border },
+            title: {
+              display: true,
+              text: 'WPM',
+              color: fg3,
+              font: { size: 11 },
+            },
+          },
+        },
+      },
+    });
+  });
+})();
+</script>
+{% endblock %}

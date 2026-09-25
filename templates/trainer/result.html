@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Results — SprintCoder{% endblock %}
+
+{% block content %}
+<div class="result-page">
+  <div class="result-header">
+    <div class="result-badge">
+      {% if attempt.accuracy >= 98 %}🏆{% elif attempt.accuracy >= 90 %}🎯{% elif attempt.accuracy >= 75 %}💪{% else %}🔥{% endif %}
+    </div>
+    <h1 class="result-title">
+      {% if attempt.accuracy >= 95 %}Excellent!{% elif attempt.accuracy >= 80 %}Nice work!{% elif attempt.accuracy >= 60 %}Keep going!{% else %}Practice makes perfect!{% endif %}
+    </h1>
+    <p class="result-snippet-info">
+      <span class="badge badge-lang">{{ attempt.snippet.language.icon }} {{ attempt.snippet.language.name }}</span>
+      <span class="badge badge-diff badge-{{ attempt.snippet.difficulty }}">{{ attempt.snippet.get_difficulty_display }}</span>
+      <span style="opacity:.6">{{ attempt.snippet.title }}</span>
+    </p>
+  </div>
+
+  <!-- Main metrics -->
+  <div class="metrics-grid">
+    <div class="metric-card metric-primary">
+      <div class="metric-value">{{ attempt.wpm|floatformat:0 }}</div>
+      <div class="metric-label">WPM</div>
+      <div class="metric-sub">Words per minute</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value">{{ attempt.cpm|floatformat:0 }}</div>
+      <div class="metric-label">CPM</div>
+      <div class="metric-sub">Characters per minute</div>
+    </div>
+    <div class="metric-card metric-accent-{% if attempt.accuracy >= 95 %}green{% elif attempt.accuracy >= 80 %}yellow{% else %}red{% endif %}">
+      <div class="metric-value">{{ attempt.accuracy|floatformat:1 }}<span class="metric-unit">%</span></div>
+      <div class="metric-label">Accuracy</div>
+      <div class="metric-sub">
+        {% with total_chars=attempt.snippet.code|length %}
+          {{ total_chars }} characters total
+        {% endwith %}
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value">{{ attempt.time_seconds|floatformat:1 }}<span class="metric-unit">s</span></div>
+      <div class="metric-label">Time</div>
+      <div class="metric-sub">Completion time</div>
+    </div>
+  </div>
+
+  <!-- Error heatmap -->
+  {% if errors %}
+  <div class="error-section">
+    <h2 class="section-title">Most Mistyped Characters</h2>
+    <div class="error-heatmap">
+      {% for char, count in errors %}
+        <div class="error-item">
+          <div class="error-char">{% if char == ' ' %}<span style="opacity:.4">·</span>{% else %}{{ char }}{% endif %}</div>
+          <div class="error-bar-wrap">
+            <div class="error-bar" style="width: {{ count|floatformat:0 }}0%"></div>
+          </div>
+          <div class="error-count">{{ count }}x</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Actions -->
+  <div class="result-actions">
+    <a href="{% url 'random_snippet' %}?language={{ attempt.snippet.language.slug }}&difficulty={{ attempt.snippet.difficulty }}"
+       class="btn btn-primary btn-lg" id="btn-new-snippet">
+      New Snippet →
+    </a>
+    <a href="{% url 'exercise' attempt.snippet.pk %}" class="btn btn-ghost btn-lg" id="btn-retry">
+      Try Again ↺
+    </a>
+    <a href="{% url 'index' %}" class="btn btn-ghost btn-lg" id="btn-home">
+      Change Language
+    </a>
+    {% if user.is_authenticated %}
+      <a href="{% url 'history' %}" class="btn btn-ghost btn-lg" id="btn-history">
+        My History
+      </a>
+    {% else %}
+      <a href="{% url 'register' %}" class="btn btn-outline btn-lg" id="btn-signup">
+        Sign up to save progress
+      </a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

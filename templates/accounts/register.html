@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Register — SprintCoder{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-header">
+      <span class="auth-icon">👤</span>
+      <h1 class="auth-title">Create Account</h1>
+      <p class="auth-sub">Start tracking your typing progress</p>
+    </div>
+
+    <form method="post" class="auth-form" id="register-form">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="form-group {% if field.errors %}has-error{% endif %}">
+          <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+          {{ field }}
+          {% if field.errors %}
+            <div class="form-error">{{ field.errors.0 }}</div>
+          {% endif %}
+          {% if field.help_text %}
+            <div class="form-hint">{{ field.help_text }}</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+      <button type="submit" class="btn btn-primary btn-full" id="btn-register">Create Account</button>
+    </form>
+
+    <p class="auth-alt">Already have an account? <a href="{% url 'login' %}">Sign in →</a></p>
+  </div>
+</div>
+{% endblock %}
