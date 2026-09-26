@@ -8,6 +8,7 @@ LANGUAGES = [
     {'slug': 'cpp',        'name': 'C++',                   'icon': '⚙️'},
     {'slug': 'go',         'name': 'Go',                    'icon': '🐹'},
     {'slug': 'sql',        'name': 'SQL',                   'icon': '🗄️'},
+    {'slug': 'css',        'name': 'CSS',                   'icon': '🎨'},
 ]
 
 SNIPPETS = {
@@ -1624,6 +1625,247 @@ SNIPPETS = {
             },
         ],
     },
+    'css': {
+        'easy': [
+            {
+                'title': 'Flexbox center',
+                'code': (
+                    '.container {\n'
+                    '    display: flex;\n'
+                    '    align-items: center;\n'
+                    '    justify-content: center;\n'
+                    '    min-height: 100vh;\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'CSS variables',
+                'code': (
+                    ':root {\n'
+                    '    --primary: #6c63ff;\n'
+                    '    --bg: #0f0f1a;\n'
+                    '    --text: #e8eaf6;\n'
+                    '    --radius: 8px;\n'
+                    '    --shadow: 0 4px 16px rgba(0,0,0,.4);\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'Button hover animation',
+                'code': (
+                    '.btn {\n'
+                    '    background: var(--primary);\n'
+                    '    color: #fff;\n'
+                    '    padding: .6rem 1.4rem;\n'
+                    '    border: none;\n'
+                    '    border-radius: var(--radius);\n'
+                    '    cursor: pointer;\n'
+                    '    transition: transform .15s ease, box-shadow .15s ease;\n'
+                    '}\n'
+                    '.btn:hover {\n'
+                    '    transform: translateY(-2px);\n'
+                    '    box-shadow: 0 8px 20px rgba(108,99,255,.35);\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'Media query breakpoint',
+                'code': (
+                    '.grid {\n'
+                    '    display: grid;\n'
+                    '    grid-template-columns: repeat(3, 1fr);\n'
+                    '    gap: 1rem;\n'
+                    '}\n'
+                    '\n'
+                    '@media (max-width: 768px) {\n'
+                    '    .grid {\n'
+                    '        grid-template-columns: 1fr;\n'
+                    '    }\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'Text gradient',
+                'code': (
+                    '.gradient-text {\n'
+                    '    background: linear-gradient(135deg, #6c63ff, #e040fb);\n'
+                    '    -webkit-background-clip: text;\n'
+                    '    -webkit-text-fill-color: transparent;\n'
+                    '    background-clip: text;\n'
+                    '    font-weight: 800;\n'
+                    '}\n'
+                ),
+            },
+        ],
+        'medium': [
+            {
+                'title': 'Glassmorphism card',
+                'code': (
+                    '.glass-card {\n'
+                    '    background: rgba(255, 255, 255, 0.06);\n'
+                    '    backdrop-filter: blur(12px);\n'
+                    '    -webkit-backdrop-filter: blur(12px);\n'
+                    '    border: 1px solid rgba(255, 255, 255, 0.12);\n'
+                    '    border-radius: 16px;\n'
+                    '    padding: 2rem;\n'
+                    '    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);\n'
+                    '    transition: transform 0.2s ease, box-shadow 0.2s ease;\n'
+                    '}\n'
+                    '.glass-card:hover {\n'
+                    '    transform: translateY(-4px);\n'
+                    '    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'Custom checkbox',
+                'code': (
+                    '.checkbox-wrapper input[type="checkbox"] {\n'
+                    '    display: none;\n'
+                    '}\n'
+                    '.checkbox-wrapper label {\n'
+                    '    display: flex;\n'
+                    '    align-items: center;\n'
+                    '    gap: .6rem;\n'
+                    '    cursor: pointer;\n'
+                    '}\n'
+                    '.checkbox-wrapper label::before {\n'
+                    '    content: "";\n'
+                    '    width: 18px;\n'
+                    '    height: 18px;\n'
+                    '    border: 2px solid #6c63ff;\n'
+                    '    border-radius: 4px;\n'
+                    '    transition: background .15s;\n'
+                    '}\n'
+                    '.checkbox-wrapper input:checked + label::before {\n'
+                    '    background: #6c63ff;\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'CSS-only tooltip',
+                'code': (
+                    '.tooltip {\n'
+                    '    position: relative;\n'
+                    '    display: inline-block;\n'
+                    '}\n'
+                    '.tooltip::after {\n'
+                    '    content: attr(data-tip);\n'
+                    '    position: absolute;\n'
+                    '    bottom: calc(100% + 8px);\n'
+                    '    left: 50%;\n'
+                    '    transform: translateX(-50%);\n'
+                    '    background: #1a1a2e;\n'
+                    '    color: #e8eaf6;\n'
+                    '    padding: .35rem .7rem;\n'
+                    '    border-radius: 6px;\n'
+                    '    font-size: .78rem;\n'
+                    '    white-space: nowrap;\n'
+                    '    opacity: 0;\n'
+                    '    pointer-events: none;\n'
+                    '    transition: opacity .15s ease;\n'
+                    '}\n'
+                    '.tooltip:hover::after { opacity: 1; }\n'
+                ),
+            },
+            {
+                'title': 'Sticky navbar with blur',
+                'code': (
+                    '.navbar {\n'
+                    '    position: sticky;\n'
+                    '    top: 0;\n'
+                    '    z-index: 100;\n'
+                    '    background: rgba(13, 15, 23, 0.8);\n'
+                    '    backdrop-filter: blur(16px);\n'
+                    '    -webkit-backdrop-filter: blur(16px);\n'
+                    '    border-bottom: 1px solid rgba(255, 255, 255, 0.07);\n'
+                    '    display: flex;\n'
+                    '    align-items: center;\n'
+                    '    justify-content: space-between;\n'
+                    '    padding: 0 2rem;\n'
+                    '    height: 64px;\n'
+                    '}\n'
+                ),
+            },
+        ],
+        'hard': [
+            {
+                'title': 'Animated gradient border',
+                'code': (
+                    '@keyframes rotate {\n'
+                    '    from { transform: rotate(0deg); }\n'
+                    '    to   { transform: rotate(360deg); }\n'
+                    '}\n'
+                    '.gradient-border {\n'
+                    '    position: relative;\n'
+                    '    border-radius: 12px;\n'
+                    '    overflow: hidden;\n'
+                    '    padding: 2px;\n'
+                    '}\n'
+                    '.gradient-border::before {\n'
+                    '    content: "";\n'
+                    '    position: absolute;\n'
+                    '    inset: -50%;\n'
+                    '    background: conic-gradient(#6c63ff, #e040fb, #00bcd4, #6c63ff);\n'
+                    '    animation: rotate 3s linear infinite;\n'
+                    '}\n'
+                    '.gradient-border-inner {\n'
+                    '    position: relative;\n'
+                    '    background: #0f0f1a;\n'
+                    '    border-radius: 10px;\n'
+                    '    padding: 1.5rem;\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'CSS scroll-driven animation',
+                'code': (
+                    '@keyframes fade-in {\n'
+                    '    from { opacity: 0; transform: translateY(20px); }\n'
+                    '    to   { opacity: 1; transform: translateY(0); }\n'
+                    '}\n'
+                    '.reveal {\n'
+                    '    animation: fade-in linear both;\n'
+                    '    animation-timeline: view();\n'
+                    '    animation-range: entry 0% entry 30%;\n'
+                    '}\n'
+                    '.stagger > * {\n'
+                    '    animation: fade-in linear both;\n'
+                    '    animation-timeline: view();\n'
+                    '    animation-range: entry 0% entry 25%;\n'
+                    '}\n'
+                    '.stagger > *:nth-child(2) { animation-delay: 80ms; }\n'
+                    '.stagger > *:nth-child(3) { animation-delay: 160ms; }\n'
+                    '.stagger > *:nth-child(4) { animation-delay: 240ms; }\n'
+                ),
+            },
+            {
+                'title': 'Neon glow effect',
+                'code': (
+                    ':root {\n'
+                    '    --neon: #00ffcc;\n'
+                    '    --neon-glow: 0 0 7px var(--neon),\n'
+                    '                 0 0 14px var(--neon),\n'
+                    '                 0 0 28px var(--neon),\n'
+                    '                 0 0 56px rgba(0,255,204,.4);\n'
+                    '}\n'
+                    '.neon-text {\n'
+                    '    color: var(--neon);\n'
+                    '    text-shadow: var(--neon-glow);\n'
+                    '    animation: flicker 2.5s infinite alternate;\n'
+                    '}\n'
+                    '@keyframes flicker {\n'
+                    '    0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {\n'
+                    '        text-shadow: var(--neon-glow);\n'
+                    '    }\n'
+                    '    20%, 24%, 55% {\n'
+                    '        text-shadow: none;\n'
+                    '    }\n'
+                    '}\n'
+                ),
+            },
+        ],
+    },
 }
 
 
@@ -1658,3 +1900,4 @@ class Command(BaseCommand):
                         total += 1
 
         self.stdout.write(self.style.SUCCESS(f'Done! Created {total} new snippets.'))
+

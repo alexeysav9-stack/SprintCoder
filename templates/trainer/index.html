@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load trainer_extras %}
 {% block title %}Practice — SprintCoder{% endblock %}
 
 {% block content %}
@@ -17,7 +18,7 @@
         <label class="lang-card {% if forloop.first %}selected{% endif %}" for="lang-{{ lang.slug }}">
           <input type="radio" name="language" id="lang-{{ lang.slug }}"
                  value="{{ lang.slug }}" {% if forloop.first %}checked{% endif %} hidden />
-          <span class="lang-icon">{{ lang.icon }}</span>
+          <span class="lang-icon">{% devicon lang.slug %}</span>
           <span class="lang-name">{{ lang.name }}</span>
         </label>
       {% endfor %}
@@ -34,6 +35,20 @@
         </label>
       {% endfor %}
     </div>
+
+    {% if user.is_authenticated and has_my_snippets %}
+    <!-- My repos toggle -->
+    <div class="my-repos-row">
+      <label class="my-repos-toggle" for="my-repos-check">
+        <input type="checkbox" id="my-repos-check" name="my_repos" value="1" />
+        <span class="my-repos-switch"></span>
+        <span class="my-repos-label">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+          From my repos
+        </span>
+      </label>
+    </div>
+    {% endif %}
 
     <button type="submit" class="btn btn-primary btn-lg start-btn" id="start-btn">
       Start Practice <span class="btn-arrow">→</span>
@@ -67,6 +82,8 @@
     card.addEventListener('click', function () {
       document.querySelectorAll('.lang-card').forEach(c => c.classList.remove('selected'));
       this.classList.add('selected');
+      const radio = this.querySelector('input[type="radio"]');
+      if (radio) radio.checked = true;
     });
   });
 
@@ -75,12 +92,24 @@
     btn.addEventListener('click', function () {
       document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
       this.classList.add('selected');
+      const radio = this.querySelector('input[type="radio"]');
+      if (radio) radio.checked = true;
     });
   });
 
-  // Start button ripple
-  document.getElementById('start-btn').addEventListener('click', function () {
-    this.classList.add('loading');
+  // Start button loading state on form submit
+  const pickerForm = document.getElementById('picker-form');
+  const startBtn = document.getElementById('start-btn');
+  if (pickerForm && startBtn) {
+    pickerForm.addEventListener('submit', function () {
+      startBtn.classList.add('loading');
+    });
+  }
+
+  // Clear loading state when page is shown
+  window.addEventListener('pageshow', function () {
+    if (startBtn) startBtn.classList.remove('loading');
   });
 </script>
 {% endblock %}
+

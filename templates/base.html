@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{% static 'css/main.css' %}" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
   {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -23,6 +24,7 @@
       {% if user.is_authenticated %}
         <a href="{% url 'history' %}" class="nav-link {% if request.resolver_match.url_name == 'history' %}active{% endif %}">History</a>
         <a href="{% url 'profile' %}" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">Profile</a>
+        <a href="{% url 'settings' %}" class="nav-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">Settings</a>
         <span class="nav-user">{{ user.username }}</span>
         <a href="{% url 'logout' %}" class="btn btn-ghost btn-sm">Logout</a>
       {% else %}
@@ -72,14 +74,12 @@
       this.querySelector('.theme-icon').textContent = next === 'dark' ? '🌙' : '☀️';
     });
 
-    // bfcache recovery: re-enable any disabled elements when page is restored from cache
-    window.addEventListener('pageshow', function (e) {
-      if (e.persisted) {
-        document.querySelectorAll('[disabled]').forEach(function (el) {
-          el.removeAttribute('disabled');
-          el.classList.remove('loading', 'disabled');
-        });
-      }
+    // bfcache recovery: re-enable any disabled or loading elements when page is restored
+    window.addEventListener('pageshow', function () {
+      document.querySelectorAll('.loading, .disabled, [disabled]').forEach(function (el) {
+        el.removeAttribute('disabled');
+        el.classList.remove('loading', 'disabled');
+      });
     });
   </script>
   {% block extra_scripts %}{% endblock %}
