@@ -22,6 +22,12 @@
           <span class="lang-name">{{ lang.name }}</span>
         </label>
       {% endfor %}
+      <label class="lang-card lang-card-random" for="lang-random">
+        <input type="radio" name="language" id="lang-random"
+               value="random" hidden />
+        <span class="lang-icon dice-icon">🎲</span>
+        <span class="lang-name">Random</span>
+      </label>
     </div>
 
     <!-- Difficulty -->

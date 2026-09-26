@@ -318,8 +318,14 @@ a:hover { color: var(--accent); }
 /* Language grid */
 .lang-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: .75rem;
+}
+
+@media (max-width: 580px) {
+  .lang-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 .lang-card {
   display: flex;
@@ -348,6 +354,17 @@ a:hover { color: var(--accent); }
 .lang-icon { font-size: 2rem; }
 .lang-name { font-size: .82rem; font-weight: 600; color: var(--fg-2); text-align: center; }
 .lang-card.selected .lang-name { color: var(--fg); }
+.dice-icon {
+  display: inline-block;
+  line-height: 1;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.lang-card:hover .dice-icon {
+  transform: rotate(25deg) scale(1.18);
+}
+.lang-card.selected .dice-icon {
+  transform: scale(1.12);
+}
 
 /* Difficulty row */
 .difficulty-row {

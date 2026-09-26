@@ -24,7 +24,10 @@ def devicon_class(slug):
 
 @register.simple_tag
 def devicon(slug, extra_class=''):
-    """Render a <i> devicons element for a language slug."""
+    """Render a <i> devicons element for a language slug (or dice for 'random')."""
+    if slug == 'random':
+        cls = f'dice-icon {extra_class}'.strip()
+        return mark_safe(f'<span class="{cls}">🎲</span>')
     cls = DEVICON_CLASSES.get(slug, 'devicon-devicon-plain')
     if extra_class:
         cls = f'{cls} {extra_class}'

@@ -44,6 +44,8 @@ def random_snippet(request):
     difficulty = request.GET.get('difficulty', '').strip()
     my_repos = request.GET.get('my_repos', '').strip()
 
+    is_random_lang = not language_slug or language_slug.lower() == 'random'
+
     if my_repos and request.user.is_authenticated:
         user_snippets = Snippet.objects.filter(imported_by=request.user)
         if not user_snippets.exists():
@@ -55,7 +57,7 @@ def random_snippet(request):
             return redirect('index')
 
         lang_qs = user_snippets
-        if language_slug:
+        if not is_random_lang:
             lang_qs = user_snippets.filter(language__slug=language_slug)
             if not lang_qs.exists():
                 lang_obj = Language.objects.filter(slug=language_slug).first()
@@ -76,24 +78,38 @@ def random_snippet(request):
             else:
                 target_qs = lang_qs
 
+        # When random language is selected, choose fairly across available languages
+        if is_random_lang:
+            available_langs = list(target_qs.values_list('language__slug', flat=True).distinct())
+            if available_langs:
+                chosen_slug = random.choice(available_langs)
+                target_qs = target_qs.filter(language__slug=chosen_slug)
+
         snippet = random.choice(list(target_qs))
         return redirect('exercise', snippet_id=snippet.pk)
 
     # Standard snippets fallback
     qs = Snippet.objects.all()
-    if language_slug:
+    if not is_random_lang:
         qs = qs.filter(language__slug=language_slug)
+
     if difficulty:
         diff_qs = qs.filter(difficulty=difficulty)
         if diff_qs.exists():
             qs = diff_qs
 
-    if not qs.exists() and language_slug:
+    if not qs.exists() and not is_random_lang:
         qs = Snippet.objects.filter(language__slug=language_slug)
 
     if not qs.exists():
         messages.warning(request, "No snippets found for the selected criteria.")
         return redirect('index')
+
+    if is_random_lang:
+        available_langs = list(qs.values_list('language__slug', flat=True).distinct())
+        if available_langs:
+            chosen_slug = random.choice(available_langs)
+            qs = qs.filter(language__slug=chosen_slug)
 
     snippet = random.choice(list(qs))
     return redirect('exercise', snippet_id=snippet.pk)

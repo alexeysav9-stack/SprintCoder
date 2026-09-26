@@ -108,3 +108,13 @@ class RandomSnippetViewTests(TestCase):
         self.assertEqual(response.url, '/')
         msgs = [m.message for m in get_messages(response.wsgi_request)]
         self.assertTrue(any('imported any snippets' in m for m in msgs))
+
+    def test_random_language_standard(self):
+        response = self.client.get('/exercise/random/?language=random&difficulty=easy')
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith('/exercise/'))
+
+    def test_random_language_my_repos(self):
+        response = self.client.get('/exercise/random/?language=random&difficulty=easy&my_repos=1')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, f'/exercise/{self.user_css_easy.pk}/')
