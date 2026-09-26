@@ -32,7 +32,10 @@ In addition to built-in code snippets, SprintCoder allows you to connect your **
 Select your target programming language, difficulty tier, and optionally toggle the "From my repos" switch.
 
 > <!-- INSERT SCREENSHOT: Main dashboard with language grid and difficulty buttons -->
-> ![Home Page Screenshot](https://via.placeholder.com/900x500/13151f/9e92ff?text=Screenshot:+Home+Page+&+Language+Selector)
+<img width="1920" height="1191" alt="image" src="https://github.com/user-attachments/assets/6b669b7a-86d7-4cca-9111-dcec0fea84e5" />
+
+
+
 
 ---
 
@@ -40,7 +43,8 @@ Select your target programming language, difficulty tier, and optionally toggle 
 Real-time character-by-character validation, live WPM, Accuracy, CPM, and elapsed timer. Tab indentation and anti-paste protection are built-in.
 
 > <!-- INSERT SCREENSHOT: Exercise page with syntax display and live stats HUD -->
-> ![Exercise Page Screenshot](https://via.placeholder.com/900x500/13151f/9e92ff?text=Screenshot:+Live+Typing+Exercise)
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/81c77b64-e5bc-4397-8c74-72f2dccfe5d0" />
+
 
 ---
 
@@ -48,7 +52,8 @@ Real-time character-by-character validation, live WPM, Accuracy, CPM, and elapse
 After finishing, review your final WPM, accuracy percentage, time spent, and a frequency breakdown of mistyped characters to spot recurring errors.
 
 > <!-- INSERT SCREENSHOT: Results page with score badges and top error characters -->
-> ![Results Page Screenshot](https://via.placeholder.com/900x500/13151f/9e92ff?text=Screenshot:+Session+Results+&+Error+Breakdown)
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/075cf206-93f7-4db4-9604-4862f721db80" />
+
 
 ---
 
@@ -56,7 +61,8 @@ After finishing, review your final WPM, accuracy percentage, time spent, and a f
 Track your typing speed progression over time with rolling average charts powered by Chart.js, broken down by programming language.
 
 > <!-- INSERT SCREENSHOT: Profile page with WPM progress charts and stats -->
-> ![Profile Progress Charts Screenshot](https://via.placeholder.com/900x500/13151f/9e92ff?text=Screenshot:+Profile+&+WPM+Progress+Charts)
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/09ad473f-e24b-4c3b-8296-1cda856c7685" />
+
 
 ---
 
@@ -64,7 +70,8 @@ Track your typing speed progression over time with rolling average charts powere
 Connect public GitHub repositories (e.g. `username/repository`). SprintCoder fetches real files, parses complete logical blocks, and categorizes snippets by difficulty.
 
 > <!-- INSERT SCREENSHOT: Settings page with GitHub repo list and import status -->
-> ![Settings Page Screenshot](https://via.placeholder.com/900x500/13151f/9e92ff?text=Screenshot:+GitHub+Repositories+Settings)
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/23e8fdfa-a457-44b1-8eae-fadb8ec64a22" />
+
 
 ---
 
@@ -72,7 +79,9 @@ Connect public GitHub repositories (e.g. `username/repository`). SprintCoder fet
 A comprehensive table recording all previous practice sessions with timestamps, language, difficulty, WPM, and accuracy.
 
 > <!-- INSERT SCREENSHOT: History table listing past practice attempts -->
-> ![History Page Screenshot](https://via.placeholder.com/900x500/13151f/9e92ff?text=Screenshot:+Practice+History+Table)
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/b636d437-1fbc-4d8d-b44a-e934e23d996b" />
+
+
 
 ---
 
