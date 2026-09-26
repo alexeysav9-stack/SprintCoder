@@ -118,3 +118,15 @@ class RandomSnippetViewTests(TestCase):
         response = self.client.get('/exercise/random/?language=random&difficulty=easy&my_repos=1')
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, f'/exercise/{self.user_css_easy.pk}/')
+
+    def test_settings_page_renders(self):
+        from django.test import RequestFactory
+        from trainer.views import settings_view
+        rf = RequestFactory()
+        request = rf.get('/settings/')
+        request.user = self.user
+        response = settings_view(request)
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode('utf-8')
+        self.assertIn('Color Theme', content)
+        self.assertIn('Catppuccin Mocha', content)
