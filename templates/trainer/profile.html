@@ -111,117 +111,129 @@
 {% block extra_scripts %}
 <script>
 (function () {
-  const historyData = JSON.parse(document.getElementById('chart-data').textContent);
+  const chartDataEl = document.getElementById('chart-data');
+  if (!chartDataEl) return;
+  const historyData = JSON.parse(chartDataEl.textContent);
+  let chartInstances = [];
 
-  // Resolve CSS variables for chart colors
-  const style = getComputedStyle(document.documentElement);
-  const accent   = style.getPropertyValue('--accent-2').trim()   || '#9e92ff';
-  const accentBg = style.getPropertyValue('--accent-glow').trim() || 'rgba(124,108,252,0.15)';
-  const fg3      = style.getPropertyValue('--fg-3').trim()        || '#6b7094';
-  const border   = style.getPropertyValue('--border').trim()      || '#2a2e4a';
-  const fg       = style.getPropertyValue('--fg').trim()          || '#e8eaf6';
-  const surface  = style.getPropertyValue('--surface').trim()     || '#1e2133';
+  function buildCharts() {
+    chartInstances.forEach(c => c.destroy());
+    chartInstances = [];
 
-  Chart.defaults.color = fg3;
-  Chart.defaults.borderColor = border;
-  Chart.defaults.font.family = "'Inter', sans-serif";
+    // Resolve CSS variables for chart colors
+    const style = getComputedStyle(document.documentElement);
+    const accent   = style.getPropertyValue('--accent-2').trim()   || '#9e92ff';
+    const accentBg = style.getPropertyValue('--accent-glow').trim() || 'rgba(124,108,252,0.15)';
+    const fg3      = style.getPropertyValue('--fg-3').trim()        || '#6b7094';
+    const border   = style.getPropertyValue('--border').trim()      || '#2a2e4a';
+    const fg       = style.getPropertyValue('--fg').trim()          || '#e8eaf6';
+    const surface  = style.getPropertyValue('--surface').trim()     || '#1e2133';
 
-  Object.entries(historyData).forEach(([slug, entries]) => {
-    const canvas = document.getElementById('chart-' + slug);
-    if (!canvas || entries.length < 2) return;
+    Chart.defaults.color = fg3;
+    Chart.defaults.borderColor = border;
+    Chart.defaults.font.family = "'Inter', sans-serif";
 
-    const labels = entries.map(e => e.date);
-    const values = entries.map(e => e.wpm);
+    Object.entries(historyData).forEach(([slug, entries]) => {
+      const canvas = document.getElementById('chart-' + slug);
+      if (!canvas || entries.length < 2) return;
 
-    // Rolling average (window = 3)
-    const rolling = values.map((v, i, arr) => {
-      const window = arr.slice(Math.max(0, i - 2), i + 1);
-      return Math.round(window.reduce((a, b) => a + b, 0) / window.length * 10) / 10;
-    });
+      const labels = entries.map(e => e.date);
+      const values = entries.map(e => e.wpm);
 
-    new Chart(canvas, {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'WPM',
-            data: values,
-            borderColor: accent,
-            backgroundColor: accentBg,
-            pointBackgroundColor: accent,
-            pointStyle: 'circle',
-            pointRadius: 4,
-            pointHoverRadius: 6,
-            borderWidth: 2,
-            fill: true,
-            tension: 0.3,
-          },
-          {
-            label: 'Rolling avg (3)',
-            data: rolling,
-            borderColor: 'rgba(251,191,36,0.8)',
-            backgroundColor: 'transparent',
-            pointStyle: 'circle',
-            pointRadius: 0,
-            pointHoverRadius: 0,
-            borderWidth: 2,
-            borderDash: [5, 4],
-            tension: 0.4,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-          legend: {
-            labels: {
-              color: fg3,
-              boxWidth: 12,
-              boxHeight: 12,
-              borderRadius: 3,
-              font: { size: 12 },
+      // Rolling average (window = 3)
+      const rolling = values.map((v, i, arr) => {
+        const window = arr.slice(Math.max(0, i - 2), i + 1);
+        return Math.round(window.reduce((a, b) => a + b, 0) / window.length * 10) / 10;
+      });
+
+      const chart = new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            {
+              label: 'WPM',
+              data: values,
+              borderColor: accent,
+              backgroundColor: accentBg,
+              pointBackgroundColor: accent,
+              pointStyle: 'circle',
+              pointRadius: 4,
+              pointHoverRadius: 6,
+              borderWidth: 2,
+              fill: true,
+              tension: 0.3,
+            },
+            {
+              label: 'Rolling avg (3)',
+              data: rolling,
+              borderColor: 'rgba(251,191,36,0.8)',
+              backgroundColor: 'transparent',
+              pointStyle: 'circle',
+              pointRadius: 0,
+              pointHoverRadius: 0,
+              borderWidth: 2,
+              borderDash: [5, 4],
+              tension: 0.4,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          plugins: {
+            legend: {
+              labels: {
+                color: fg3,
+                boxWidth: 12,
+                boxHeight: 12,
+                borderRadius: 3,
+                font: { size: 12 },
+              },
+            },
+            tooltip: {
+              backgroundColor: surface,
+              borderColor: border,
+              borderWidth: 1,
+              titleColor: fg,
+              bodyColor: fg3,
+              padding: 10,
+              callbacks: {
+                label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y} WPM`,
+              },
             },
           },
-          tooltip: {
-            backgroundColor: surface,
-            borderColor: border,
-            borderWidth: 1,
-            titleColor: fg,
-            bodyColor: fg3,
-            padding: 10,
-            callbacks: {
-              label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y} WPM`,
+          scales: {
+            x: {
+              ticks: {
+                maxRotation: 30,
+                color: fg3,
+                maxTicksLimit: 8,
+                font: { size: 11 },
+              },
+              grid: { color: border },
+            },
+            y: {
+              beginAtZero: false,
+              ticks: { color: fg3, font: { size: 11 } },
+              grid: { color: border },
+              title: {
+                display: true,
+                text: 'WPM',
+                color: fg3,
+                font: { size: 11 },
+              },
             },
           },
         },
-        scales: {
-          x: {
-            ticks: {
-              maxRotation: 30,
-              color: fg3,
-              maxTicksLimit: 8,
-              font: { size: 11 },
-            },
-            grid: { color: border },
-          },
-          y: {
-            beginAtZero: false,
-            ticks: { color: fg3, font: { size: 11 } },
-            grid: { color: border },
-            title: {
-              display: true,
-              text: 'WPM',
-              color: fg3,
-              font: { size: 11 },
-            },
-          },
-        },
-      },
+      });
+      chartInstances.push(chart);
     });
-  });
+  }
+
+  buildCharts();
+  window.addEventListener('sprintcoder-theme-changed', buildCharts);
 })();
 </script>
 {% endblock %}

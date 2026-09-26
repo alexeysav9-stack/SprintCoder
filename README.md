@@ -115,8 +115,10 @@ A comprehensive table recording all previous practice sessions with timestamps, 
   - Live HUD during typing (WPM, Accuracy %, Elapsed Time, Errors).
   - Top mistyped characters breakdown (`[·]` spaces, `[↵]` newlines, braces, symbols).
   - Per-language interactive line charts with rolling averages (Chart.js).
-- **🌓 Dark / Light Theme**:
-  - Built-in theme switcher with persistent local storage state.
+- **🎨 7 Developer-Grade Color Themes**:
+  - Includes **Sprint Dark**, **Sprint Light**, **Catppuccin Mocha**, **Ocean Cyan**, **Dracula**, **Nord**, and **Monokai**.
+  - Switchable anytime from the navbar dropdown or Settings visual gallery.
+  - Automatically updates interface tokens and interactive Chart.js charts with persistent `localStorage` support.
 
 ---
 

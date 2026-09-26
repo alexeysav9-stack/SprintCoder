@@ -11,58 +11,180 @@
 
   <div class="settings-grid">
 
-    <!-- GitHub Repos Card -->
-    <div class="settings-card">
-      <div class="settings-card-header">
-        <div class="settings-card-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
-          </svg>
+    <div class="settings-main-col">
+
+      <!-- Theme Selection Card -->
+      <div class="settings-card">
+        <div class="settings-card-header">
+          <div class="settings-card-icon" style="font-size: 1.3rem;">🎨</div>
+          <div>
+            <h2 class="settings-card-title">Color Theme</h2>
+            <p class="settings-card-desc">Select your preferred color scheme for coding sessions and the UI.</p>
+          </div>
         </div>
-        <div>
-          <h2 class="settings-card-title">GitHub Repositories</h2>
-          <p class="settings-card-desc">Enter your public repos to import code snippets from them.</p>
+
+        <div class="theme-gallery-grid" role="radiogroup" aria-label="Color themes">
+          <button type="button" class="theme-gallery-card" data-theme-id="dark" role="radio" aria-checked="false">
+            <div class="theme-gallery-top">
+              <div class="theme-gallery-info">
+                <span class="theme-gallery-icon">🌙</span>
+                <span class="theme-gallery-name">Sprint Dark</span>
+              </div>
+              <span class="theme-gallery-badge">Active</span>
+            </div>
+            <div class="theme-gallery-preview">
+              <span class="theme-gallery-swatch" style="background: #0d0f17;" title="Background"></span>
+              <span class="theme-gallery-swatch" style="background: #1e2133;" title="Surface"></span>
+              <span class="theme-gallery-swatch" style="background: #7c6cfc;" title="Accent"></span>
+            </div>
+          </button>
+
+          <button type="button" class="theme-gallery-card" data-theme-id="light" role="radio" aria-checked="false">
+            <div class="theme-gallery-top">
+              <div class="theme-gallery-info">
+                <span class="theme-gallery-icon">☀️</span>
+                <span class="theme-gallery-name">Sprint Light</span>
+              </div>
+              <span class="theme-gallery-badge">Active</span>
+            </div>
+            <div class="theme-gallery-preview">
+              <span class="theme-gallery-swatch" style="background: #f0f2ff; border: 1px solid #c8cbea;" title="Background"></span>
+              <span class="theme-gallery-swatch" style="background: #ffffff; border: 1px solid #c8cbea;" title="Surface"></span>
+              <span class="theme-gallery-swatch" style="background: #5548d9;" title="Accent"></span>
+            </div>
+          </button>
+
+          <button type="button" class="theme-gallery-card" data-theme-id="catppuccin" role="radio" aria-checked="false">
+            <div class="theme-gallery-top">
+              <div class="theme-gallery-info">
+                <span class="theme-gallery-icon">🐱</span>
+                <span class="theme-gallery-name">Catppuccin Mocha</span>
+              </div>
+              <span class="theme-gallery-badge">Active</span>
+            </div>
+            <div class="theme-gallery-preview">
+              <span class="theme-gallery-swatch" style="background: #1e1e2e;" title="Background"></span>
+              <span class="theme-gallery-swatch" style="background: #252538;" title="Surface"></span>
+              <span class="theme-gallery-swatch" style="background: #cba6f7;" title="Accent"></span>
+            </div>
+          </button>
+
+          <button type="button" class="theme-gallery-card" data-theme-id="ocean" role="radio" aria-checked="false">
+            <div class="theme-gallery-top">
+              <div class="theme-gallery-info">
+                <span class="theme-gallery-icon">🌊</span>
+                <span class="theme-gallery-name">Ocean Cyan</span>
+              </div>
+              <span class="theme-gallery-badge">Active</span>
+            </div>
+            <div class="theme-gallery-preview">
+              <span class="theme-gallery-swatch" style="background: #0b1320;" title="Background"></span>
+              <span class="theme-gallery-swatch" style="background: #112038;" title="Surface"></span>
+              <span class="theme-gallery-swatch" style="background: #06b6d4;" title="Accent"></span>
+            </div>
+          </button>
+
+          <button type="button" class="theme-gallery-card" data-theme-id="dracula" role="radio" aria-checked="false">
+            <div class="theme-gallery-top">
+              <div class="theme-gallery-info">
+                <span class="theme-gallery-icon">🧛</span>
+                <span class="theme-gallery-name">Dracula</span>
+              </div>
+              <span class="theme-gallery-badge">Active</span>
+            </div>
+            <div class="theme-gallery-preview">
+              <span class="theme-gallery-swatch" style="background: #282a36;" title="Background"></span>
+              <span class="theme-gallery-swatch" style="background: #2c2e3e;" title="Surface"></span>
+              <span class="theme-gallery-swatch" style="background: #bd93f9;" title="Accent"></span>
+            </div>
+          </button>
+
+          <button type="button" class="theme-gallery-card" data-theme-id="nord" role="radio" aria-checked="false">
+            <div class="theme-gallery-top">
+              <div class="theme-gallery-info">
+                <span class="theme-gallery-icon">❄️</span>
+                <span class="theme-gallery-name">Nord</span>
+              </div>
+              <span class="theme-gallery-badge">Active</span>
+            </div>
+            <div class="theme-gallery-preview">
+              <span class="theme-gallery-swatch" style="background: #2e3440;" title="Background"></span>
+              <span class="theme-gallery-swatch" style="background: #353c4a;" title="Surface"></span>
+              <span class="theme-gallery-swatch" style="background: #88c0d0;" title="Accent"></span>
+            </div>
+          </button>
+
+          <button type="button" class="theme-gallery-card" data-theme-id="monokai" role="radio" aria-checked="false">
+            <div class="theme-gallery-top">
+              <div class="theme-gallery-info">
+                <span class="theme-gallery-icon">🌺</span>
+                <span class="theme-gallery-name">Monokai</span>
+              </div>
+              <span class="theme-gallery-badge">Active</span>
+            </div>
+            <div class="theme-gallery-preview">
+              <span class="theme-gallery-swatch" style="background: #272822;" title="Background"></span>
+              <span class="theme-gallery-swatch" style="background: #2f3029;" title="Surface"></span>
+              <span class="theme-gallery-swatch" style="background: #f92672;" title="Accent"></span>
+            </div>
+          </button>
         </div>
       </div>
 
-      <form method="post" class="settings-form">
-        {% csrf_token %}
-
-        <div class="form-group">
-          <label class="form-label" for="github_repos">
-            Your repositories <span class="form-hint-inline">(one per line, format: <code>owner/repo</code>)</span>
-          </label>
-          <textarea
-            id="github_repos"
-            name="github_repos"
-            class="settings-textarea"
-            rows="6"
-            placeholder="myusername/my-project&#10;myusername/another-repo"
-          >{{ profile.github_repos }}</textarea>
-          <p class="form-hint">Only public repositories are supported. The server uses its own GitHub token to fetch files.</p>
+      <!-- GitHub Repos Card -->
+      <div class="settings-card">
+        <div class="settings-card-header">
+          <div class="settings-card-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="settings-card-title">GitHub Repositories</h2>
+            <p class="settings-card-desc">Enter your public repos to import code snippets from them.</p>
+          </div>
         </div>
 
-        {% if profile.last_import_at %}
-        <div class="settings-last-import">
-          <span class="settings-last-import-icon">🕐</span>
-          Last import: <strong>{{ profile.last_import_at|date:"d M Y, H:i" }}</strong>
-          &nbsp;·&nbsp; {{ my_snippets_count }} snippet{{ my_snippets_count|pluralize }} imported
-        </div>
-        {% elif my_snippets_count %}
-        <div class="settings-last-import">
-          <span class="settings-last-import-icon">📦</span>
-          {{ my_snippets_count }} snippet{{ my_snippets_count|pluralize }} available from your repos
-        </div>
-        {% endif %}
+        <form method="post" class="settings-form">
+          {% csrf_token %}
 
-        <div class="settings-actions">
-          <button type="submit" class="btn btn-primary" id="btn-save-repos">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            Save &amp; Import
-          </button>
-          <span class="settings-action-hint">This may take 10–30 seconds per repository.</span>
-        </div>
-      </form>
+          <div class="form-group">
+            <label class="form-label" for="github_repos">
+              Your repositories <span class="form-hint-inline">(one per line, format: <code>owner/repo</code>)</span>
+            </label>
+            <textarea
+              id="github_repos"
+              name="github_repos"
+              class="settings-textarea"
+              rows="6"
+              placeholder="myusername/my-project&#10;myusername/another-repo"
+            >{{ profile.github_repos }}</textarea>
+            <p class="form-hint">Only public repositories are supported. The server uses its own GitHub token to fetch files.</p>
+          </div>
+
+          {% if profile.last_import_at %}
+          <div class="settings-last-import">
+            <span class="settings-last-import-icon">🕐</span>
+            Last import: <strong>{{ profile.last_import_at|date:"d M Y, H:i" }}</strong>
+            &nbsp;·&nbsp; {{ my_snippets_count }} snippet{{ my_snippets_count|pluralize }} imported
+          </div>
+          {% elif my_snippets_count %}
+          <div class="settings-last-import">
+            <span class="settings-last-import-icon">📦</span>
+            {{ my_snippets_count }} snippet{{ my_snippets_count|pluralize }} available from your repos
+          </div>
+          {% endif %}
+
+          <div class="settings-actions">
+            <button type="submit" class="btn btn-primary" id="btn-save-repos">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Save &amp; Import
+            </button>
+            <span class="settings-action-hint">This may take 10–30 seconds per repository.</span>
+          </div>
+        </form>
+      </div>
+
     </div>
 
     <!-- Info Card -->
@@ -82,4 +204,16 @@
 
   </div>
 </div>
+
+{% block extra_scripts %}
+<script>
+  document.querySelectorAll('.theme-gallery-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+      var themeId = this.getAttribute('data-theme-id');
+      if (window.applyTheme) {
+        window.applyTheme(themeId);
+      }
+    });
+  });
+</script>
 {% endblock %}

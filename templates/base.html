@@ -6,6 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="SprintCoder — typing speed trainer for programmers. Practice typing real code in Python, JavaScript, Java, C++, Go, and SQL." />
   <title>{% block title %}SprintCoder{% endblock %}</title>
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('sc-theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', saved);
+      } catch (e) {}
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -31,9 +39,76 @@
         <a href="{% url 'login' %}" class="nav-link">Login</a>
         <a href="{% url 'register' %}" class="btn btn-primary btn-sm">Sign Up</a>
       {% endif %}
-      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme" title="Toggle dark/light theme">
-        <span class="theme-icon">🌙</span>
-      </button>
+      <div class="theme-dropdown-container" id="theme-dropdown-container">
+        <button id="theme-toggle-btn" class="theme-toggle-btn" type="button" aria-label="Select theme" aria-expanded="false" title="Switch color theme">
+          <span class="theme-active-icon">🌙</span>
+          <span class="theme-active-label">Dark</span>
+          <svg class="theme-chevron" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <div class="theme-dropdown-menu" id="theme-dropdown-menu" role="menu">
+          <div class="theme-dropdown-header">Select Theme</div>
+          <div class="theme-options-list">
+            <button class="theme-option-item" data-theme-id="dark" type="button" role="menuitem">
+              <span class="theme-item-icon">🌙</span>
+              <span class="theme-item-name">Sprint Dark</span>
+              <span class="theme-item-colors">
+                <span class="theme-swatch" style="background: #0d0f17;" title="Background"></span>
+                <span class="theme-swatch" style="background: #7c6cfc;" title="Accent"></span>
+              </span>
+            </button>
+            <button class="theme-option-item" data-theme-id="light" type="button" role="menuitem">
+              <span class="theme-item-icon">☀️</span>
+              <span class="theme-item-name">Sprint Light</span>
+              <span class="theme-item-colors">
+                <span class="theme-swatch" style="background: #f0f2ff; border: 1px solid #c8cbea;" title="Background"></span>
+                <span class="theme-swatch" style="background: #5548d9;" title="Accent"></span>
+              </span>
+            </button>
+            <button class="theme-option-item" data-theme-id="catppuccin" type="button" role="menuitem">
+              <span class="theme-item-icon">🐱</span>
+              <span class="theme-item-name">Catppuccin Mocha</span>
+              <span class="theme-item-colors">
+                <span class="theme-swatch" style="background: #1e1e2e;" title="Background"></span>
+                <span class="theme-swatch" style="background: #cba6f7;" title="Accent"></span>
+              </span>
+            </button>
+            <button class="theme-option-item" data-theme-id="ocean" type="button" role="menuitem">
+              <span class="theme-item-icon">🌊</span>
+              <span class="theme-item-name">Ocean Cyan</span>
+              <span class="theme-item-colors">
+                <span class="theme-swatch" style="background: #0b1320;" title="Background"></span>
+                <span class="theme-swatch" style="background: #06b6d4;" title="Accent"></span>
+              </span>
+            </button>
+            <button class="theme-option-item" data-theme-id="dracula" type="button" role="menuitem">
+              <span class="theme-item-icon">🧛</span>
+              <span class="theme-item-name">Dracula</span>
+              <span class="theme-item-colors">
+                <span class="theme-swatch" style="background: #282a36;" title="Background"></span>
+                <span class="theme-swatch" style="background: #bd93f9;" title="Accent"></span>
+              </span>
+            </button>
+            <button class="theme-option-item" data-theme-id="nord" type="button" role="menuitem">
+              <span class="theme-item-icon">❄️</span>
+              <span class="theme-item-name">Nord</span>
+              <span class="theme-item-colors">
+                <span class="theme-swatch" style="background: #2e3440;" title="Background"></span>
+                <span class="theme-swatch" style="background: #88c0d0;" title="Accent"></span>
+              </span>
+            </button>
+            <button class="theme-option-item" data-theme-id="monokai" type="button" role="menuitem">
+              <span class="theme-item-icon">🌺</span>
+              <span class="theme-item-name">Monokai</span>
+              <span class="theme-item-colors">
+                <span class="theme-swatch" style="background: #272822;" title="Background"></span>
+                <span class="theme-swatch" style="background: #f92672;" title="Accent"></span>
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
     </nav>
   </header>
 
@@ -58,21 +133,87 @@
 
   <script>
     // Theme management
-    (function () {
-      const saved = localStorage.getItem('sc-theme') || 'dark';
-      document.documentElement.setAttribute('data-theme', saved);
-      const btn = document.getElementById('theme-toggle');
-      if (btn) btn.querySelector('.theme-icon').textContent = saved === 'dark' ? '🌙' : '☀️';
-    })();
+    const SPRINTCODER_THEMES = {
+      dark:       { name: 'Sprint Dark',      short: 'Dark',       icon: '🌙' },
+      light:      { name: 'Sprint Light',     short: 'Light',      icon: '☀️' },
+      catppuccin: { name: 'Catppuccin Mocha', short: 'Mocha',      icon: '🐱' },
+      ocean:      { name: 'Ocean Cyan',       short: 'Ocean',      icon: '🌊' },
+      dracula:    { name: 'Dracula',          short: 'Dracula',    icon: '🧛' },
+      nord:       { name: 'Nord',             short: 'Nord',       icon: '❄️' },
+      monokai:    { name: 'Monokai',          short: 'Monokai',    icon: '🌺' },
+    };
 
-    document.getElementById('theme-toggle')?.addEventListener('click', function () {
-      const html = document.documentElement;
-      const current = html.getAttribute('data-theme');
-      const next = current === 'dark' ? 'light' : 'dark';
-      html.setAttribute('data-theme', next);
-      localStorage.setItem('sc-theme', next);
-      this.querySelector('.theme-icon').textContent = next === 'dark' ? '🌙' : '☀️';
-    });
+    window.applyTheme = function (themeKey) {
+      if (!SPRINTCODER_THEMES[themeKey]) themeKey = 'dark';
+      document.documentElement.setAttribute('data-theme', themeKey);
+      try {
+        localStorage.setItem('sc-theme', themeKey);
+      } catch (e) {}
+
+      // Update navbar toggle button
+      const info = SPRINTCODER_THEMES[themeKey];
+      const activeIcon = document.querySelector('.theme-active-icon');
+      const activeLabel = document.querySelector('.theme-active-label');
+      if (activeIcon) activeIcon.textContent = info.icon;
+      if (activeLabel) activeLabel.textContent = info.short;
+
+      // Update dropdown items active state
+      document.querySelectorAll('.theme-option-item').forEach(btn => {
+        const isActive = btn.getAttribute('data-theme-id') === themeKey;
+        btn.classList.toggle('active', isActive);
+        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+
+      // Update settings gallery cards if present
+      document.querySelectorAll('.theme-gallery-card').forEach(card => {
+        const isActive = card.getAttribute('data-theme-id') === themeKey;
+        card.classList.toggle('active', isActive);
+        card.setAttribute('aria-checked', isActive ? 'true' : 'false');
+      });
+
+      // Notify any listeners (e.g., Chart.js)
+      window.dispatchEvent(new CustomEvent('sprintcoder-theme-changed', { detail: { theme: themeKey } }));
+    };
+
+    (function initThemeDropdown() {
+      const saved = localStorage.getItem('sc-theme') || 'dark';
+      window.applyTheme(saved);
+
+      const container = document.getElementById('theme-dropdown-container');
+      const btn = document.getElementById('theme-toggle-btn');
+      if (!container || !btn) return;
+
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const isOpen = container.classList.toggle('open');
+        btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      });
+
+      document.querySelectorAll('.theme-option-item').forEach(item => {
+        item.addEventListener('click', function (e) {
+          e.stopPropagation();
+          const themeId = this.getAttribute('data-theme-id');
+          window.applyTheme(themeId);
+          container.classList.remove('open');
+          btn.setAttribute('aria-expanded', 'false');
+        });
+      });
+
+      document.addEventListener('click', function (e) {
+        if (!container.contains(e.target)) {
+          container.classList.remove('open');
+          btn.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && container.classList.contains('open')) {
+          container.classList.remove('open');
+          btn.setAttribute('aria-expanded', 'false');
+          btn.focus();
+        }
+      });
+    })();
 
     // bfcache recovery: re-enable any disabled or loading elements when page is restored
     window.addEventListener('pageshow', function () {
