@@ -119,6 +119,12 @@ A comprehensive table recording all previous practice sessions with timestamps, 
   - Includes **Sprint Dark**, **Sprint Light**, **Catppuccin Mocha**, **Ocean Cyan**, **Dracula**, **Nord**, and **Monokai**.
   - Switchable anytime from the navbar dropdown or Settings visual gallery.
   - Automatically updates interface tokens and interactive Chart.js charts with persistent `localStorage` support.
+- **💻 Advanced Editor & Caret Customization**:
+  - **7 Programming Fonts**: JetBrains Mono, Fira Code, Roboto Mono, Source Code Pro, Inconsolata, Consolas, and System Monospace.
+  - **Font Size & Field Width**: Interactive slider (13px–24px) and customizable container widths (860px, 1050px, 1250px, or 100% fluid).
+  - **Cursor Styles & Animations**: Choose between Line (`|`), Block (`█`), Underline (`_`), and Outline (`▯`), with adjustable speeds (Normal, Fast, Slow, Smooth Pulse, or Solid).
+  - **Character State Colors**: Toggle theme palette or assign custom colors for pending text, correct keystrokes, errors, and the active cursor.
+  - **Live Settings Preview**: Instantly inspect typography, cursor animations, and colors with a live interactive code preview in Settings.
 
 ---
 

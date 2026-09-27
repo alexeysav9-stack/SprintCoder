@@ -9,14 +9,36 @@
   <script>
     (function () {
       try {
-        var saved = localStorage.getItem('sc-theme') || 'dark';
-        document.documentElement.setAttribute('data-theme', saved);
+        var savedTheme = localStorage.getItem('sc-theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        var ed = JSON.parse(localStorage.getItem('sc-editor-settings') || '{}');
+        var root = document.documentElement;
+        if (ed.fontFamily) {
+          if (ed.fontFamily === 'System Monospace') {
+            root.style.setProperty('--editor-font-family', 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace');
+          } else {
+            root.style.setProperty('--editor-font-family', '"' + ed.fontFamily + '", monospace');
+          }
+        }
+        if (ed.fontSize) root.style.setProperty('--editor-font-size', ed.fontSize + 'px');
+        if (ed.width) root.style.setProperty('--editor-max-width', ed.width);
+        root.setAttribute('data-cursor-style', ed.cursorStyle || 'line');
+        root.setAttribute('data-cursor-blink', ed.cursorBlink || 'step');
+        if (ed.useCustomColors) {
+          if (ed.pendingColor) root.style.setProperty('--editor-pending', ed.pendingColor);
+          if (ed.correctColor) root.style.setProperty('--editor-correct', ed.correctColor);
+          if (ed.wrongColor) {
+            root.style.setProperty('--editor-wrong', ed.wrongColor);
+            root.style.setProperty('--editor-wrong-bg', ed.wrongColor + '26');
+          }
+          if (ed.cursorColor) root.style.setProperty('--editor-cursor', ed.cursorColor);
+        }
       } catch (e) {}
     })();
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inconsolata:wght@400;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&family=Source+Code+Pro:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{% static 'css/main.css' %}" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
   {% block extra_head %}{% endblock %}
@@ -213,6 +235,100 @@
           btn.focus();
         }
       });
+    })();
+
+    // ── Editor Settings Management ─────────────────────────
+    const SPRINTCODER_DEFAULT_EDITOR = {
+      fontFamily: 'JetBrains Mono',
+      fontSize: '17',
+      width: '860px',
+      cursorStyle: 'line',
+      cursorBlink: 'step',
+      useCustomColors: false,
+      pendingColor: '#7c82a8',
+      correctColor: '#4ade80',
+      wrongColor: '#f87171',
+      cursorColor: '#7c6cfc',
+    };
+
+    window.getEditorSettings = function () {
+      try {
+        var raw = localStorage.getItem('sc-editor-settings');
+        if (raw) {
+          return Object.assign({}, SPRINTCODER_DEFAULT_EDITOR, JSON.parse(raw));
+        }
+      } catch (e) {}
+      return Object.assign({}, SPRINTCODER_DEFAULT_EDITOR);
+    };
+
+    window.applyEditorSettings = function (cfg) {
+      var root = document.documentElement;
+      var config = Object.assign({}, SPRINTCODER_DEFAULT_EDITOR, cfg);
+
+      // Font Family
+      if (config.fontFamily === 'System Monospace') {
+        root.style.setProperty('--editor-font-family', 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace');
+      } else if (config.fontFamily) {
+        root.style.setProperty('--editor-font-family', '"' + config.fontFamily + '", monospace');
+      } else {
+        root.style.removeProperty('--editor-font-family');
+      }
+
+      // Font Size
+      if (config.fontSize) {
+        root.style.setProperty('--editor-font-size', config.fontSize + 'px');
+      } else {
+        root.style.removeProperty('--editor-font-size');
+      }
+
+      // Max Width
+      if (config.width) {
+        root.style.setProperty('--editor-max-width', config.width);
+      } else {
+        root.style.removeProperty('--editor-max-width');
+      }
+
+      // Cursor Style & Blink
+      root.setAttribute('data-cursor-style', config.cursorStyle || 'line');
+      root.setAttribute('data-cursor-blink', config.cursorBlink || 'step');
+
+      // Custom Colors
+      if (config.useCustomColors) {
+        root.style.setProperty('--editor-pending', config.pendingColor);
+        root.style.setProperty('--editor-correct', config.correctColor);
+        root.style.setProperty('--editor-wrong', config.wrongColor);
+        root.style.setProperty('--editor-wrong-bg', config.wrongColor + '26');
+        root.style.setProperty('--editor-cursor', config.cursorColor);
+      } else {
+        root.style.removeProperty('--editor-pending');
+        root.style.removeProperty('--editor-correct');
+        root.style.removeProperty('--editor-wrong');
+        root.style.removeProperty('--editor-wrong-bg');
+        root.style.removeProperty('--editor-cursor');
+      }
+
+      window.dispatchEvent(new CustomEvent('sprintcoder-editor-settings-changed', { detail: config }));
+    };
+
+    window.saveEditorSettings = function (cfg) {
+      try {
+        localStorage.setItem('sc-editor-settings', JSON.stringify(cfg));
+      } catch (e) {}
+      window.applyEditorSettings(cfg);
+    };
+
+    window.resetEditorSettings = function () {
+      try {
+        localStorage.removeItem('sc-editor-settings');
+      } catch (e) {}
+      var def = Object.assign({}, SPRINTCODER_DEFAULT_EDITOR);
+      window.applyEditorSettings(def);
+      return def;
+    };
+
+    // Apply editor settings on page load
+    (function initEditorSettings() {
+      window.applyEditorSettings(window.getEditorSettings());
     })();
 
     // bfcache recovery: re-enable any disabled or loading elements when page is restored

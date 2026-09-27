@@ -131,6 +131,239 @@
         </div>
       </div>
 
+      <!-- Editor & Typing Field Customization Card -->
+      <div class="settings-card settings-editor-card">
+        <div class="settings-card-header">
+          <div class="settings-card-icon" style="font-size: 1.3rem;">💻</div>
+          <div style="flex: 1;">
+            <h2 class="settings-card-title">Code Editor &amp; Typing Field</h2>
+            <p class="settings-card-desc">Customize typography, dimensions, colors, and cursor animations of your typing environment.</p>
+          </div>
+          <button type="button" class="btn btn-ghost btn-sm" id="btn-reset-editor" title="Reset all editor settings to defaults">
+            ↺ Reset Defaults
+          </button>
+        </div>
+
+        <!-- Live Preview -->
+        <div class="editor-preview-box">
+          <div class="editor-preview-bar">
+            <span class="editor-preview-label">
+              <span>⚡</span> Live Editor Preview
+            </span>
+            <div class="editor-preview-stats">
+              <span class="preview-stat-pill" id="preview-font-pill">JetBrains Mono</span>
+              <span class="preview-stat-pill" id="preview-size-pill">17px</span>
+              <span class="preview-stat-pill" id="preview-width-pill">860px</span>
+              <span class="preview-stat-pill" id="preview-cursor-pill">Line · Normal</span>
+            </div>
+          </div>
+          <div class="exercise-container preview-editor-container" id="editor-live-preview">
+            <div class="code-display preview-code-display" id="settings-preview-display">
+<span class="char correct">f</span><span class="char correct">u</span><span class="char correct">n</span><span class="char correct">c</span><span class="char correct">t</span><span class="char correct">i</span><span class="char correct">o</span><span class="char correct">n</span><span class="char">&nbsp;</span><span class="char correct">g</span><span class="char correct">e</span><span class="char correct">t</span><span class="char correct">S</span><span class="char correct">p</span><span class="char correct">e</span><span class="char correct">e</span><span class="char correct">d</span><span class="char correct">(</span><span class="char correct">)</span><span class="char">&nbsp;</span><span class="char correct">{</span><span class="char">
+</span><span class="char">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="char correct">c</span><span class="char correct">o</span><span class="char correct">n</span><span class="char correct">s</span><span class="char correct">t</span><span class="char">&nbsp;</span><span class="char correct">w</span><span class="char correct">p</span><span class="char correct">m</span><span class="char">&nbsp;</span><span class="char correct">=</span><span class="char">&nbsp;</span><span class="char wrong">9</span><span class="char cursor">8</span><span class="char">;</span><span class="char">
+</span><span class="char">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="char">r</span><span class="char">e</span><span class="char">t</span><span class="char">u</span><span class="char">r</span><span class="char">n</span><span class="char">&nbsp;</span><span class="char">w</span><span class="char">p</span><span class="char">m</span><span class="char">&nbsp;</span><span class="char">&gt;</span><span class="char">&nbsp;</span><span class="char">8</span><span class="char">0</span><span class="char">;</span><span class="char">
+</span><span class="char">}</span></div>
+          </div>
+        </div>
+
+        <div class="editor-settings-groups">
+
+          <!-- 1. Font Family -->
+          <div class="editor-section">
+            <div class="editor-section-header">
+              <h3 class="editor-section-title">🔤 Font Family</h3>
+              <span class="editor-section-desc">Select the programming font for code snippets</span>
+            </div>
+            <div class="setting-btn-grid" id="font-family-options">
+              <button type="button" class="setting-btn" data-font="JetBrains Mono" style="font-family: 'JetBrains Mono', monospace;">
+                <span>JetBrains Mono</span>
+                <span class="setting-btn-sub">Clean &amp; Modern</span>
+              </button>
+              <button type="button" class="setting-btn" data-font="Fira Code" style="font-family: 'Fira Code', monospace;">
+                <span>Fira Code</span>
+                <span class="setting-btn-sub">Popular Ligatures</span>
+              </button>
+              <button type="button" class="setting-btn" data-font="Roboto Mono" style="font-family: 'Roboto Mono', monospace;">
+                <span>Roboto Mono</span>
+                <span class="setting-btn-sub">Geometric Google</span>
+              </button>
+              <button type="button" class="setting-btn" data-font="Source Code Pro" style="font-family: 'Source Code Pro', monospace;">
+                <span>Source Code Pro</span>
+                <span class="setting-btn-sub">Adobe Classic</span>
+              </button>
+              <button type="button" class="setting-btn" data-font="Inconsolata" style="font-family: 'Inconsolata', monospace;">
+                <span>Inconsolata</span>
+                <span class="setting-btn-sub">Compact &amp; Crisp</span>
+              </button>
+              <button type="button" class="setting-btn" data-font="Consolas" style="font-family: Consolas, monospace;">
+                <span>Consolas</span>
+                <span class="setting-btn-sub">Windows Default</span>
+              </button>
+              <button type="button" class="setting-btn" data-font="System Monospace" style="font-family: monospace;">
+                <span>System Mono</span>
+                <span class="setting-btn-sub">Native OS Monospace</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. Font Size -->
+          <div class="editor-section">
+            <div class="editor-section-header">
+              <h3 class="editor-section-title">📏 Font Size</h3>
+              <span class="editor-section-desc">Adjust the code text size</span>
+            </div>
+            <div class="range-control-row">
+              <input type="range" class="editor-range-slider" id="font-size-slider" min="13" max="24" step="1" value="17" />
+              <span class="range-val-badge" id="font-size-val">17px</span>
+            </div>
+          </div>
+
+          <!-- 3. Container Max Width -->
+          <div class="editor-section">
+            <div class="editor-section-header">
+              <h3 class="editor-section-title">📐 Typing Field Width</h3>
+              <span class="editor-section-desc">Choose the maximum width of the code container</span>
+            </div>
+            <div class="setting-btn-grid" id="width-options">
+              <button type="button" class="setting-btn" data-width="860px">
+                <span class="setting-btn-icon">◻️</span>
+                <span>Standard</span>
+                <span class="setting-btn-sub">860px</span>
+              </button>
+              <button type="button" class="setting-btn" data-width="1050px">
+                <span class="setting-btn-icon">▭</span>
+                <span>Wide</span>
+                <span class="setting-btn-sub">1050px</span>
+              </button>
+              <button type="button" class="setting-btn" data-width="1250px">
+                <span class="setting-btn-icon">▰</span>
+                <span>Extra Wide</span>
+                <span class="setting-btn-sub">1250px</span>
+              </button>
+              <button type="button" class="setting-btn" data-width="100%">
+                <span class="setting-btn-icon">↔️</span>
+                <span>Full Width</span>
+                <span class="setting-btn-sub">100% Fluid</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 4. Cursor Style (Shape) -->
+          <div class="editor-section">
+            <div class="editor-section-header">
+              <h3 class="editor-section-title">📍 Cursor Style</h3>
+              <span class="editor-section-desc">Select how your typing caret is displayed</span>
+            </div>
+            <div class="setting-btn-grid" id="cursor-style-options">
+              <button type="button" class="setting-btn" data-cursor-style="line">
+                <span class="setting-btn-icon" style="font-weight: 900;">▎</span>
+                <span>Line</span>
+                <span class="setting-btn-sub">Vertical bar</span>
+              </button>
+              <button type="button" class="setting-btn" data-cursor-style="block">
+                <span class="setting-btn-icon">█</span>
+                <span>Block</span>
+                <span class="setting-btn-sub">Filled terminal box</span>
+              </button>
+              <button type="button" class="setting-btn" data-cursor-style="underline">
+                <span class="setting-btn-icon" style="text-decoration: underline; font-weight: bold;">_</span>
+                <span>Underline</span>
+                <span class="setting-btn-sub">Bottom bar</span>
+              </button>
+              <button type="button" class="setting-btn" data-cursor-style="outline">
+                <span class="setting-btn-icon">▯</span>
+                <span>Outline</span>
+                <span class="setting-btn-sub">Hollow frame</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5. Cursor Blink & Animation -->
+          <div class="editor-section">
+            <div class="editor-section-header">
+              <h3 class="editor-section-title">⏱️ Cursor Animation &amp; Smoothness</h3>
+              <span class="editor-section-desc">Adjust the speed and transition curve of the caret</span>
+            </div>
+            <div class="setting-btn-grid" id="cursor-blink-options">
+              <button type="button" class="setting-btn" data-cursor-blink="step">
+                <span class="setting-btn-icon">⚡</span>
+                <span>Normal</span>
+                <span class="setting-btn-sub">1.0s step</span>
+              </button>
+              <button type="button" class="setting-btn" data-cursor-blink="smooth">
+                <span class="setting-btn-icon">🌊</span>
+                <span>Smooth</span>
+                <span class="setting-btn-sub">Fade pulse</span>
+              </button>
+              <button type="button" class="setting-btn" data-cursor-blink="fast">
+                <span class="setting-btn-icon">🐇</span>
+                <span>Fast</span>
+                <span class="setting-btn-sub">0.55s snappy</span>
+              </button>
+              <button type="button" class="setting-btn" data-cursor-blink="slow">
+                <span class="setting-btn-icon">🐢</span>
+                <span>Slow</span>
+                <span class="setting-btn-sub">1.6s relaxed</span>
+              </button>
+              <button type="button" class="setting-btn" data-cursor-blink="solid">
+                <span class="setting-btn-icon">🛑</span>
+                <span>Solid</span>
+                <span class="setting-btn-sub">Always visible</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 6. Font Colors in Different States -->
+          <div class="editor-section">
+            <div class="colors-header-row">
+              <div>
+                <h3 class="editor-section-title">🎨 Character State Colors</h3>
+                <span class="editor-section-desc">Customize text colors for pending, correct, error, and cursor states</span>
+              </div>
+              <div class="colors-mode-toggle">
+                <button type="button" class="colors-mode-btn" id="colors-mode-theme">Theme Colors</button>
+                <button type="button" class="colors-mode-btn" id="colors-mode-custom">Custom</button>
+              </div>
+            </div>
+
+            <div class="colors-grid" id="colors-custom-grid">
+              <label class="color-card" for="color-pending">
+                <input type="color" class="color-input-bubble" id="color-pending" value="#7c82a8" />
+                <div class="color-card-info">
+                  <span class="color-card-label">Pending</span>
+                  <span class="color-card-hex" id="hex-pending">#7c82a8</span>
+                </div>
+              </label>
+
+              <label class="color-card" for="color-correct">
+                <input type="color" class="color-input-bubble" id="color-correct" value="#4ade80" />
+                <div class="color-card-info">
+                  <span class="color-card-label">Correct</span>
+                  <span class="color-card-hex" id="hex-correct">#4ade80</span>
+                </div>
+              </label>
+
+              <label class="color-card" for="color-wrong">
+                <input type="color" class="color-input-bubble" id="color-wrong" value="#f87171" />
+                <div class="color-card-info">
+                  <span class="color-card-label">Wrong</span>
+                  <span class="color-card-hex" id="hex-wrong">#f87171</span>
+                </div>
+              </label>
+
+              <label class="color-card" for="color-cursor">
+                <input type="color" class="color-input-bubble" id="color-cursor" value="#7c6cfc" />
+                <div class="color-card-info">
+                  <span class="color-card-label">Cursor</span>
+                  <span class="color-card-hex" id="hex-cursor">#7c6cfc</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
       <!-- GitHub Repos Card -->
       <div class="settings-card">
         <div class="settings-card-header">
@@ -208,6 +441,7 @@
 
 {% block extra_scripts %}
 <script>
+  // ── Theme Gallery Click Handler ────────────────────────
   document.querySelectorAll('.theme-gallery-card').forEach(function(card) {
     card.addEventListener('click', function() {
       var themeId = this.getAttribute('data-theme-id');
@@ -216,5 +450,181 @@
       }
     });
   });
+
+  // ── Editor Settings UI Sync & Handlers ─────────────────
+  function syncEditorUI() {
+    if (!window.getEditorSettings) return;
+    var cfg = window.getEditorSettings();
+
+    // 1. Font Family buttons
+    document.querySelectorAll('#font-family-options .setting-btn').forEach(function(btn) {
+      btn.classList.toggle('active', btn.getAttribute('data-font') === cfg.fontFamily);
+    });
+    var fontPill = document.getElementById('preview-font-pill');
+    if (fontPill) fontPill.textContent = cfg.fontFamily;
+
+    // 2. Font Size slider & badge
+    var slider = document.getElementById('font-size-slider');
+    var sizeBadge = document.getElementById('font-size-val');
+    var sizePill = document.getElementById('preview-size-pill');
+    if (slider) slider.value = cfg.fontSize;
+    if (sizeBadge) sizeBadge.textContent = cfg.fontSize + 'px';
+    if (sizePill) sizePill.textContent = cfg.fontSize + 'px';
+
+    // 3. Width buttons & badge
+    document.querySelectorAll('#width-options .setting-btn').forEach(function(btn) {
+      btn.classList.toggle('active', btn.getAttribute('data-width') === cfg.width);
+    });
+    var widthPill = document.getElementById('preview-width-pill');
+    if (widthPill) widthPill.textContent = cfg.width;
+
+    // 4. Cursor Style buttons
+    document.querySelectorAll('#cursor-style-options .setting-btn').forEach(function(btn) {
+      btn.classList.toggle('active', btn.getAttribute('data-cursor-style') === cfg.cursorStyle);
+    });
+
+    // 5. Cursor Blink buttons
+    document.querySelectorAll('#cursor-blink-options .setting-btn').forEach(function(btn) {
+      btn.classList.toggle('active', btn.getAttribute('data-cursor-blink') === cfg.cursorBlink);
+    });
+    var cursorPill = document.getElementById('preview-cursor-pill');
+    if (cursorPill) {
+      var s = (cfg.cursorStyle || 'line').charAt(0).toUpperCase() + (cfg.cursorStyle || 'line').slice(1);
+      var b = (cfg.cursorBlink || 'step').charAt(0).toUpperCase() + (cfg.cursorBlink || 'step').slice(1);
+      cursorPill.textContent = s + ' · ' + b;
+    }
+
+    // 6. Colors Mode
+    var btnTheme = document.getElementById('colors-mode-theme');
+    var btnCustom = document.getElementById('colors-mode-custom');
+    var colorsGrid = document.getElementById('colors-custom-grid');
+    if (btnTheme) btnTheme.classList.toggle('active', !cfg.useCustomColors);
+    if (btnCustom) btnCustom.classList.toggle('active', !!cfg.useCustomColors);
+    if (colorsGrid) colorsGrid.classList.toggle('disabled', !cfg.useCustomColors);
+
+    // 7. Color Inputs & Hex Text
+    var pInput = document.getElementById('color-pending');
+    var pHex = document.getElementById('hex-pending');
+    if (pInput && cfg.pendingColor) { pInput.value = cfg.pendingColor; if (pHex) pHex.textContent = cfg.pendingColor; }
+
+    var cInput = document.getElementById('color-correct');
+    var cHex = document.getElementById('hex-correct');
+    if (cInput && cfg.correctColor) { cInput.value = cfg.correctColor; if (cHex) cHex.textContent = cfg.correctColor; }
+
+    var wInput = document.getElementById('color-wrong');
+    var wHex = document.getElementById('hex-wrong');
+    if (wInput && cfg.wrongColor) { wInput.value = cfg.wrongColor; if (wHex) wHex.textContent = cfg.wrongColor; }
+
+    var curInput = document.getElementById('color-cursor');
+    var curHex = document.getElementById('hex-cursor');
+    if (curInput && cfg.cursorColor) { curInput.value = cfg.cursorColor; if (curHex) curHex.textContent = cfg.cursorColor; }
+  }
+
+  // Bind Editor Settings Listeners
+  (function initEditorSettingsUI() {
+    syncEditorUI();
+
+    // Font Family buttons
+    document.querySelectorAll('#font-family-options .setting-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var cfg = window.getEditorSettings();
+        cfg.fontFamily = this.getAttribute('data-font');
+        window.saveEditorSettings(cfg);
+        syncEditorUI();
+      });
+    });
+
+    // Font Size slider
+    var sizeSlider = document.getElementById('font-size-slider');
+    if (sizeSlider) {
+      sizeSlider.addEventListener('input', function() {
+        var cfg = window.getEditorSettings();
+        cfg.fontSize = this.value;
+        window.saveEditorSettings(cfg);
+        syncEditorUI();
+      });
+    }
+
+    // Width buttons
+    document.querySelectorAll('#width-options .setting-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var cfg = window.getEditorSettings();
+        cfg.width = this.getAttribute('data-width');
+        window.saveEditorSettings(cfg);
+        syncEditorUI();
+      });
+    });
+
+    // Cursor Style buttons
+    document.querySelectorAll('#cursor-style-options .setting-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var cfg = window.getEditorSettings();
+        cfg.cursorStyle = this.getAttribute('data-cursor-style');
+        window.saveEditorSettings(cfg);
+        syncEditorUI();
+      });
+    });
+
+    // Cursor Blink buttons
+    document.querySelectorAll('#cursor-blink-options .setting-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var cfg = window.getEditorSettings();
+        cfg.cursorBlink = this.getAttribute('data-cursor-blink');
+        window.saveEditorSettings(cfg);
+        syncEditorUI();
+      });
+    });
+
+    // Color Mode buttons
+    var btnTheme = document.getElementById('colors-mode-theme');
+    if (btnTheme) {
+      btnTheme.addEventListener('click', function() {
+        var cfg = window.getEditorSettings();
+        cfg.useCustomColors = false;
+        window.saveEditorSettings(cfg);
+        syncEditorUI();
+      });
+    }
+
+    var btnCustom = document.getElementById('colors-mode-custom');
+    if (btnCustom) {
+      btnCustom.addEventListener('click', function() {
+        var cfg = window.getEditorSettings();
+        cfg.useCustomColors = true;
+        window.saveEditorSettings(cfg);
+        syncEditorUI();
+      });
+    }
+
+    // Color pickers
+    function bindColorInput(id, hexId, key) {
+      var el = document.getElementById(id);
+      var hexEl = document.getElementById(hexId);
+      if (!el) return;
+      el.addEventListener('input', function() {
+        var cfg = window.getEditorSettings();
+        cfg[key] = this.value;
+        if (hexEl) hexEl.textContent = this.value;
+        window.saveEditorSettings(cfg);
+      });
+    }
+    bindColorInput('color-pending', 'hex-pending', 'pendingColor');
+    bindColorInput('color-correct', 'hex-correct', 'correctColor');
+    bindColorInput('color-wrong', 'hex-wrong', 'wrongColor');
+    bindColorInput('color-cursor', 'hex-cursor', 'cursorColor');
+
+    // Reset Defaults button
+    var btnReset = document.getElementById('btn-reset-editor');
+    if (btnReset) {
+      btnReset.addEventListener('click', function() {
+        window.resetEditorSettings();
+        syncEditorUI();
+      });
+    }
+
+    // Listen to theme or external changes
+    window.addEventListener('sprintcoder-theme-changed', syncEditorUI);
+    window.addEventListener('sprintcoder-editor-settings-changed', syncEditorUI);
+  })();
 </script>
 {% endblock %}
