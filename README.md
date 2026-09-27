@@ -52,7 +52,8 @@ Real-time character-by-character validation, live WPM, Accuracy, CPM, and elapse
 After finishing, review your final WPM, accuracy percentage, time spent, and a frequency breakdown of mistyped characters to spot recurring errors.
 
 > <!-- INSERT SCREENSHOT: Results page with score badges and top error characters -->
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/075cf206-93f7-4db4-9604-4862f721db80" />
+<img width="1920" height="964" alt="image" src="https://github.com/user-attachments/assets/592b122d-8aa6-4c72-9df1-0ba50b7a9eaa" />
+
 
 
 ---
