@@ -8,6 +8,8 @@ from django.views.decorators.http import require_POST
 from django.utils import timezone
 
 from .models import Language, Snippet, Attempt, UserProfile
+from .utils import format_exercise_time
+from .snippet_validator import extract_categorized_snippets, is_excluded_file_path
 
 
 def index(request):
@@ -17,16 +19,21 @@ def index(request):
 
     # Check if this authenticated user has personal snippets imported from their repos
     has_my_snippets = False
+    user_time = None
     if request.user.is_authenticated:
         profile, _ = UserProfile.objects.get_or_create(user=request.user)
         if profile.get_repo_list():
             has_my_snippets = Snippet.objects.filter(imported_by=request.user).exists()
+        total_seconds = profile.get_total_exercise_seconds()
+        user_time = format_exercise_time(total_seconds)
 
     return render(request, 'trainer/index.html', {
         'languages': languages,
         'difficulty_choices': difficulty_choices,
         'has_my_snippets': has_my_snippets,
+        'user_time': user_time,
     })
+
 
 
 def exercise(request, snippet_id):
@@ -143,9 +150,48 @@ def save_attempt(request):
             time_seconds=time_secs,
             errors_json=data.get('errors_json', {}),
         )
-        return JsonResponse({'status': 'ok', 'attempt_id': attempt.pk})
+
+        user_time_info = None
+        if request.user.is_authenticated:
+            profile, _ = UserProfile.objects.get_or_create(user=request.user)
+            total_seconds = profile.get_total_exercise_seconds()
+            user_time_info = format_exercise_time(total_seconds)
+
+        return JsonResponse({
+            'status': 'ok',
+            'attempt_id': attempt.pk,
+            'total_time': user_time_info,
+        })
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+
+@require_POST
+def record_time(request):
+    """Record extra practice time (e.g. from uncompleted or reset typing sessions)."""
+    try:
+        seconds = 0.0
+        if request.content_type == 'application/json':
+            data = json.loads(request.body)
+            seconds = float(data.get('seconds', 0))
+        else:
+            seconds = float(request.POST.get('seconds', 0))
+
+        if seconds < 2 or seconds > 600:
+            return JsonResponse({'status': 'ignored', 'message': 'Duration out of range'}, status=200)
+
+        if request.user.is_authenticated:
+            profile, _ = UserProfile.objects.get_or_create(user=request.user)
+            profile.extra_exercise_seconds += seconds
+            profile.save(update_fields=['extra_exercise_seconds'])
+            total_seconds = profile.get_total_exercise_seconds()
+            formatted = format_exercise_time(total_seconds)
+            return JsonResponse({'status': 'ok', 'total_time': formatted})
+        else:
+            return JsonResponse({'status': 'ok', 'authenticated': False})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
 
 
 def result(request, attempt_id):
@@ -168,10 +214,14 @@ def history(request):
 
 @login_required
 def profile(request):
-    """Profile page with per-language stats and WPM progress charts."""
+    """Profile page with per-language stats, exercise time, and WPM progress charts."""
     from collections import defaultdict
 
     user = request.user
+    profile_obj, _ = UserProfile.objects.get_or_create(user=user)
+    total_exercise_seconds = profile_obj.get_total_exercise_seconds()
+    user_time = format_exercise_time(total_exercise_seconds)
+
     all_attempts = (
         user.attempts
         .select_related('snippet__language')
@@ -193,12 +243,14 @@ def profile(request):
                 'best_wpm': 0,
                 'total_wpm': 0,
                 'total_acc': 0,
+                'total_time': 0.0,
             }
 
         s = lang_stats[slug]
         s['count'] += 1
         s['total_wpm'] += attempt.wpm
         s['total_acc'] += attempt.accuracy
+        s['total_time'] += attempt.time_seconds
         if attempt.wpm > s['best_wpm']:
             s['best_wpm'] = attempt.wpm
 
@@ -207,11 +259,13 @@ def profile(request):
             'wpm': round(attempt.wpm, 1),
         })
 
-    # Compute averages and sort by count descending (most used language first)
+    # Compute averages and format time for each language
     for slug, s in lang_stats.items():
         s['avg_wpm'] = round(s['total_wpm'] / s['count'], 1)
         s['avg_acc'] = round(s['total_acc'] / s['count'], 1)
         s['best_wpm'] = round(s['best_wpm'], 1)
+        s['time_info'] = format_exercise_time(s['total_time'])
+        s['time_formatted'] = s['time_info']['formatted']
 
     lang_stats = dict(sorted(lang_stats.items(), key=lambda x: x[1]['count'], reverse=True))
 
@@ -229,7 +283,9 @@ def profile(request):
         'total_attempts': total_attempts,
         'overall_best_wpm': overall_best_wpm,
         'overall_avg_wpm': overall_avg_wpm,
+        'user_time': user_time,
     })
+
 
 
 @login_required
@@ -361,33 +417,11 @@ def _extract_css_chunks(text: str) -> dict:
 def _extract_code_chunks(text: str, slug: str) -> dict:
     """
     Extract easy, medium, and hard snippets from source code.
+    Uses AST and structural block validation to guarantee high code quality.
     """
-    lines = text.splitlines()
-    if not lines or any(len(l) > 300 for l in lines[:20]):
-        return {'easy': [], 'medium': [], 'hard': []}
-
-    chunks = {'easy': [], 'medium': [], 'hard': []}
-    targets = [
-        ('easy', 5, 10, 8),
-        ('medium', 12, 19, 10),
-        ('hard', 21, 32, 14),
-    ]
-
-    for diff, min_l, max_l, step in targets:
-        for i in range(0, len(lines), step):
-            window = lines[i:i + max_l]
-            while window and not window[-1].strip():
-                window.pop()
-            while window and not window[0].strip():
-                window.pop(0)
-            chunk = '\n'.join(window).strip()
-            w_lines = chunk.splitlines()
-            if min_l <= len(w_lines) <= max_l:
-                code_lines = [l for l in w_lines if not l.strip().startswith(('#', '//', '/*'))]
-                if len(code_lines) >= min_l // 2:
-                    chunks[diff].append(chunk)
-
-    return chunks
+    if slug == 'css':
+        return _extract_css_chunks(text)
+    return extract_categorized_snippets(text, slug)
 
 
 def _import_user_repos(user, profile, token: str, max_per_lang: int = 18) -> int:
@@ -411,6 +445,10 @@ def _import_user_repos(user, profile, token: str, max_per_lang: int = 18) -> int
         '.go': 'go',
         '.sql': 'sql',
         '.css': 'css', '.scss': 'css', '.sass': 'css', '.less': 'css',
+        '.sh': 'bash', '.bash': 'bash', '.zsh': 'bash',
+        '.html': 'html', '.htm': 'html',
+        '.php': 'php',
+        '.cs': 'csharp',
     }
 
     session = req.Session()
@@ -459,6 +497,8 @@ def _import_user_repos(user, profile, token: str, max_per_lang: int = 18) -> int
                 if any(p in skip_dirs for p in parts[:-1]):
                     continue
                 if any(skip in parts[-1] for skip in ('test', 'spec', '.min.')):
+                    continue
+                if is_excluded_file_path(path):
                     continue
 
                 ext = '.' + path.rsplit('.', 1)[-1] if '.' in path else ''

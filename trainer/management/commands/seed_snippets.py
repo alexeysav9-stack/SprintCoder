@@ -9,6 +9,10 @@ LANGUAGES = [
     {'slug': 'go',         'name': 'Go',                    'icon': '🐹'},
     {'slug': 'sql',        'name': 'SQL',                   'icon': '🗄️'},
     {'slug': 'css',        'name': 'CSS',                   'icon': '🎨'},
+    {'slug': 'bash',       'name': 'Bash',                  'icon': '🐚'},
+    {'slug': 'html',       'name': 'HTML',                  'icon': '🌐'},
+    {'slug': 'php',        'name': 'PHP',                   'icon': '🐘'},
+    {'slug': 'csharp',     'name': 'C#',                    'icon': '🎯'},
 ]
 
 SNIPPETS = {
@@ -1860,6 +1864,1332 @@ SNIPPETS = {
                     '    }\n'
                     '    20%, 24%, 55% {\n'
                     '        text-shadow: none;\n'
+                    '    }\n'
+                    '}\n'
+                ),
+            },
+        ],
+    },
+    'bash': {
+        'easy': [
+            {
+                'title': 'Ensure directory exists',
+                'code': (
+                    'if [ ! -d "$TARGET_DIR" ]; then\n'
+                    '    echo "Creating directory: $TARGET_DIR"\n'
+                    '    mkdir -p "$TARGET_DIR"\n'
+                    'else\n'
+                    '    echo "Directory already exists: $TARGET_DIR"\n'
+                    'fi\n'
+                ),
+            },
+            {
+                'title': 'Loop over log files',
+                'code': (
+                    'for file in "$LOG_DIR"/*.log; do\n'
+                    '    [ -f "$file" ] || continue\n'
+                    '    filename=$(basename "$file")\n'
+                    '    echo "Compressing: $filename"\n'
+                    '    gzip -c "$file" > "${BACKUP_DIR}/${filename}.gz"\n'
+                    'done\n'
+                ),
+            },
+            {
+                'title': 'Validate script arguments',
+                'code': (
+                    'if [ "$#" -lt 2 ]; then\n'
+                    '    echo "Usage: $0 <source_file> <target_file>"\n'
+                    '    exit 1\n'
+                    'fi\n'
+                    '\n'
+                    'SOURCE="$1"\n'
+                    'TARGET="$2"\n'
+                    'cp -v "$SOURCE" "$TARGET"\n'
+                ),
+            },
+            {
+                'title': 'Read config line by line',
+                'code': (
+                    'while IFS= read -r line || [ -n "$line" ]; do\n'
+                    '    [[ "$line" =~ ^#.*$ ]] && continue\n'
+                    '    [ -z "$line" ] && continue\n'
+                    '    echo "Config entry: $line"\n'
+                    'done < "app.env"\n'
+                ),
+            },
+            {
+                'title': 'Timestamped backup function',
+                'code': (
+                    'backup_file() {\n'
+                    '    local src="$1"\n'
+                    '    local timestamp\n'
+                    '    timestamp=$(date +"%Y%m%d_%H%M%S")\n'
+                    '    local dest="${src}.bak_${timestamp}"\n'
+                    '    cp -a "$src" "$dest"\n'
+                    '    echo "Backup saved: $dest"\n'
+                    '}\n'
+                ),
+            },
+        ],
+        'medium': [
+            {
+                'title': 'Strict preamble & cleanup trap',
+                'code': (
+                    'set -euo pipefail\n'
+                    'IFS=$\'\\n\\t\'\n'
+                    '\n'
+                    'TMP_DIR=$(mktemp -d)\n'
+                    'cleanup() {\n'
+                    '    echo "Removing temporary directory..."\n'
+                    '    rm -rf "$TMP_DIR"\n'
+                    '}\n'
+                    'trap cleanup EXIT INT TERM\n'
+                    '\n'
+                    'echo "Executing task inside $TMP_DIR"\n'
+                ),
+            },
+            {
+                'title': 'Exponential backoff retry',
+                'code': (
+                    'retry_command() {\n'
+                    '    local max_attempts=5\n'
+                    '    local delay=2\n'
+                    '    local attempt=1\n'
+                    '\n'
+                    '    while [ $attempt -le $max_attempts ]; do\n'
+                    '        if "$@"; then\n'
+                    '            return 0\n'
+                    '        fi\n'
+                    '        echo "Attempt $attempt failed. Waiting ${delay}s..."\n'
+                    '        sleep $delay\n'
+                    '        delay=$((delay * 2))\n'
+                    '        attempt=$((attempt + 1))\n'
+                    '    done\n'
+                    '    return 1\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'Parse CLI flags with getopts',
+                'code': (
+                    'VERBOSE=false\n'
+                    'OUTPUT=""\n'
+                    '\n'
+                    'while getopts ":hvo:" opt; do\n'
+                    '    case "$opt" in\n'
+                    '        v) VERBOSE=true ;;\n'
+                    '        o) OUTPUT="$OPTARG" ;;\n'
+                    '        h)\n'
+                    '            echo "Usage: $0 [-v] [-o output_file]"\n'
+                    '            exit 0\n'
+                    '            ;;\n'
+                    '        \\?)\n'
+                    '            echo "Invalid option: -$OPTARG" >&2\n'
+                    '            exit 1\n'
+                    '            ;;\n'
+                    '    esac\n'
+                    'done\n'
+                    'shift $((OPTIND - 1))\n'
+                ),
+            },
+            {
+                'title': 'Check required dependencies',
+                'code': (
+                    'check_dependencies() {\n'
+                    '    local deps=("curl" "jq" "git" "tar")\n'
+                    '    local missing=()\n'
+                    '\n'
+                    '    for cmd in "${deps[@]}"; do\n'
+                    '        if ! command -v "$cmd" >/dev/null 2>&1; then\n'
+                    '            missing+=("$cmd")\n'
+                    '        fi\n'
+                    '    done\n'
+                    '\n'
+                    '    if [ ${#missing[@]} -gt 0 ]; then\n'
+                    '        echo "Missing required dependencies: ${missing[*]}" >&2\n'
+                    '        exit 1\n'
+                    '    fi\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'Interactive confirmation prompt',
+                'code': (
+                    'confirm_action() {\n'
+                    '    local prompt="${1:-Continue?}"\n'
+                    '    local default="${2:-N}"\n'
+                    '    local reply\n'
+                    '\n'
+                    '    read -r -p "$prompt [y/N]: " reply\n'
+                    '    reply="${reply:-$default}"\n'
+                    '\n'
+                    '    case "$reply" in\n'
+                    '        [yY][eE][sS]|[yY]) return 0 ;;\n'
+                    '        *) return 1 ;;\n'
+                    '    esac\n'
+                    '}\n'
+                ),
+            },
+        ],
+        'hard': [
+            {
+                'title': 'Terminal progress spinner',
+                'code': (
+                    'run_with_spinner() {\n'
+                    '    local pid=$1\n'
+                    '    local delay=0.1\n'
+                    '    local spinstr=\'|/-\\\'\n'
+                    '    tput civis\n'
+                    '\n'
+                    '    while kill -0 "$pid" 2>/dev/null; do\n'
+                    '        local temp=${spinstr#?}\n'
+                    '        printf " [%c]  " "$spinstr"\n'
+                    '        spinstr=$temp${spinstr%"$temp"}\n'
+                    '        sleep $delay\n'
+                    '        printf "\\b\\b\\b\\b\\b\\b"\n'
+                    '    done\n'
+                    '\n'
+                    '    printf "    \\b\\b\\b\\b"\n'
+                    '    tput cnorm\n'
+                    '    wait "$pid"\n'
+                    '    return $?\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'Parallel task execution queue',
+                'code': (
+                    'run_parallel_jobs() {\n'
+                    '    local max_jobs=4\n'
+                    '    local current_jobs=0\n'
+                    '\n'
+                    '    for task in "$@"; do\n'
+                    '        bash -c "$task" &\n'
+                    '        current_jobs=$((current_jobs + 1))\n'
+                    '\n'
+                    '        if [ "$current_jobs" -ge "$max_jobs" ]; then\n'
+                    '            wait -n\n'
+                    '            current_jobs=$((current_jobs - 1))\n'
+                    '        fi\n'
+                    '    done\n'
+                    '    wait\n'
+                    '    echo "All batch tasks completed."\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'Colorized structured logger',
+                'code': (
+                    'log_message() {\n'
+                    '    local level="$1"\n'
+                    '    shift\n'
+                    '    local timestamp\n'
+                    '    timestamp=$(date +"%Y-%m-%d %H:%M:%S")\n'
+                    '\n'
+                    '    local RED=\'\\033[0;31m\'\n'
+                    '    local GREEN=\'\\033[0;32m\'\n'
+                    '    local YELLOW=\'\\033[1;33m\'\n'
+                    '    local BLUE=\'\\033[0;34m\'\n'
+                    '    local NC=\'\\033[0m\'\n'
+                    '\n'
+                    '    case "$level" in\n'
+                    '        INFO)  printf "%b[%s] [INFO]%b  %s\\n" "$BLUE" "$timestamp" "$NC" "$*" ;;\n'
+                    '        WARN)  printf "%b[%s] [WARN]%b  %s\\n" "$YELLOW" "$timestamp" "$NC" "$*" ;;\n'
+                    '        ERROR) printf "%b[%s] [ERROR]%b %s\\n" "$RED" "$timestamp" "$NC" "$*" >&2 ;;\n'
+                    '        OK)    printf "%b[%s] [OK]%b    %s\\n" "$GREEN" "$timestamp" "$NC" "$*" ;;\n'
+                    '    esac\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'Disk partition usage audit',
+                'code': (
+                    'check_disk_health() {\n'
+                    '    local threshold=85\n'
+                    '    local alert=false\n'
+                    '\n'
+                    '    while IFS= read -r partition; do\n'
+                    '        local usage\n'
+                    '        usage=$(echo "$partition" | awk \'{print $5}\' | tr -d \'%\')\n'
+                    '        local mount\n'
+                    '        mount=$(echo "$partition" | awk \'{print $6}\')\n'
+                    '\n'
+                    '        if [ "$usage" -ge "$threshold" ]; then\n'
+                    '            echo "ALERT: Partition $mount is at ${usage}% capacity!" >&2\n'
+                    '            alert=true\n'
+                    '        fi\n'
+                    '    done < <(df -h -x tmpfs -x devtmpfs | tail -n +2)\n'
+                    '\n'
+                    '    [ "$alert" = false ]\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'Safe JSON value extractor',
+                'code': (
+                    'extract_json_key() {\n'
+                    '    local json_input="$1"\n'
+                    '    local target_key="$2"\n'
+                    '\n'
+                    '    if command -v jq >/dev/null 2>&1; then\n'
+                    '        echo "$json_input" | jq -r ".${target_key} // empty"\n'
+                    '    elif command -v python3 >/dev/null 2>&1; then\n'
+                    '        python3 -c "import sys, json; doc = json.loads(sys.argv[1]); print(doc.get(sys.argv[2], \'\'))" "$json_input" "$target_key"\n'
+                    '    else\n'
+                    '        echo "Neither jq nor python3 found for JSON parsing" >&2\n'
+                    '        return 1\n'
+                    '    fi\n'
+                    '}\n'
+                ),
+            },
+        ],
+    },
+
+    'html': {
+        'easy': [
+            {
+                'title': 'Card component',
+                'code': (
+                    '<article class="card">\n'
+                    '  <img src="avatar.jpg" alt="User avatar" class="card-avatar" />\n'
+                    '  <div class="card-body">\n'
+                    '    <h3 class="card-title">John Doe</h3>\n'
+                    '    <p class="card-role">Software Architect</p>\n'
+                    '    <a href="#profile" class="btn-link">View Profile</a>\n'
+                    '  </div>\n'
+                    '</article>\n'
+                ),
+            },
+            {
+                'title': 'Search form with label',
+                'code': (
+                    '<form role="search" class="search-form" action="/search" method="get">\n'
+                    '  <label for="site-search" class="visually-hidden">Search site:</label>\n'
+                    '  <input type="search" id="site-search" name="q" placeholder="Search docs..." required />\n'
+                    '  <button type="submit" aria-label="Submit search">\n'
+                    '    <span class="icon">🔍</span>\n'
+                    '  </button>\n'
+                    '</form>\n'
+                ),
+            },
+            {
+                'title': 'Audio player with fallbacks',
+                'code': (
+                    '<figure class="audio-widget">\n'
+                    '  <figcaption>Episode 42: Building High-Performance APIs</figcaption>\n'
+                    '  <audio controls preload="metadata">\n'
+                    '    <source src="podcast-ep42.mp3" type="audio/mpeg" />\n'
+                    '    <source src="podcast-ep42.ogg" type="audio/ogg" />\n'
+                    '    <p>Your browser does not support HTML5 audio.</p>\n'
+                    '  </audio>\n'
+                    '</figure>\n'
+                ),
+            },
+            {
+                'title': 'Responsive picture element',
+                'code': (
+                    '<picture class="hero-picture">\n'
+                    '  <source srcset="hero-large.avif" type="image/avif" media="(min-width: 1024px)" />\n'
+                    '  <source srcset="hero-medium.webp" type="image/webp" media="(min-width: 640px)" />\n'
+                    '  <img src="hero-fallback.jpg" alt="Modern workspace setup" loading="lazy" width="800" height="450" />\n'
+                    '</picture>\n'
+                ),
+            },
+            {
+                'title': 'Interactive details disclosure',
+                'code': (
+                    '<details class="faq-item">\n'
+                    '  <summary class="faq-question">What languages are supported?</summary>\n'
+                    '  <div class="faq-answer">\n'
+                    '    <p>SprintCoder supports Python, JavaScript, Java, C++, Go, SQL, CSS, Bash, HTML, PHP, and C#.</p>\n'
+                    '  </div>\n'
+                    '</details>\n'
+                ),
+            },
+        ],
+        'medium': [
+            {
+                'title': 'Billing address form',
+                'code': (
+                    '<fieldset class="billing-fieldset">\n'
+                    '  <legend>Billing Address</legend>\n'
+                    '  <div class="form-row">\n'
+                    '    <label for="first-name">First Name</label>\n'
+                    '    <input type="text" id="first-name" name="firstName" autocomplete="given-name" required />\n'
+                    '  </div>\n'
+                    '  <div class="form-row">\n'
+                    '    <label for="last-name">Last Name</label>\n'
+                    '    <input type="text" id="last-name" name="lastName" autocomplete="family-name" required />\n'
+                    '  </div>\n'
+                    '  <div class="form-row">\n'
+                    '    <label for="email">Work Email</label>\n'
+                    '    <input type="email" id="email" name="email" autocomplete="email" required />\n'
+                    '  </div>\n'
+                    '  <div class="form-row">\n'
+                    '    <label for="country">Country</label>\n'
+                    '    <select id="country" name="country" required>\n'
+                    '      <option value="">Select country...</option>\n'
+                    '      <option value="US">United States</option>\n'
+                    '      <option value="DE">Germany</option>\n'
+                    '      <option value="JP">Japan</option>\n'
+                    '    </select>\n'
+                    '  </div>\n'
+                    '</fieldset>\n'
+                ),
+            },
+            {
+                'title': 'Semantic responsive header',
+                'code': (
+                    '<header class="primary-header">\n'
+                    '  <a href="/" class="brand-logo" aria-label="Homepage">\n'
+                    '    <svg width="32" height="32" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>\n'
+                    '    <span class="brand-name">SprintCoder</span>\n'
+                    '  </a>\n'
+                    '  <nav class="site-navigation" aria-label="Primary navigation">\n'
+                    '    <ul class="nav-list">\n'
+                    '      <li><a href="/practice" class="nav-link active" aria-current="page">Practice</a></li>\n'
+                    '      <li><a href="/leaderboard" class="nav-link">Leaderboard</a></li>\n'
+                    '      <li><a href="/snippets" class="nav-link">Snippets</a></li>\n'
+                    '      <li><a href="/profile" class="nav-link">Profile</a></li>\n'
+                    '    </ul>\n'
+                    '  </nav>\n'
+                    '  <div class="header-actions">\n'
+                    '    <button type="button" class="btn btn-secondary">Settings</button>\n'
+                    '  </div>\n'
+                    '</header>\n'
+                ),
+            },
+            {
+                'title': 'Accessible modal dialog',
+                'code': (
+                    '<dialog id="confirm-modal" class="modal" aria-labelledby="modal-title">\n'
+                    '  <form method="dialog" class="modal-box">\n'
+                    '    <header class="modal-header">\n'
+                    '      <h2 id="modal-title">Delete Snippet</h2>\n'
+                    '      <button type="submit" value="cancel" class="btn-close" aria-label="Close modal">✕</button>\n'
+                    '    </header>\n'
+                    '    <div class="modal-content">\n'
+                    '      <p>Are you sure you want to permanently delete this practice snippet?</p>\n'
+                    '      <p class="text-warning">This action cannot be undone.</p>\n'
+                    '    </div>\n'
+                    '    <footer class="modal-footer">\n'
+                    '      <button type="submit" value="cancel" class="btn btn-ghost">Cancel</button>\n'
+                    '      <button type="submit" value="confirm" class="btn btn-danger">Delete</button>\n'
+                    '    </footer>\n'
+                    '  </form>\n'
+                    '</dialog>\n'
+                ),
+            },
+            {
+                'title': 'Pricing tier card',
+                'code': (
+                    '<div class="pricing-card highlighted">\n'
+                    '  <div class="card-badge">Most Popular</div>\n'
+                    '  <h3 class="tier-name">Pro Developer</h3>\n'
+                    '  <div class="tier-price">\n'
+                    '    <span class="currency">$</span>\n'
+                    '    <span class="amount">19</span>\n'
+                    '    <span class="period">/month</span>\n'
+                    '  </div>\n'
+                    '  <ul class="tier-features" role="list">\n'
+                    '    <li>✓ Unlimited practice sessions</li>\n'
+                    '    <li>✓ Personal GitHub repo sync</li>\n'
+                    '    <li>✓ Detailed speed analytics</li>\n'
+                    '    <li>✓ Custom theme designer</li>\n'
+                    '  </ul>\n'
+                    '  <button type="button" class="btn btn-primary btn-block">Upgrade to Pro</button>\n'
+                    '</div>\n'
+                ),
+            },
+            {
+                'title': 'Stats overview tiles',
+                'code': (
+                    '<section class="stats-overview" aria-label="Performance Metrics">\n'
+                    '  <div class="stat-tile">\n'
+                    '    <span class="stat-icon" aria-hidden="true">⚡</span>\n'
+                    '    <span class="stat-title">Peak Speed</span>\n'
+                    '    <strong class="stat-number">124 <small>WPM</small></strong>\n'
+                    '    <span class="stat-delta positive">+12% this week</span>\n'
+                    '  </div>\n'
+                    '  <div class="stat-tile">\n'
+                    '    <span class="stat-icon" aria-hidden="true">🎯</span>\n'
+                    '    <span class="stat-title">Accuracy</span>\n'
+                    '    <strong class="stat-number">99.2<small>%</small></strong>\n'
+                    '    <span class="stat-delta neutral">Target: 98%</span>\n'
+                    '  </div>\n'
+                    '</section>\n'
+                ),
+            },
+        ],
+        'hard': [
+            {
+                'title': 'Full semantic page layout',
+                'code': (
+                    '<!DOCTYPE html>\n'
+                    '<html lang="en" data-theme="dark">\n'
+                    '<head>\n'
+                    '  <meta charset="UTF-8" />\n'
+                    '  <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n'
+                    '  <meta name="description" content="SprintCoder - Developer Typing Speed Trainer" />\n'
+                    '  <title>Developer Typing Arena</title>\n'
+                    '  <link rel="stylesheet" href="/styles/main.css" />\n'
+                    '  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />\n'
+                    '</head>\n'
+                    '<body>\n'
+                    '  <div class="app-layout">\n'
+                    '    <aside class="sidebar" aria-label="Sidebar navigation">\n'
+                    '      <nav class="sidebar-nav">\n'
+                    '        <a href="#dashboard" class="sidebar-item active">Dashboard</a>\n'
+                    '        <a href="#training" class="sidebar-item">Training</a>\n'
+                    '        <a href="#stats" class="sidebar-item">Statistics</a>\n'
+                    '      </nav>\n'
+                    '    </aside>\n'
+                    '    <main id="main-content" class="content-area">\n'
+                    '      <section class="hero-banner">\n'
+                    '        <h1>Master Every Keystroke</h1>\n'
+                    '        <p>Real syntax training for professional software engineers.</p>\n'
+                    '        <div class="cta-group">\n'
+                    '          <button class="btn btn-accent">Start Session</button>\n'
+                    '          <a href="#learn-more" class="btn btn-outline">Documentation</a>\n'
+                    '        </div>\n'
+                    '      </section>\n'
+                    '    </main>\n'
+                    '  </div>\n'
+                    '</body>\n'
+                    '</html>\n'
+                ),
+            },
+            {
+                'title': 'Results benchmark table',
+                'code': (
+                    '<div class="table-container" tabindex="0" role="region" aria-label="Attempt Results">\n'
+                    '  <table class="data-table">\n'
+                    '    <caption>Typing benchmark results sorted by highest WPM</caption>\n'
+                    '    <thead>\n'
+                    '      <tr>\n'
+                    '        <th scope="col">Language</th>\n'
+                    '        <th scope="col">Difficulty</th>\n'
+                    '        <th scope="col" class="num-col">WPM</th>\n'
+                    '        <th scope="col" class="num-col">CPM</th>\n'
+                    '        <th scope="col" class="num-col">Accuracy</th>\n'
+                    '        <th scope="col" class="num-col">Duration</th>\n'
+                    '      </tr>\n'
+                    '    </thead>\n'
+                    '    <tbody>\n'
+                    '      <tr>\n'
+                    '        <th scope="row"><span class="badge lang-py">Python</span></th>\n'
+                    '        <td><span class="diff-tag medium">Medium</span></td>\n'
+                    '        <td class="num-col"><strong>92.4</strong></td>\n'
+                    '        <td class="num-col">462</td>\n'
+                    '        <td class="num-col success">99.1%</td>\n'
+                    '        <td class="num-col">45.2s</td>\n'
+                    '      </tr>\n'
+                    '      <tr>\n'
+                    '        <th scope="row"><span class="badge lang-js">JavaScript</span></th>\n'
+                    '        <td><span class="diff-tag hard">Hard</span></td>\n'
+                    '        <td class="num-col"><strong>88.0</strong></td>\n'
+                    '        <td class="num-col">440</td>\n'
+                    '        <td class="num-col success">97.8%</td>\n'
+                    '        <td class="num-col">62.0s</td>\n'
+                    '      </tr>\n'
+                    '    </tbody>\n'
+                    '  </table>\n'
+                    '</div>\n'
+                ),
+            },
+            {
+                'title': 'Multi-step signup wizard',
+                'code': (
+                    '<form class="multi-step-form" id="signup-wizard">\n'
+                    '  <nav class="steps-progress" aria-label="Registration steps">\n'
+                    '    <ol class="step-indicators">\n'
+                    '      <li class="step completed" aria-current="false">\n'
+                    '        <span class="step-number">1</span>\n'
+                    '        <span class="step-label">Account</span>\n'
+                    '      </li>\n'
+                    '      <li class="step current" aria-current="step">\n'
+                    '        <span class="step-number">2</span>\n'
+                    '        <span class="step-label">Preferences</span>\n'
+                    '      </li>\n'
+                    '      <li class="step" aria-current="false">\n'
+                    '        <span class="step-number">3</span>\n'
+                    '        <span class="step-label">Confirm</span>\n'
+                    '      </li>\n'
+                    '    </ol>\n'
+                    '  </nav>\n'
+                    '  <div class="step-content">\n'
+                    '    <fieldset class="preferences-box">\n'
+                    '      <legend>Editor Preferences</legend>\n'
+                    '      <div class="field-group">\n'
+                    '        <label for="font-family">Default Code Font</label>\n'
+                    '        <select id="font-family" name="fontFamily">\n'
+                    '          <option value="jetbrains">JetBrains Mono</option>\n'
+                    '          <option value="fira">Fira Code</option>\n'
+                    '          <option value="roboto">Roboto Mono</option>\n'
+                    '        </select>\n'
+                    '      </div>\n'
+                    '    </fieldset>\n'
+                    '  </div>\n'
+                    '</form>\n'
+                ),
+            },
+            {
+                'title': 'Playground dual pane layout',
+                'code': (
+                    '<section class="playground-grid" aria-label="Interactive Code Playground">\n'
+                    '  <div class="pane editor-pane">\n'
+                    '    <div class="pane-bar">\n'
+                    '      <span class="pane-tab active">index.html</span>\n'
+                    '      <span class="pane-tab">styles.css</span>\n'
+                    '    </div>\n'
+                    '    <div class="editor-surface" role="textbox" aria-multiline="true">\n'
+                    '      <pre><code>&lt;button class="btn"&gt;Click me&lt;/button&gt;</code></pre>\n'
+                    '    </div>\n'
+                    '  </div>\n'
+                    '  <div class="pane preview-pane">\n'
+                    '    <div class="pane-bar">\n'
+                    '      <span class="pane-title">Live Preview</span>\n'
+                    '      <button class="btn-refresh" aria-label="Refresh preview">🔄</button>\n'
+                    '    </div>\n'
+                    '    <iframe src="about:blank" title="Preview Frame" class="preview-frame" sandbox="allow-scripts"></iframe>\n'
+                    '  </div>\n'
+                    '</section>\n'
+                ),
+            },
+            {
+                'title': 'User profile card with bio',
+                'code': (
+                    '<div class="profile-card-full">\n'
+                    '  <div class="profile-cover" style="background-image: url(\'/cover.jpg\');"></div>\n'
+                    '  <div class="profile-header-strip">\n'
+                    '    <img src="/avatar.jpg" alt="Profile of Alice" class="avatar-large" />\n'
+                    '    <div class="header-titles">\n'
+                    '      <h2>Alice Vance</h2>\n'
+                    '      <p class="handle">@alice_dev &bull; Joined March 2024</p>\n'
+                    '    </div>\n'
+                    '    <div class="profile-cta">\n'
+                    '      <button type="button" class="btn btn-primary">Follow</button>\n'
+                    '      <button type="button" class="btn btn-icon" aria-label="More options">•••</button>\n'
+                    '    </div>\n'
+                    '  </div>\n'
+                    '  <div class="profile-bio">\n'
+                    '    <p>Full-stack developer building developer tools and reactive web interfaces.</p>\n'
+                    '    <ul class="meta-list" role="list">\n'
+                    '      <li>📍 Berlin, Germany</li>\n'
+                    '      <li>🔗 <a href="https://example.com">alice.dev</a></li>\n'
+                    '      <li>💼 Freelance Engineer</li>\n'
+                    '    </ul>\n'
+                    '  </div>\n'
+                    '</div>\n'
+                ),
+            },
+        ],
+    },
+    'php': {
+        'easy': [
+            {
+                'title': 'Filter even numbers',
+                'code': (
+                    'function getEvenNumbers(array $numbers): array {\n'
+                    '    return array_values(array_filter(\n'
+                    '        $numbers,\n'
+                    '        fn(int $n): bool => $n % 2 === 0\n'
+                    '    ));\n'
+                    '}\n'
+                    '\n'
+                    '$evens = getEvenNumbers([1, 2, 3, 4, 5, 6, 7, 8]);\n'
+                ),
+            },
+            {
+                'title': 'String slugifier',
+                'code': (
+                    'function slugify(string $text): string {\n'
+                    '    $text = preg_replace(\'~[^\\pL\\d]+~u\', \'-\', $text);\n'
+                    '    $text = iconv(\'utf-8\', \'us-ascii//TRANSLIT\', $text);\n'
+                    '    $text = preg_replace(\'~[^-\\w]+~\', \'\', $text);\n'
+                    '    return strtolower(trim($text, \'-\'));\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'Read environment variable',
+                'code': (
+                    'function env(string $key, mixed $default = null): mixed {\n'
+                    '    $value = getenv($key);\n'
+                    '    if ($value === false) {\n'
+                    '        return $default;\n'
+                    '    }\n'
+                    '    return match (strtolower($value)) {\n'
+                    '        \'true\' => true,\n'
+                    '        \'false\' => false,\n'
+                    '        \'null\' => null,\n'
+                    '        default => $value,\n'
+                    '    };\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'Email Value Object',
+                'code': (
+                    'final readonly class EmailAddress {\n'
+                    '    public function __construct(public string $value) {\n'
+                    '        if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {\n'
+                    '            throw new InvalidArgumentException("Invalid email: {$value}");\n'
+                    '        }\n'
+                    '    }\n'
+                    '\n'
+                    '    public function getDomain(): string {\n'
+                    '        return substr(strrchr($this->value, \'@\'), 1);\n'
+                    '    }\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'JSON response helper',
+                'code': (
+                    'function jsonResponse(mixed $data, int $status = 200): void {\n'
+                    '    http_response_code($status);\n'
+                    '    header(\'Content-Type: application/json; charset=utf-8\');\n'
+                    '    echo json_encode($data, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);\n'
+                    '    exit;\n'
+                    '}\n'
+                ),
+            },
+        ],
+        'medium': [
+            {
+                'title': 'PDO Database Singleton',
+                'code': (
+                    'final class Database {\n'
+                    '    private static ?PDO $instance = null;\n'
+                    '\n'
+                    '    public static function getConnection(): PDO {\n'
+                    '        if (self::$instance === null) {\n'
+                    '            $dsn = \'mysql:host=127.0.0.1;dbname=app;charset=utf8mb4\';\n'
+                    '            self::$instance = new PDO($dsn, \'db_user\', \'secret\', [\n'
+                    '                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,\n'
+                    '                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,\n'
+                    '                PDO::ATTR_EMULATE_PREPARES => false,\n'
+                    '            ]);\n'
+                    '        }\n'
+                    '        return self::$instance;\n'
+                    '    }\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'User repository pattern',
+                'code': (
+                    'final class UserRepository {\n'
+                    '    public function __construct(private PDO $db) {}\n'
+                    '\n'
+                    '    public function findByEmail(string $email): ?User {\n'
+                    '        $stmt = $this->db->prepare(\'SELECT * FROM users WHERE email = :email LIMIT 1\');\n'
+                    '        $stmt->execute([\'email\' => $email]);\n'
+                    '        $row = $stmt->fetch();\n'
+                    '\n'
+                    '        if (!$row) {\n'
+                    '            return null;\n'
+                    '        }\n'
+                    '\n'
+                    '        return new User(\n'
+                    '            id: (int) $row[\'id\'],\n'
+                    '            name: $row[\'name\'],\n'
+                    '            email: $row[\'email\'],\n'
+                    '            createdAt: new DateTimeImmutable($row[\'created_at\'])\n'
+                    '        );\n'
+                    '    }\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'API Bearer auth middleware',
+                'code': (
+                    'final class AuthenticationMiddleware {\n'
+                    '    public function handle(Request $request, callable $next): Response {\n'
+                    '        $token = $request->getHeaderLine(\'Authorization\');\n'
+                    '\n'
+                    '        if (!str_starts_with($token, \'Bearer \')) {\n'
+                    '            return new JsonResponse([\'error\' => \'Unauthorized\'], 401);\n'
+                    '        }\n'
+                    '\n'
+                    '        $apiKey = substr($token, 7);\n'
+                    '        if (!$this->isValidApiKey($apiKey)) {\n'
+                    '            return new JsonResponse([\'error\' => \'Invalid token\'], 403);\n'
+                    '        }\n'
+                    '\n'
+                    '        return $next($request);\n'
+                    '    }\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'Redis token rate limiter',
+                'code': (
+                    'final class RateLimiter {\n'
+                    '    public function __construct(\n'
+                    '        private Redis $redis,\n'
+                    '        private int $maxAttempts = 60,\n'
+                    '        private int $decaySeconds = 60\n'
+                    '    ) {}\n'
+                    '\n'
+                    '    public function tooManyAttempts(string $key): bool {\n'
+                    '        $attempts = (int) $this->redis->get($key);\n'
+                    '        return $attempts >= $this->maxAttempts;\n'
+                    '    }\n'
+                    '\n'
+                    '    public function hit(string $key): int {\n'
+                    '        $count = $this->redis->incr($key);\n'
+                    '        if ($count === 1) {\n'
+                    '            $this->redis->expire($key, $this->decaySeconds);\n'
+                    '        }\n'
+                    '        return $count;\n'
+                    '    }\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'Expiring file cache store',
+                'code': (
+                    'final class SimpleCache {\n'
+                    '    public function __construct(private string $cacheDir) {}\n'
+                    '\n'
+                    '    public function set(string $key, mixed $value, int $ttl = 3600): bool {\n'
+                    '        $filename = $this->cacheDir . \'/\' . md5($key) . \'.cache\';\n'
+                    '        $payload = serialize([\n'
+                    '            \'expires\' => time() + $ttl,\n'
+                    '            \'data\' => $value,\n'
+                    '        ]);\n'
+                    '        return file_put_contents($filename, $payload, LOCK_EX) !== false;\n'
+                    '    }\n'
+                    '\n'
+                    '    public function get(string $key, mixed $default = null): mixed {\n'
+                    '        $filename = $this->cacheDir . \'/\' . md5($key) . \'.cache\';\n'
+                    '        if (!file_exists($filename)) return $default;\n'
+                    '        $content = unserialize(file_get_contents($filename));\n'
+                    '        if ($content[\'expires\'] < time()) {\n'
+                    '            unlink($filename);\n'
+                    '            return $default;\n'
+                    '        }\n'
+                    '        return $content[\'data\'];\n'
+                    '    }\n'
+                    '}\n'
+                ),
+            },
+        ],
+        'hard': [
+            {
+                'title': 'Event dispatcher with typed events',
+                'code': (
+                    'final class EventDispatcher {\n'
+                    '    /** @var array<string, list<callable>> */\n'
+                    '    private array $listeners = [];\n'
+                    '\n'
+                    '    public function listen(string $eventClass, callable $listener): void {\n'
+                    '        $this->listeners[$eventClass][] = $listener;\n'
+                    '    }\n'
+                    '\n'
+                    '    public function dispatch(object $event): object {\n'
+                    '        $eventClass = get_class($event);\n'
+                    '        if (!isset($this->listeners[$eventClass])) {\n'
+                    '            return $event;\n'
+                    '        }\n'
+                    '\n'
+                    '        foreach ($this->listeners[$eventClass] as $listener) {\n'
+                    '            $listener($event);\n'
+                    '            if ($event instanceof StoppableEventInterface && $event->isPropagationStopped()) {\n'
+                    '                break;\n'
+                    '            }\n'
+                    '        }\n'
+                    '\n'
+                    '        return $event;\n'
+                    '    }\n'
+                    '}\n'
+                    '\n'
+                    'final class UserRegisteredEvent {\n'
+                    '    public function __construct(\n'
+                    '        public readonly int $userId,\n'
+                    '        public readonly string $email,\n'
+                    '        public readonly DateTimeImmutable $occurredAt = new DateTimeImmutable()\n'
+                    '    ) {}\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'Micro HTTP regex router',
+                'code': (
+                    'final class Router {\n'
+                    '    private array $routes = [];\n'
+                    '\n'
+                    '    public function add(string $method, string $path, callable $handler): void {\n'
+                    '        $pattern = preg_replace(\'/\\{([a-zA-Z0-9_]+)\\}/\', \'(?P<$1>[^/]+)\', $path);\n'
+                    '        $this->routes[] = [\n'
+                    '            \'method\' => strtoupper($method),\n'
+                    '            \'pattern\' => \'#^\' . $pattern . \'$#\',\n'
+                    '            \'handler\' => $handler,\n'
+                    '        ];\n'
+                    '    }\n'
+                    '\n'
+                    '    public function dispatch(string $method, string $uri): mixed {\n'
+                    '        $path = parse_url($uri, PHP_URL_PATH);\n'
+                    '        foreach ($this->routes as $route) {\n'
+                    '            if ($route[\'method\'] !== $method) continue;\n'
+                    '            if (preg_match($route[\'pattern\'], $path, $matches)) {\n'
+                    '                $params = array_filter($matches, \'is_string\', ARRAY_FILTER_USE_KEY);\n'
+                    '                return call_user_func($route[\'handler\'], $params);\n'
+                    '            }\n'
+                    '        }\n'
+                    '        http_response_code(404);\n'
+                    '        return [\'error\' => \'Route not found\'];\n'
+                    '    }\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'Transactional command bus',
+                'code': (
+                    'interface CommandHandlerInterface {\n'
+                    '    public function handle(object $command): void;\n'
+                    '}\n'
+                    '\n'
+                    'final class TransactionalCommandBus {\n'
+                    '    public function __construct(\n'
+                    '        private PDO $db,\n'
+                    '        private array $handlers = []\n'
+                    '    ) {}\n'
+                    '\n'
+                    '    public function register(string $commandClass, CommandHandlerInterface $handler): void {\n'
+                    '        $this->handlers[$commandClass] = $handler;\n'
+                    '    }\n'
+                    '\n'
+                    '    public function execute(object $command): void {\n'
+                    '        $class = get_class($command);\n'
+                    '        if (!isset($this->handlers[$class])) {\n'
+                    '            throw new RuntimeException("No handler registered for command {$class}");\n'
+                    '        }\n'
+                    '\n'
+                    '        $this->db->beginTransaction();\n'
+                    '        try {\n'
+                    '            $this->handlers[$class]->handle($command);\n'
+                    '            $this->db->commit();\n'
+                    '        } catch (Throwable $e) {\n'
+                    '            $this->db->rollBack();\n'
+                    '            throw $e;\n'
+                    '        }\n'
+                    '    }\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'CSV output streaming exporter',
+                'code': (
+                    'final class CsvStreamExporter {\n'
+                    '    public function __construct(private PDOStatement $statement) {}\n'
+                    '\n'
+                    '    public function exportToOutput(string $filename): void {\n'
+                    '        header(\'Content-Type: text/csv; charset=utf-8\');\n'
+                    '        header(\'Content-Disposition: attachment; filename="\' . $filename . \'"\');\n'
+                    '        header(\'Pragma: no-cache\');\n'
+                    '        header(\'Expires: 0\');\n'
+                    '\n'
+                    '        $output = fopen(\'php://output\', \'w\');\n'
+                    '        fputs($output, "\xEF\xBB\xBF");\n'
+                    '\n'
+                    '        $headersWritten = false;\n'
+                    '        while ($row = $this->statement->fetch(PDO::FETCH_ASSOC)) {\n'
+                    '            if (!$headersWritten) {\n'
+                    '                fputcsv($output, array_keys($row));\n'
+                    '                $headersWritten = true;\n'
+                    '            }\n'
+                    '            fputcsv($output, $row);\n'
+                    '        }\n'
+                    '\n'
+                    '        fclose($output);\n'
+                    '    }\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'HMAC JWT encoder and validator',
+                'code': (
+                    'final class JwtService {\n'
+                    '    public function __construct(private string $secretKey) {}\n'
+                    '\n'
+                    '    public function encode(array $payload, int $ttl = 3600): string {\n'
+                    '        $header = base64_encode(json_encode([\'typ\' => \'JWT\', \'alg\' => \'HS256\']));\n'
+                    '        $payload[\'exp\'] = time() + $ttl;\n'
+                    '        $body = base64_encode(json_encode($payload));\n'
+                    '        $signature = hash_hmac(\'sha256\', "{$header}.{$body}", $this->secretKey, true);\n'
+                    '        return "{$header}.{$body}." . base64_encode($signature);\n'
+                    '    }\n'
+                    '\n'
+                    '    public function decode(string $token): ?array {\n'
+                    '        $parts = explode(\'.\', $token);\n'
+                    '        if (count($parts) !== 3) return null;\n'
+                    '        [$header, $body, $sig] = $parts;\n'
+                    '        $expected = base64_encode(hash_hmac(\'sha256\', "{$header}.{$body}", $this->secretKey, true));\n'
+                    '        if (!hash_equals($expected, $sig)) return null;\n'
+                    '        $payload = json_decode(base64_decode($body), true);\n'
+                    '        if (($payload[\'exp\'] ?? 0) < time()) return null;\n'
+                    '        return $payload;\n'
+                    '    }\n'
+                    '}\n'
+                ),
+            },
+        ],
+    },
+    'csharp': {
+        'easy': [
+            {
+                'title': 'Record with positional params',
+                'code': (
+                    'public record UserSummary(\n'
+                    '    int Id,\n'
+                    '    string Username,\n'
+                    '    string Email,\n'
+                    '    DateTime CreatedAt\n'
+                    ');\n'
+                    '\n'
+                    'var user = new UserSummary(1, "neo", "neo@matrix.io", DateTime.UtcNow);\n'
+                    'Console.WriteLine($"User: {user.Username} ({user.Email})");\n'
+                ),
+            },
+            {
+                'title': 'Generic repository interface',
+                'code': (
+                    'public interface IRepository<T> where T : class\n'
+                    '{\n'
+                    '    Task<T?> GetByIdAsync(int id, CancellationToken ct = default);\n'
+                    '    Task<IReadOnlyList<T>> ListAllAsync(CancellationToken ct = default);\n'
+                    '    Task<T> AddAsync(T entity, CancellationToken ct = default);\n'
+                    '    Task DeleteAsync(T entity, CancellationToken ct = default);\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'LINQ aggregation by initial',
+                'code': (
+                    'public static Dictionary<string, int> CountWordsByInitial(IEnumerable<string> words)\n'
+                    '{\n'
+                    '    return words\n'
+                    '        .Where(w => !string.IsNullOrWhiteSpace(w))\n'
+                    '        .GroupBy(w => char.ToUpperInvariant(w[0]).ToString())\n'
+                    '        .ToDictionary(g => g.Key, g => g.Count());\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'String truncation extension',
+                'code': (
+                    'public static class StringExtensions\n'
+                    '{\n'
+                    '    public static string Truncate(this string? text, int maxLength, string suffix = "...")\n'
+                    '    {\n'
+                    '        if (string.IsNullOrEmpty(text) || text.Length <= maxLength)\n'
+                    '            return text ?? string.Empty;\n'
+                    '\n'
+                    '        return text[..(maxLength - suffix.Length)] + suffix;\n'
+                    '    }\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'Custom Result pattern struct',
+                'code': (
+                    'public readonly struct Result<T>\n'
+                    '{\n'
+                    '    public bool IsSuccess { get; }\n'
+                    '    public T? Value { get; }\n'
+                    '    public string? Error { get; }\n'
+                    '\n'
+                    '    public Result(T value) => (IsSuccess, Value, Error) = (true, value, null);\n'
+                    '    public Result(string error) => (IsSuccess, Value, Error) = (false, default, error);\n'
+                    '}\n'
+                ),
+            },
+        ],
+        'medium': [
+            {
+                'title': 'ASP.NET Core Minimal API',
+                'code': (
+                    'var builder = WebApplication.CreateBuilder(args);\n'
+                    'builder.Services.AddSingleton<ITypingService, TypingService>();\n'
+                    '\n'
+                    'var app = builder.Build();\n'
+                    '\n'
+                    'app.MapGet("/api/snippets/{id:int}", async (int id, ITypingService service) =>\n'
+                    '{\n'
+                    '    var snippet = await service.GetSnippetByIdAsync(id);\n'
+                    '    return snippet is not null \n'
+                    '        ? Results.Ok(snippet) \n'
+                    '        : Results.NotFound(new { message = $"Snippet {id} not found." });\n'
+                    '});\n'
+                    '\n'
+                    'app.MapPost("/api/attempts", async (AttemptDto dto, ITypingService service) =>\n'
+                    '{\n'
+                    '    var result = await service.RecordAttemptAsync(dto);\n'
+                    '    return Results.Created($"/api/attempts/{result.Id}", result);\n'
+                    '});\n'
+                    '\n'
+                    'app.Run();\n'
+                ),
+            },
+            {
+                'title': 'MemoryCache wrapper service',
+                'code': (
+                    'public class CacheService : ICacheService\n'
+                    '{\n'
+                    '    private readonly IMemoryCache _memoryCache;\n'
+                    '    private readonly TimeSpan _defaultTtl = TimeSpan.FromMinutes(10);\n'
+                    '\n'
+                    '    public CacheService(IMemoryCache memoryCache) => _memoryCache = memoryCache;\n'
+                    '\n'
+                    '    public async Task<T> GetOrCreateAsync<T>(string key, Func<Task<T>> factory, TimeSpan? ttl = null)\n'
+                    '    {\n'
+                    '        if (_memoryCache.TryGetValue(key, out T? cachedItem) && cachedItem is not null)\n'
+                    '            return cachedItem;\n'
+                    '\n'
+                    '        var newItem = await factory();\n'
+                    '        _memoryCache.Set(key, newItem, ttl ?? _defaultTtl);\n'
+                    '        return newItem;\n'
+                    '    }\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'MediatR logging pipeline',
+                'code': (
+                    'public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>\n'
+                    '    where TRequest : notnull\n'
+                    '{\n'
+                    '    private readonly ILogger<LoggingBehavior<TRequest, TResponse>> _logger;\n'
+                    '\n'
+                    '    public LoggingBehavior(ILogger<LoggingBehavior<TRequest, TResponse>> logger) => _logger = logger;\n'
+                    '\n'
+                    '    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken ct)\n'
+                    '    {\n'
+                    '        var requestName = typeof(TRequest).Name;\n'
+                    '        _logger.LogInformation("Handling {RequestName}", requestName);\n'
+                    '\n'
+                    '        var stopwatch = Stopwatch.StartNew();\n'
+                    '        var response = await next();\n'
+                    '        stopwatch.Stop();\n'
+                    '\n'
+                    '        _logger.LogInformation("Handled {RequestName} in {ElapsedMs}ms", requestName, stopwatch.ElapsedMilliseconds);\n'
+                    '        return response;\n'
+                    '    }\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'Generic binary search',
+                'code': (
+                    'public static class SearchAlgorithms\n'
+                    '{\n'
+                    '    public static int BinarySearch<T>(IReadOnlyList<T> list, T target) where T : IComparable<T>\n'
+                    '    {\n'
+                    '        int left = 0;\n'
+                    '        int right = list.Count - 1;\n'
+                    '\n'
+                    '        while (left <= right)\n'
+                    '        {\n'
+                    '            int mid = left + (right - left) / 2;\n'
+                    '            int comparison = list[mid].CompareTo(target);\n'
+                    '\n'
+                    '            if (comparison == 0) return mid;\n'
+                    '            if (comparison < 0) left = mid + 1;\n'
+                    '            else right = mid - 1;\n'
+                    '        }\n'
+                    '\n'
+                    '        return -1;\n'
+                    '    }\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'Periodic background service',
+                'code': (
+                    'public class MetricsReporterService : BackgroundService\n'
+                    '{\n'
+                    '    private readonly ILogger<MetricsReporterService> _logger;\n'
+                    '    private readonly PeriodicTimer _timer = new(TimeSpan.FromSeconds(30));\n'
+                    '\n'
+                    '    public MetricsReporterService(ILogger<MetricsReporterService> logger) => _logger = logger;\n'
+                    '\n'
+                    '    protected override async Task ExecuteAsync(CancellationToken stoppingToken)\n'
+                    '    {\n'
+                    '        while (await _timer.WaitForNextTickAsync(stoppingToken))\n'
+                    '        {\n'
+                    '            var memoryUsage = GC.GetTotalMemory(forceFullCollection: false) / 1024 / 1024;\n'
+                    '            _logger.LogInformation("GC Memory allocated: {MemoryMb} MB", memoryUsage);\n'
+                    '        }\n'
+                    '    }\n'
+                    '}\n'
+                ),
+            },
+        ],
+        'hard': [
+            {
+                'title': 'Thread-safe ObjectPool',
+                'code': (
+                    'public class ObjectPool<T> where T : class\n'
+                    '{\n'
+                    '    private readonly ConcurrentBag<T> _objects = new();\n'
+                    '    private readonly Func<T> _generator;\n'
+                    '    private readonly Action<T>? _reset;\n'
+                    '    private readonly int _maxCapacity;\n'
+                    '\n'
+                    '    public ObjectPool(Func<T> generator, Action<T>? reset = null, int maxCapacity = 32)\n'
+                    '    {\n'
+                    '        _generator = generator ?? throw new ArgumentNullException(nameof(generator));\n'
+                    '        _reset = reset;\n'
+                    '        _maxCapacity = maxCapacity;\n'
+                    '    }\n'
+                    '\n'
+                    '    public T Rent()\n'
+                    '    {\n'
+                    '        if (_objects.TryTake(out var item))\n'
+                    '            return item;\n'
+                    '\n'
+                    '        return _generator();\n'
+                    '    }\n'
+                    '\n'
+                    '    public void Return(T item)\n'
+                    '    {\n'
+                    '        _reset?.Invoke(item);\n'
+                    '        if (_objects.Count < _maxCapacity)\n'
+                    '        {\n'
+                    '            _objects.Add(item);\n'
+                    '        }\n'
+                    '        else if (item is IDisposable disposable)\n'
+                    '        {\n'
+                    '            disposable.Dispose();\n'
+                    '        }\n'
+                    '    }\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'Middleware pipeline builder',
+                'code': (
+                    'public delegate Task PipelineDelegate(HttpContext context);\n'
+                    '\n'
+                    'public class PipelineBuilder\n'
+                    '{\n'
+                    '    private readonly List<Func<PipelineDelegate, PipelineDelegate>> _components = new();\n'
+                    '\n'
+                    '    public PipelineBuilder Use(Func<HttpContext, Func<Task>, Task> middleware)\n'
+                    '    {\n'
+                    '        return Use(next => context => middleware(context, () => next(context)));\n'
+                    '    }\n'
+                    '\n'
+                    '    public PipelineBuilder Use(Func<PipelineDelegate, PipelineDelegate> middleware)\n'
+                    '    {\n'
+                    '        _components.Add(middleware);\n'
+                    '        return this;\n'
+                    '    }\n'
+                    '\n'
+                    '    public PipelineDelegate Build()\n'
+                    '    {\n'
+                    '        PipelineDelegate app = _ => Task.CompletedTask;\n'
+                    '        for (int i = _components.Count - 1; i >= 0; i--)\n'
+                    '        {\n'
+                    '            app = _components[i](app);\n'
+                    '        }\n'
+                    '        return app;\n'
+                    '    }\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'Concurrent Event Aggregator',
+                'code': (
+                    'public class EventAggregator : IEventAggregator\n'
+                    '{\n'
+                    '    private readonly ConcurrentDictionary<Type, List<object>> _subscriptions = new();\n'
+                    '\n'
+                    '    public void Subscribe<TEvent>(Action<TEvent> handler)\n'
+                    '    {\n'
+                    '        var type = typeof(TEvent);\n'
+                    '        _subscriptions.AddOrUpdate(\n'
+                    '            type,\n'
+                    '            _ => new List<object> { handler },\n'
+                    '            (_, list) => { lock (list) { list.Add(handler); } return list; }\n'
+                    '        );\n'
+                    '    }\n'
+                    '\n'
+                    '    public void Publish<TEvent>(TEvent eventMessage)\n'
+                    '    {\n'
+                    '        var type = typeof(TEvent);\n'
+                    '        if (!_subscriptions.TryGetValue(type, out var list)) return;\n'
+                    '\n'
+                    '        List<object> snapshot;\n'
+                    '        lock (list) { snapshot = new List<object>(list); }\n'
+                    '\n'
+                    '        foreach (var handler in snapshot)\n'
+                    '        {\n'
+                    '            if (handler is Action<TEvent> action)\n'
+                    '            {\n'
+                    '                action(eventMessage);\n'
+                    '            }\n'
+                    '        }\n'
+                    '    }\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'Exponential retry with jitter',
+                'code': (
+                    'public static class RetryPolicy\n'
+                    '{\n'
+                    '    public static async Task<T> ExecuteWithRetryAsync<T>(\n'
+                    '        Func<CancellationToken, Task<T>> operation,\n'
+                    '        int maxRetries = 3,\n'
+                    '        TimeSpan initialDelay = default,\n'
+                    '        CancellationToken ct = default)\n'
+                    '    {\n'
+                    '        if (initialDelay == default) initialDelay = TimeSpan.FromMilliseconds(200);\n'
+                    '        var random = new Random();\n'
+                    '\n'
+                    '        for (int attempt = 1; ; attempt++)\n'
+                    '        {\n'
+                    '            try\n'
+                    '            {\n'
+                    '                return await operation(ct);\n'
+                    '            }\n'
+                    '            catch (Exception) when (attempt < maxRetries && !ct.IsCancellationRequested)\n'
+                    '            {\n'
+                    '                var delayMs = (int)(initialDelay.TotalMilliseconds * Math.Pow(2, attempt - 1));\n'
+                    '                var jitter = random.Next(-delayMs / 4, delayMs / 4);\n'
+                    '                await Task.Delay(Math.Max(50, delayMs + jitter), ct);\n'
+                    '            }\n'
+                    '        }\n'
+                    '    }\n'
+                    '}\n'
+                ),
+            },
+            {
+                'title': 'Polymorphic JSON converter',
+                'code': (
+                    'public class ShapeJsonConverter : JsonConverter<Shape>\n'
+                    '{\n'
+                    '    public override Shape? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)\n'
+                    '    {\n'
+                    '        using var jsonDoc = JsonDocument.ParseValue(ref reader);\n'
+                    '        var root = jsonDoc.RootElement;\n'
+                    '        var typeProperty = root.GetProperty("type").GetString();\n'
+                    '\n'
+                    '        return typeProperty switch\n'
+                    '        {\n'
+                    '            "circle" => JsonSerializer.Deserialize<Circle>(root.GetRawText(), options),\n'
+                    '            "rectangle" => JsonSerializer.Deserialize<Rectangle>(root.GetRawText(), options),\n'
+                    '            _ => throw new JsonException($"Unknown shape type: \'{typeProperty}\'")\n'
+                    '        };\n'
+                    '    }\n'
+                    '\n'
+                    '    public override void Write(Utf8JsonWriter writer, Shape value, JsonSerializerOptions options)\n'
+                    '    {\n'
+                    '        JsonSerializer.Serialize(writer, (object)value, value.GetType(), options);\n'
                     '    }\n'
                     '}\n'
                 ),

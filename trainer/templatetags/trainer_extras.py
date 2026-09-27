@@ -13,6 +13,10 @@ DEVICON_CLASSES = {
     'go':         'devicon-go-plain colored',
     'sql':        'devicon-postgresql-plain colored',
     'css':        'devicon-css3-plain colored',
+    'bash':       'devicon-bash-plain colored',
+    'html':       'devicon-html5-plain colored',
+    'php':        'devicon-php-plain colored',
+    'csharp':     'devicon-csharp-plain colored',
 }
 
 
@@ -40,4 +44,16 @@ def jsonify(value):
     # json.dumps handles all string escaping; mark_safe prevents Django from
     # HTML-escaping quotes (") into &quot; which would break JSON.parse().
     return mark_safe(json.dumps(value))
+
+
+@register.filter
+def format_steam_time(seconds):
+    """Format seconds into Steam-like hours and minutes string."""
+    from ..utils import format_exercise_time
+    try:
+        sec = float(seconds or 0)
+    except (ValueError, TypeError):
+        sec = 0.0
+    return format_exercise_time(sec)['formatted']
+
 

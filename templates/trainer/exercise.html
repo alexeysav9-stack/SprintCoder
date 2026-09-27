@@ -76,6 +76,7 @@
   "snippet_id": {{ snippet.pk }},
   "code": {{ snippet.code|jsonify }},
   "save_url": "{% url 'save_attempt' %}",
+  "record_time_url": "{% url 'record_time' %}",
   "result_base_url": "{% url 'result' attempt_id=0 %}",
   "csrf_token": "{{ csrf_token }}"
 }

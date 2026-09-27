@@ -604,8 +604,212 @@ a:hover { color: var(--accent); }
 @keyframes slideDown { from { opacity:0; transform: translateY(-8px); } to { opacity:1; transform: none; } }
 
 /* ── 7. Main content & Footer ─────────────────────────── */
-.main-content { flex: 1; padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%; }
+.main-content { flex: 1; padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%; position: relative; }
 .footer { border-top: 1px solid var(--border); padding: 1.5rem 2rem; text-align: center; color: var(--fg-3); font-size: .85rem; }
+
+/* ── Steam Practice Time Corner Widget (Main Page) ────── */
+.steam-corner-widget {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 99;
+  animation: fadeInUp 0.35s ease-out;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.steam-widget-card {
+  background: linear-gradient(135deg, rgba(27, 40, 56, 0.95) 0%, rgba(23, 26, 33, 0.98) 100%);
+  border: 1px solid rgba(102, 192, 244, 0.35);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1.15rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 16px rgba(102, 192, 244, 0.12);
+  backdrop-filter: blur(12px);
+  min-width: 215px;
+  transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+}
+
+.steam-widget-card:hover {
+  border-color: rgba(102, 192, 244, 0.6);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55), 0 0 22px rgba(102, 192, 244, 0.22);
+  transform: translateY(-2px);
+}
+
+.steam-widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid rgba(102, 192, 244, 0.15);
+}
+
+.steam-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #66c0f4;
+}
+
+.steam-icon {
+  flex-shrink: 0;
+  filter: drop-shadow(0 0 4px rgba(102, 192, 244, 0.4));
+}
+
+.steam-header-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #8f98a0;
+  text-transform: uppercase;
+}
+
+.steam-toggle-btn {
+  background: none;
+  border: none;
+  color: #8f98a0;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  transition: color var(--transition), background var(--transition);
+}
+.steam-toggle-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.steam-widget-link {
+  text-decoration: none;
+  display: block;
+  color: inherit;
+}
+
+.steam-time-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.steam-time-val {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.steam-num {
+  font-family: var(--font-code);
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.25);
+}
+
+.steam-unit {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #66c0f4;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-right: 0.35rem;
+}
+
+.steam-time-sub {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.15rem;
+}
+
+.steam-pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #66c0f4;
+  box-shadow: 0 0 8px #66c0f4;
+  flex-shrink: 0;
+  animation: steamDotPulse 2s infinite ease-in-out;
+}
+
+@keyframes steamDotPulse {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 12px #66c0f4; }
+}
+
+.steam-sub-text {
+  font-size: 0.72rem;
+  color: #66c0f4;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* Minimized pill state */
+.steam-pill-minimized {
+  display: none;
+  align-items: center;
+  gap: 0.45rem;
+  background: linear-gradient(135deg, rgba(27, 40, 56, 0.95), rgba(23, 26, 33, 0.98));
+  border: 1px solid rgba(102, 192, 244, 0.4);
+  border-radius: 999px;
+  padding: 0.4rem 0.85rem;
+  color: #66c0f4;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  transition: all var(--transition);
+}
+
+.steam-pill-minimized:hover {
+  border-color: #66c0f4;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 14px rgba(102, 192, 244, 0.25);
+  transform: scale(1.05);
+}
+
+.steam-pill-text {
+  font-family: var(--font-code);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.steam-corner-widget.minimized .steam-widget-card {
+  display: none;
+}
+
+.steam-corner-widget.minimized .steam-pill-minimized {
+  display: inline-flex;
+}
+
+@media (max-width: 768px) {
+  .steam-corner-widget {
+    bottom: 1rem;
+    right: 1rem;
+  }
+  .steam-widget-card {
+    min-width: 200px;
+    max-width: calc(100vw - 2rem);
+    padding: 0.75rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .steam-corner-widget {
+    bottom: 0.75rem;
+    right: 0.75rem;
+  }
+  .steam-widget-card {
+    min-width: 180px;
+    max-width: calc(100vw - 1.5rem);
+    padding: 0.65rem 0.85rem;
+  }
+}
 
 /* ── 8. Home / Index Page ─────────────────────────────── */
 .hero {
@@ -1206,6 +1410,7 @@ a:hover { color: var(--accent); }
 .profile-header {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 1.5rem;
   padding: 2rem 0 2.5rem;
   border-bottom: 1px solid var(--border);
@@ -1225,9 +1430,91 @@ a:hover { color: var(--accent); }
   flex-shrink: 0;
   box-shadow: var(--shadow-glow);
 }
+.profile-info { flex: 1; min-width: 200px; }
 .profile-name { font-size: 1.6rem; font-weight: 800; letter-spacing: -.03em; }
 .profile-email { color: var(--fg-3); font-size: .9rem; margin-top: .15rem; }
 .profile-joined { color: var(--fg-4); font-size: .8rem; margin-top: .1rem; }
+
+/* ── Steam Profile Badge ──────────────────────────────── */
+.steam-profile-badge {
+  margin-left: auto;
+  background: linear-gradient(135deg, rgba(27, 40, 56, 0.95) 0%, rgba(23, 26, 33, 0.98) 100%);
+  border: 1px solid rgba(102, 192, 244, 0.35);
+  border-radius: var(--radius-lg);
+  padding: 0.95rem 1.35rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 16px rgba(102, 192, 244, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 220px;
+  backdrop-filter: blur(12px);
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+}
+
+.steam-profile-badge:hover {
+  border-color: rgba(102, 192, 244, 0.6);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55), 0 0 24px rgba(102, 192, 244, 0.22);
+  transform: translateY(-2px);
+}
+
+.steam-badge-top {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #66c0f4;
+  border-bottom: 1px solid rgba(102, 192, 244, 0.15);
+  padding-bottom: 0.35rem;
+}
+
+.steam-badge-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #8f98a0;
+  text-transform: uppercase;
+}
+
+.steam-badge-time {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+
+.steam-val {
+  font-family: var(--font-code);
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
+}
+
+.steam-lbl {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #66c0f4;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-right: 0.35rem;
+}
+
+.steam-badge-sub {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.72rem;
+  color: #66c0f4;
+  font-weight: 500;
+}
+
+@media (max-width: 700px) {
+  .steam-profile-badge {
+    margin-left: 0;
+    width: 100%;
+  }
+}
 
 /* Overall stats row */
 .overall-stats {
@@ -1236,7 +1523,13 @@ a:hover { color: var(--accent); }
   gap: .75rem;
   margin-bottom: 2.5rem;
 }
-@media (max-width: 640px) { .overall-stats { grid-template-columns: repeat(2, 1fr); } }
+.overall-stats-5 {
+  grid-template-columns: repeat(5, 1fr);
+}
+@media (max-width: 860px) { .overall-stats-5 { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 580px) {
+  .overall-stats, .overall-stats-5 { grid-template-columns: repeat(2, 1fr); }
+}
 
 .overall-card {
   background: var(--surface);
@@ -1249,6 +1542,23 @@ a:hover { color: var(--accent); }
   border-color: var(--accent);
   background: linear-gradient(135deg, var(--surface), var(--accent-glow));
 }
+.overall-card-steam {
+  border-color: rgba(102, 192, 244, 0.4);
+  background: linear-gradient(135deg, var(--surface), rgba(102, 192, 244, 0.12));
+  position: relative;
+  overflow: hidden;
+}
+.overall-card-steam::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, #66c0f4, transparent);
+}
+.overall-card-steam .overall-value {
+  color: #66c0f4;
+  font-size: 1.55rem;
+}
+
 .overall-value {
   font-family: var(--font-code);
   font-size: 2rem;
@@ -1289,7 +1599,15 @@ a:hover { color: var(--accent); }
   gap: .6rem;
   margin-bottom: 1.25rem;
 }
-@media (max-width: 580px) { .lang-stat-row { grid-template-columns: repeat(2, 1fr); } }
+.lang-stat-row-5 {
+  grid-template-columns: repeat(5, 1fr);
+}
+@media (max-width: 768px) {
+  .lang-stat-row-5 { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 580px) {
+  .lang-stat-row, .lang-stat-row-5 { grid-template-columns: repeat(2, 1fr); }
+}
 
 .lang-stat-card {
   background: var(--bg-3);
@@ -1303,11 +1621,20 @@ a:hover { color: var(--accent); }
   background: var(--accent-glow);
 }
 .lang-stat-acc { border-color: var(--green); background: var(--green-bg); }
+.lang-stat-time {
+  border-color: rgba(102, 192, 244, 0.4);
+  background: rgba(102, 192, 244, 0.08);
+}
+.lang-stat-time .lang-stat-value {
+  color: #66c0f4;
+  font-size: 1.3rem;
+}
 .lang-stat-value {
   font-family: var(--font-code);
   font-size: 1.5rem;
   font-weight: 700;
   line-height: 1;
+
   color: var(--fg);
 }
 .lang-stat-primary .lang-stat-value { color: var(--accent-2); }

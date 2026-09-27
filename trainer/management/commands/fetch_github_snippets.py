@@ -23,6 +23,12 @@ import requests
 from django.core.management.base import BaseCommand, CommandError
 
 from trainer.models import Language, Snippet
+from trainer.snippet_validator import (
+    clean_snippet_code,
+    extract_code_snippets,
+    is_excluded_file_path,
+    is_valid_snippet,
+)
 
 # ---------------------------------------------------------------------------
 # Configuration: which repos to search per language slug
@@ -42,9 +48,7 @@ REPO_QUERIES = {
         "expressjs/express",
         "lodash/lodash",
         "axios/axios",
-        "moment/moment",
         "sindresorhus/got",
-        "vercel/next.js",
         "jquense/yup",
         "winstonjs/winston",
     ],
@@ -73,9 +77,8 @@ REPO_QUERIES = {
         "uber-go/zap",
     ],
     "sql": [
-        "datafold/data-diff",
-        "sqlfluff/sqlfluff",
-        "dbt-labs/dbt-core",
+        "lerocha/chinook-database",
+        "datacharmer/test_db",
     ],
     "css": [
         "necolas/normalize.css",
@@ -84,6 +87,33 @@ REPO_QUERIES = {
         "Dogfalo/materialize",
         "foundation/foundation-sites",
         "jgthms/bulma",
+    ],
+    "bash": [
+        "bats-core/bats-core",
+        "dylanaraps/pure-bash-bible",
+        "dylanaraps/neofetch",
+        "nvm-sh/nvm",
+        "pyenv/pyenv",
+        "ohmyzsh/ohmyzsh",
+    ],
+    "html": [
+        "h5bp/html5-boilerplate",
+        "twbs/bootstrap",
+        "tastejs/todomvc",
+    ],
+    "php": [
+        "laravel/laravel",
+        "symfony/symfony",
+        "guzzle/guzzle",
+        "composer/composer",
+        "monolog/monolog",
+    ],
+    "csharp": [
+        "dotnet/aspnetcore",
+        "dotnet/runtime",
+        "JamesNK/Newtonsoft.Json",
+        "jellyfin/jellyfin",
+        "dapperlib/Dapper",
     ],
 }
 
@@ -96,6 +126,10 @@ EXTENSIONS = {
     "go": [".go"],
     "sql": [".sql"],
     "css": [".css"],
+    "bash": [".sh", ".bash"],
+    "html": [".html", ".htm"],
+    "php": [".php"],
+    "csharp": [".cs"],
 }
 
 # Difficulty thresholds (lines)
@@ -125,113 +159,17 @@ def _classify_difficulty(lines: list) -> str:
     return "hard"
 
 
-def _should_skip(code: str) -> bool:
-    for pat in SKIP_PATTERNS:
-        if pat.search(code):
-            return True
-    lines = code.splitlines()
-    blank = sum(1 for l in lines if l.strip() == "")
-    if lines and blank / len(lines) > 0.5:
-        return True
-    return False
-
-
-def _sliding_window(lines: list, step: int = 8) -> list:
-    chunks = []
-    i = 0
-    while i < len(lines):
-        window = lines[i: i + MAX_LINES]
-        if len(window) >= MIN_LINES:
-            chunks.append("\n".join(window))
-        i += step
-    return chunks
-
-
-def _extract_python_chunks(lines: list) -> list:
-    chunks = []
-    func_starts = []
-    for idx, line in enumerate(lines):
-        if re.match(r"^(def |class )\w", line):
-            func_starts.append(idx)
-    for i, start in enumerate(func_starts):
-        end = func_starts[i + 1] if i + 1 < len(func_starts) else len(lines)
-        block = lines[start:min(end, start + MAX_LINES)]
-        while block and block[-1].strip() == "":
-            block.pop()
-        if block:
-            chunks.append("\n".join(block))
-    return chunks or _sliding_window(lines)
-
-
-def _extract_js_chunks(lines: list) -> list:
-    chunks = []
-    func_starts = []
-    pattern = re.compile(
-        r"^(export\s+)?(async\s+)?function\s+\w|^\s*(const|let|var)\s+\w+\s*=\s*(async\s+)?\("
-    )
-    for idx, line in enumerate(lines):
-        if pattern.match(line):
-            func_starts.append(idx)
-    for i, start in enumerate(func_starts):
-        end = func_starts[i + 1] if i + 1 < len(func_starts) else len(lines)
-        block = lines[start:min(end, start + MAX_LINES)]
-        while block and block[-1].strip() == "":
-            block.pop()
-        if block:
-            chunks.append("\n".join(block))
-    return chunks or _sliding_window(lines)
-
-
-def _extract_java_chunks(lines: list) -> list:
-    chunks = []
-    method_starts = []
-    pattern = re.compile(r"^\s+(public|private|protected|static|final|void|\w+)\s+\w+\s*\(")
-    for idx, line in enumerate(lines):
-        if pattern.match(line):
-            method_starts.append(idx)
-    for i, start in enumerate(method_starts):
-        end = method_starts[i + 1] if i + 1 < len(method_starts) else len(lines)
-        block = lines[start:min(end, start + MAX_LINES)]
-        while block and block[-1].strip() == "":
-            block.pop()
-        if block:
-            chunks.append("\n".join(block))
-    return chunks or _sliding_window(lines)
-
-
-def _extract_go_chunks(lines: list) -> list:
-    chunks = []
-    func_starts = []
-    for idx, line in enumerate(lines):
-        if re.match(r"^func\s+", line):
-            func_starts.append(idx)
-    for i, start in enumerate(func_starts):
-        end = func_starts[i + 1] if i + 1 < len(func_starts) else len(lines)
-        block = lines[start:min(end, start + MAX_LINES)]
-        while block and block[-1].strip() == "":
-            block.pop()
-        if block:
-            chunks.append("\n".join(block))
-    return chunks or _sliding_window(lines)
+def _should_skip(code: str, language_slug: str = "python") -> bool:
+    ok, _ = is_valid_snippet(code, language_slug)
+    return not ok
 
 
 def _extract_chunks(content: str, language_slug: str) -> list:
-    lines = content.splitlines()
-    if language_slug == "python":
-        chunks = _extract_python_chunks(lines)
-    elif language_slug == "javascript":
-        chunks = _extract_js_chunks(lines)
-    elif language_slug == "java":
-        chunks = _extract_java_chunks(lines)
-    elif language_slug == "go":
-        chunks = _extract_go_chunks(lines)
-    else:
-        chunks = _sliding_window(lines)
-
+    chunks = extract_code_snippets(content, language_slug, max_lines=MAX_LINES)
     result = []
     for chunk in chunks:
-        chunk_lines = chunk.splitlines()
-        if MIN_LINES <= len(chunk_lines) <= MAX_LINES and not _should_skip(chunk):
+        ok, _ = is_valid_snippet(chunk, language_slug)
+        if ok and MIN_LINES <= len(chunk.splitlines()) <= MAX_LINES:
             result.append(chunk)
     return result
 
@@ -278,10 +216,7 @@ class GitHubClient:
             for item in data["tree"]
             if item["type"] == "blob"
             and item["path"].endswith(ext)
-            and "test" not in item["path"].lower()
-            and "vendor" not in item["path"].lower()
-            and "node_modules" not in item["path"].lower()
-            and "migration" not in item["path"].lower()
+            and not is_excluded_file_path(item["path"])
         ]
 
     def get_file_content(self, repo: str, path: str):

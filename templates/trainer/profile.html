@@ -17,10 +17,35 @@
       <p class="profile-email">{{ user.email }}</p>
       <p class="profile-joined">Member since {{ user.date_joined|date:"M Y" }}</p>
     </div>
+
+    <!-- Practice time showcase badge in profile header -->
+    <div class="steam-profile-badge" title="Total time spent typing code exercises">
+      <div class="steam-badge-top">
+        <svg class="steam-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span class="steam-badge-label">TIME PRACTICED</span>
+      </div>
+      <div class="steam-badge-time">
+        {% if user_time.hours > 0 %}
+          <span class="steam-val">{{ user_time.hours }}</span><span class="steam-lbl">hr{{ user_time.hours|pluralize }}</span>
+        {% endif %}
+        <span class="steam-val">{{ user_time.minutes }}</span><span class="steam-lbl">min{{ user_time.minutes|pluralize }}</span>
+      </div>
+      <div class="steam-badge-sub">
+        <span class="steam-pulse-dot"></span>
+        <span class="steam-sub-text">{{ user_time.steam_hours }} hrs on record</span>
+      </div>
+    </div>
   </div>
 
   <!-- Overall stats -->
-  <div class="overall-stats">
+  <div class="overall-stats overall-stats-5">
+    <div class="overall-card overall-card-steam">
+      <div class="overall-value">{{ user_time.formatted }}</div>
+      <div class="overall-label">⏱️ Time Practiced</div>
+    </div>
     <div class="overall-card">
       <div class="overall-value">{{ total_attempts }}</div>
       <div class="overall-label">Total Sessions</div>
@@ -51,7 +76,7 @@
 
       <div class="lang-section-body">
         <!-- Stat pills -->
-        <div class="lang-stat-row">
+        <div class="lang-stat-row lang-stat-row-5">
           <div class="lang-stat-card lang-stat-primary">
             <div class="lang-stat-value">{{ stats.best_wpm }}</div>
             <div class="lang-stat-label">Best WPM</div>
@@ -67,6 +92,10 @@
           <div class="lang-stat-card">
             <div class="lang-stat-value">{{ stats.count }}</div>
             <div class="lang-stat-label">Sessions</div>
+          </div>
+          <div class="lang-stat-card lang-stat-time">
+            <div class="lang-stat-value">{{ stats.time_formatted }}</div>
+            <div class="lang-stat-label">Time Practiced</div>
           </div>
         </div>
 

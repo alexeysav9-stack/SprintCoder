@@ -12,6 +12,10 @@ class Language(models.Model):
         ('go', 'Go'),
         ('sql', 'SQL'),
         ('css', 'CSS'),
+        ('bash', 'Bash'),
+        ('html', 'HTML'),
+        ('php', 'PHP'),
+        ('csharp', 'C#'),
     ]
     slug = models.CharField(max_length=20, unique=True, choices=LANGUAGE_CHOICES)
     name = models.CharField(max_length=50)
@@ -72,6 +76,10 @@ class UserProfile(models.Model):
     github_repos = models.TextField(blank=True, default='',
                                     help_text='One repo per line, format: owner/repo')
     last_import_at = models.DateTimeField(null=True, blank=True)
+    extra_exercise_seconds = models.FloatField(
+        default=0.0,
+        help_text='Additional exercise time from practice sessions in seconds'
+    )
 
     def __str__(self):
         return f"Profile({self.user.username})"
@@ -83,6 +91,12 @@ class UserProfile(models.Model):
             for line in self.github_repos.splitlines()
             if line.strip() and '/' in line.strip()
         ]
+
+    def get_total_exercise_seconds(self) -> float:
+        """Return total seconds spent in exercises (completed attempts + extra practice)."""
+        attempt_time = self.user.attempts.aggregate(models.Sum('time_seconds'))['time_seconds__sum'] or 0.0
+        return float(attempt_time) + float(self.extra_exercise_seconds)
+
 
 
 @receiver(post_save, sender='auth.User')

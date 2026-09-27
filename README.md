@@ -16,7 +16,7 @@
 
 ## 📌 Overview
 
-**SprintCoder** trains your coding speed and muscle memory using **real, functional code snippets** instead of random generic words or *Lorem Ipsum*. Practice typical syntax patterns, brackets, semicolons, indentations, and language idioms across **8 language options** and **3 difficulty tiers**.
+**SprintCoder** trains your coding speed and muscle memory using **real, functional code snippets** instead of random generic words or *Lorem Ipsum*. Practice typical syntax patterns, brackets, semicolons, indentations, and language idioms across **12 language options** and **3 difficulty tiers**.
 
 In addition to built-in code snippets, SprintCoder allows you to connect your **public GitHub repositories** to automatically parse, classify, and practice typing with **your own codebase**!
 
@@ -90,7 +90,7 @@ A comprehensive table recording all previous practice sessions with timestamps, 
 ## 🚀 Key Features
 
 - **⚡ Real Code Snippets**: Real algorithms, utility functions, classes, and styles — no artificial filler text.
-- **🎨 8 Supported Language Modes**:
+- **🎨 12 Supported Language Modes**:
   - 🐍 **Python** (functions, list comprehensions, decorators, dataclasses)
   - 🟨 **JavaScript / TypeScript** (async/await, closures, promises, types)
   - ☕ **Java** (OOP structures, streams, builder pattern)
@@ -98,6 +98,10 @@ A comprehensive table recording all previous practice sessions with timestamps, 
   - 🐹 **Go** (goroutines, channels, structs, error handling)
   - 🗄️ **SQL** (joins, aggregations, window functions, schema design)
   - 🎨 **CSS** (flexbox, grid, animations, responsive design)
+  - 🐚 **Bash** (shell scripts, pipes, loops, traps, CLI utilities)
+  - 🌐 **HTML** (semantic tags, forms, tables, modern elements)
+  - 🐘 **PHP** (OOP, array functions, PDO queries, superglobals)
+  - 🔷 **C#** (classes, LINQ, async/await, generics, pattern matching)
   - 🎲 **Random** (fairly chooses a random language on every attempt)
 - **🎯 3 Difficulty Tiers**:
   - **Easy**: 4–10 lines (compact functions, single CSS rules, short queries)

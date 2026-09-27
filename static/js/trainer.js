@@ -12,6 +12,7 @@
   const SNIPPET_ID    = rawData.snippet_id;
   const CODE          = rawData.code;
   const SAVE_URL      = rawData.save_url;
+  const RECORD_URL    = rawData.record_time_url || '/api/record-time/';
   const RESULT_BASE   = rawData.result_base_url;   // e.g. /result/0/
   const CSRF          = rawData.csrf_token;
 
@@ -28,6 +29,7 @@
   let chars      = [];    // array of span elements
   let typed      = [];    // array of booleans (correct=true / wrong=false / null=not typed)
   let startTime  = null;
+  let lastKeystrokeTime = null;
   let timerID    = null;
   let done       = false;
   let totalErrors = 0;
@@ -144,6 +146,9 @@
       startTimer();
       overlay.classList.add('hidden');
     }
+    if (pos > 0) {
+      lastKeystrokeTime = performance.now();
+    }
 
     // Sync each character
     for (let i = 0; i < CODE.length; i++) {
@@ -179,6 +184,43 @@
     }
   });
 
+  /* ── Record uncompleted / reset practice time ─────────── */
+  function recordUnsavedTime() {
+    if (!startTime || done) return;
+    const elapsed = getElapsedSeconds();
+    const typedCount = typed.filter(t => t !== null).length;
+
+    if (elapsed >= 3 && typedCount >= 5) {
+      let validSeconds = elapsed;
+      if (lastKeystrokeTime && startTime) {
+        const activeDuration = (lastKeystrokeTime - startTime) / 1000 + 2;
+        validSeconds = Math.min(elapsed, Math.max(3, activeDuration));
+      }
+      validSeconds = Math.min(Math.round(validSeconds * 10) / 10, 300);
+
+      // Local storage accumulation for guest users & immediate client UI
+      try {
+        const prev = parseFloat(localStorage.getItem('sc-practice-time') || '0');
+        localStorage.setItem('sc-practice-time', (prev + validSeconds).toString());
+      } catch (e) {}
+
+      // Send to server
+      if (RECORD_URL) {
+        try {
+          fetch(RECORD_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': CSRF,
+            },
+            body: JSON.stringify({ seconds: validSeconds }),
+            keepalive: true,
+          }).catch(() => {});
+        } catch (e) {}
+      }
+    }
+  }
+
   /* ── Finish exercise ──────────────────────────────────── */
   function finishExercise() {
     if (done) return;
@@ -191,6 +233,12 @@
     const wpm  = elapsed > 0 ? (correctCount / 5) / (elapsed / 60) : 0;
     const cpm  = elapsed > 0 ? correctCount / (elapsed / 60) : 0;
     const acc  = typedCount > 0 ? (correctCount / typedCount) * 100 : 100;
+
+    // Update localStorage practice time
+    try {
+      const prev = parseFloat(localStorage.getItem('sc-practice-time') || '0');
+      localStorage.setItem('sc-practice-time', (prev + elapsed).toString());
+    } catch (e) {}
 
     // Disable input
     input.disabled = true;
@@ -230,9 +278,11 @@
 
   /* ── Reset exercise ───────────────────────────────────── */
   function resetExercise() {
+    recordUnsavedTime();
     done = false;
     stopTimer();
     startTime = null;
+    lastKeystrokeTime = null;
     totalErrors = 0;
     Object.keys(errorMap).forEach(k => delete errorMap[k]);
     input.value = '';
@@ -242,6 +292,9 @@
     updateHUD();
     overlay.classList.remove('hidden');
   }
+
+  window.addEventListener('pagehide', recordUnsavedTime);
+
 
   /* ── Overlay click to focus ───────────────────────────── */
   function dismissOverlay() {

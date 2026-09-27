@@ -3,6 +3,64 @@
 {% block title %}Practice — SprintCoder{% endblock %}
 
 {% block content %}
+<!-- Steam-style practice time corner widget -->
+<div class="steam-corner-widget" id="steam-corner-widget" data-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
+  <div class="steam-widget-card" id="steam-widget-card">
+    <div class="steam-widget-header">
+      <div class="steam-brand">
+        <svg class="steam-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span class="steam-header-title">TIME PRACTICED</span>
+      </div>
+      <button class="steam-toggle-btn" id="steam-toggle-btn" type="button" aria-label="Minimize counter" title="Minimize/Expand">
+        <span class="steam-toggle-dash">−</span>
+      </button>
+    </div>
+
+    <a href="{% if user.is_authenticated %}{% url 'profile' %}{% else %}{% url 'register' %}{% endif %}" class="steam-widget-link" title="{% if user.is_authenticated %}View time breakdown in Profile{% else %}Sign up to sync your stats{% endif %}">
+      <div class="steam-time-body">
+        <div class="steam-time-val" id="steam-time-val">
+          {% if user_time %}
+            {% if user_time.hours > 0 %}
+              <span class="steam-num">{{ user_time.hours }}</span><span class="steam-unit">hr{{ user_time.hours|pluralize }}</span>
+            {% endif %}
+            <span class="steam-num">{{ user_time.minutes }}</span><span class="steam-unit">min{{ user_time.minutes|pluralize }}</span>
+          {% else %}
+            <span class="steam-num" id="guest-steam-num">0</span><span class="steam-unit" id="guest-steam-unit">mins</span>
+          {% endif %}
+        </div>
+        <div class="steam-time-sub">
+          <span class="steam-pulse-dot"></span>
+          <span class="steam-sub-text" id="steam-sub-text">
+            {% if user_time %}
+              {{ user_time.steam_hours }} hrs on record
+            {% else %}
+              0.0 hrs on record
+            {% endif %}
+          </span>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Minimized pill button -->
+  <button class="steam-pill-minimized" id="steam-pill-minimized" type="button" aria-label="Expand practice time counter" title="Expand practice time counter">
+    <svg class="steam-icon" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10"></circle>
+      <polyline points="12 6 12 12 16 14"></polyline>
+    </svg>
+    <span class="steam-pill-text" id="steam-pill-text">
+      {% if user_time %}
+        {{ user_time.formatted_short }}
+      {% else %}
+        0m
+      {% endif %}
+    </span>
+  </button>
+</div>
+
 <section class="hero">
   <h1 class="hero-title">Type Code. <span class="accent">Ship Faster.</span></h1>
   <p class="hero-subtitle">Train your muscle memory with real code snippets in your favourite language.</p>
@@ -116,6 +174,71 @@
   window.addEventListener('pageshow', function () {
     if (startBtn) startBtn.classList.remove('loading');
   });
+
+  // Steam corner widget logic
+  (function initSteamWidget() {
+    const widget = document.getElementById('steam-corner-widget');
+    const toggleBtn = document.getElementById('steam-toggle-btn');
+    const pillBtn = document.getElementById('steam-pill-minimized');
+    if (!widget) return;
+
+    // Restore minimized preference
+    try {
+      if (localStorage.getItem('sc-steam-minimized') === 'true') {
+        widget.classList.add('minimized');
+      }
+    } catch (e) {}
+
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        widget.classList.add('minimized');
+        try { localStorage.setItem('sc-steam-minimized', 'true'); } catch (err) {}
+      });
+    }
+
+    if (pillBtn) {
+      pillBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        widget.classList.remove('minimized');
+        try { localStorage.setItem('sc-steam-minimized', 'false'); } catch (err) {}
+      });
+    }
+
+    // If guest user, sync local exercise time from localStorage
+    const isAuth = widget.getAttribute('data-authenticated') === 'true';
+    if (!isAuth) {
+      try {
+        const rawSec = parseFloat(localStorage.getItem('sc-practice-time') || '0');
+        if (rawSec > 0) {
+          const totalSec = Math.round(rawSec);
+          const hrs = Math.floor(totalSec / 3600);
+          const mins = Math.floor((totalSec % 3600) / 60);
+          const steamHrs = (totalSec / 3600).toFixed(1);
+
+          const timeValEl = document.getElementById('steam-time-val');
+          const subTextEl = document.getElementById('steam-sub-text');
+          const pillTextEl = document.getElementById('steam-pill-text');
+
+          if (timeValEl) {
+            let html = '';
+            if (hrs > 0) {
+              html += `<span class="steam-num">${hrs}</span><span class="steam-unit">hr${hrs > 1 ? 's' : ''}</span> `;
+            }
+            html += `<span class="steam-num">${mins}</span><span class="steam-unit">min${mins !== 1 ? 's' : ''}</span>`;
+            timeValEl.innerHTML = html;
+          }
+          if (subTextEl) {
+            subTextEl.textContent = `${steamHrs} hrs on record`;
+          }
+          if (pillTextEl) {
+            pillTextEl.textContent = hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
+          }
+        }
+      } catch (err) {}
+    }
+  })();
 </script>
 {% endblock %}
 
