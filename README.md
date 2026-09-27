@@ -70,7 +70,8 @@ Track your typing speed progression over time with rolling average charts powere
 Connect public GitHub repositories (e.g. `username/repository`). SprintCoder fetches real files, parses complete logical blocks, and categorizes snippets by difficulty.
 
 > <!-- INSERT SCREENSHOT: Settings page with GitHub repo list and import status -->
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/23e8fdfa-a457-44b1-8eae-fadb8ec64a22" />
+<img width="1920" height="2623" alt="image" src="https://github.com/user-attachments/assets/afbf8de6-6e40-400a-ba89-2874d535ea1b" />
+
 
 
 ---
