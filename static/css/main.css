@@ -1395,9 +1395,15 @@ a:hover { color: var(--accent); }
 .my-repos-toggle input:checked ~ .my-repos-label { color: var(--fg); }
 
 /* ── 17. Settings Page ────────────────────────────────── */
-.settings-page { max-width: 940px; margin: 0 auto; }
+.settings-page { max-width: 980px; margin: 0 auto; }
 .settings-header { padding: 2rem 0 1.5rem; }
 .settings-sub { color: var(--fg-2); font-size: .95rem; margin-top: .3rem; }
+
+.settings-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
 
 .settings-grid {
   display: grid;
@@ -1705,41 +1711,47 @@ a:hover { color: var(--accent); }
 .setting-btn-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: .5rem;
+  gap: .65rem;
 }
 
 .setting-btn {
+  -webkit-appearance: none;
+  appearance: none;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: .25rem;
-  padding: .65rem .75rem;
-  background: var(--bg-3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  color: var(--fg-2);
-  font-size: .82rem;
+  gap: .3rem;
+  padding: .75rem .85rem;
+  background: var(--bg-3) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  color: var(--fg-2) !important;
+  font-family: var(--font-ui);
+  font-size: .84rem;
   font-weight: 500;
   cursor: pointer;
   transition: all var(--transition);
   text-align: center;
   user-select: none;
   outline: none;
+  min-height: 56px;
+  box-shadow: none;
 }
 
 .setting-btn:hover {
-  background: var(--bg-4);
-  border-color: var(--border-2);
-  color: var(--fg);
+  background: var(--bg-4) !important;
+  border-color: var(--border-2) !important;
+  color: var(--fg) !important;
+  transform: translateY(-1px);
 }
 
 .setting-btn.active {
-  background: var(--accent-glow);
-  border-color: var(--accent);
-  color: var(--fg);
+  background: var(--accent-glow) !important;
+  border-color: var(--accent) !important;
+  color: var(--fg) !important;
   font-weight: 600;
-  box-shadow: 0 0 0 1px var(--accent);
+  box-shadow: 0 0 0 1px var(--accent) !important;
 }
 
 .setting-btn-icon {
