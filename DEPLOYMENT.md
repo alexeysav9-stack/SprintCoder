@@ -51,8 +51,32 @@
    CSRF_COOKIE_SECURE=True
    ```
 
-6. **(Опционально) GitHub Personal Access Token**:
-   Для импорта сниппетов из публичных репозиториев:
+6. **Настройка входа через Google и GitHub (OAuth 2.0)**:
+   - **GitHub OAuth**:
+     1. Откройте GitHub: *Settings → Developer settings → OAuth Apps → New OAuth App*.
+     2. В поле *Homepage URL* укажите: `https://yourdomain.com`
+     3. В поле *Authorization callback URL* укажите:
+        `https://yourdomain.com/accounts/oauth/github/callback/`
+        *(для локального тестирования: `http://127.0.0.1:8000/accounts/oauth/github/callback/`)*
+     4. Скопируйте **Client ID** и **Client Secret** в `.env`:
+        ```ini
+        GITHUB_CLIENT_ID=ваш_github_client_id
+        GITHUB_CLIENT_SECRET=ваш_github_client_secret
+        ```
+   - **Google OAuth 2.0**:
+     1. Откройте [Google Cloud Console](https://console.cloud.google.com/) → *APIs & Services → Credentials*.
+     2. Создайте *OAuth client ID* (Тип приложения: Web application).
+     3. В поле *Authorized redirect URIs* укажите:
+        `https://yourdomain.com/accounts/oauth/google/callback/`
+        *(для локального тестирования: `http://127.0.0.1:8000/accounts/oauth/google/callback/`)*
+     4. Скопируйте **Client ID** и **Client Secret** в `.env`:
+        ```ini
+        GOOGLE_CLIENT_ID=ваш_google_client_id
+        GOOGLE_CLIENT_SECRET=ваш_google_client_secret
+        ```
+
+7. **(Опционально) GitHub Personal Access Token**:
+   Для импорта сниппетов из публичных репозиториев пользователей:
    ```ini
    GITHUB_TOKEN=ghp_ваш_токен_с_github
    ```
