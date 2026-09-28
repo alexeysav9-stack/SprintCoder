@@ -1786,6 +1786,73 @@ a:hover { color: var(--accent); }
 .form-error { font-size: .8rem; color: var(--red); }
 .form-hint { font-size: .78rem; color: var(--fg-3); line-height: 1.4; }
 
+/* Social Auth */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  margin: 1.5rem 0 1.25rem;
+  color: var(--fg-3);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--border);
+}
+.auth-divider span {
+  padding: 0 0.85rem;
+}
+
+.social-auth-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.btn-social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  font-family: var(--font-ui);
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--transition);
+  border: 1px solid var(--border);
+  background: var(--bg-3);
+  color: var(--fg);
+}
+
+.btn-social:hover {
+  background: var(--bg-4);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  color: #fff;
+}
+
+.btn-social svg {
+  flex-shrink: 0;
+}
+
+.btn-google:hover {
+  border-color: #4285F4;
+  box-shadow: 0 4px 14px rgba(66, 133, 244, 0.25);
+}
+
+.btn-github:hover {
+  border-color: #9e92ff;
+  box-shadow: 0 4px 14px rgba(158, 146, 255, 0.25);
+}
+
 /* ── 14. Profile Page ─────────────────────────────────── */
 .profile-page { max-width: 900px; margin: 0 auto; }
 
