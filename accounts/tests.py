@@ -1,5 +1,5 @@
 from unittest.mock import patch, MagicMock
-from django.test import TestCase, RequestFactory
+from django.test import TestCase, RequestFactory, override_settings
 from django.contrib.auth import get_user_model
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.contrib.sessions.backends.db import SessionStore
@@ -52,6 +52,13 @@ class OAuthFlowTests(TestCase):
         setattr(req, '_messages', messages)
         return req
 
+    def test_oauth_login_disabled_by_default(self):
+        req = self._setup_request(self.rf.get('/accounts/oauth/github/'))
+        res = oauth_login_view(req, 'github')
+        self.assertEqual(res.status_code, 302)
+        self.assertEqual(res.url, reverse('login'))
+
+    @override_settings(ENABLE_SOCIAL_AUTH=True)
     def test_oauth_login_unconfigured_shows_warning(self):
         req = self._setup_request(self.rf.get('/accounts/oauth/github/'))
         with patch('accounts.oauth.config', return_value=''):
@@ -59,6 +66,7 @@ class OAuthFlowTests(TestCase):
             self.assertEqual(res.status_code, 302)
             self.assertEqual(res.url, reverse('login'))
 
+    @override_settings(ENABLE_SOCIAL_AUTH=True)
     def test_oauth_login_configured_redirects_to_provider(self):
         req = self._setup_request(self.rf.get('/accounts/oauth/github/?next=/profile/'))
         with patch('accounts.oauth.config', side_effect=lambda k, default='': 'dummy_val' if 'GITHUB' in k else default):
@@ -145,7 +153,25 @@ class OAuthFlowTests(TestCase):
         social = SocialAccount.objects.get(user=existing_user, provider='google')
         self.assertEqual(social.uid, 'google_sub_999')
 
-    def test_templates_render_social_buttons(self):
+    def test_templates_hide_social_buttons_by_default(self):
+        from accounts.views import login_view, register_view
+
+        req_login = self._setup_request(self.rf.get('/accounts/login/'))
+        req_login.user = MagicMock(is_authenticated=False)
+        res_login = login_view(req_login)
+        self.assertEqual(res_login.status_code, 200)
+        self.assertNotIn(b'btn-oauth-google', res_login.content)
+        self.assertNotIn(b'btn-oauth-github', res_login.content)
+
+        req_reg = self._setup_request(self.rf.get('/accounts/register/'))
+        req_reg.user = MagicMock(is_authenticated=False)
+        res_reg = register_view(req_reg)
+        self.assertEqual(res_reg.status_code, 200)
+        self.assertNotIn(b'btn-oauth-google', res_reg.content)
+        self.assertNotIn(b'btn-oauth-github', res_reg.content)
+
+    @override_settings(ENABLE_SOCIAL_AUTH=True)
+    def test_templates_render_social_buttons_when_enabled(self):
         from accounts.views import login_view, register_view
 
         req_login = self._setup_request(self.rf.get('/accounts/login/'))
@@ -161,3 +187,4 @@ class OAuthFlowTests(TestCase):
         self.assertEqual(res_reg.status_code, 200)
         self.assertIn(b'btn-oauth-google', res_reg.content)
         self.assertIn(b'btn-oauth-github', res_reg.content)
+

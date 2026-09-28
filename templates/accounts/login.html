@@ -24,6 +24,7 @@
       <button type="submit" class="btn btn-primary btn-full" id="btn-login">Sign In</button>
     </form>
 
+    {% if enable_social_auth %}
     <div class="auth-divider">
       <span>or continue with</span>
     </div>
@@ -46,6 +47,7 @@
         <span>GitHub</span>
       </a>
     </div>
+    {% endif %}
 
     <p class="auth-alt">Don't have an account? <a href="{% url 'register' %}">Sign up →</a></p>
   </div>

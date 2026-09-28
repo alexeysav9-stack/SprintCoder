@@ -131,3 +131,7 @@ LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
+# Feature flag for Google / GitHub OAuth
+ENABLE_SOCIAL_AUTH = config('ENABLE_SOCIAL_AUTH', default=False, cast=bool)
+
+

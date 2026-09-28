@@ -3,6 +3,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
+from django.conf import settings
 from .forms import RegisterForm, LoginForm
 
 
@@ -20,7 +21,10 @@ def register_view(request):
     else:
         form = RegisterForm()
 
-    return render(request, 'accounts/register.html', {'form': form})
+    return render(request, 'accounts/register.html', {
+        'form': form,
+        'enable_social_auth': getattr(settings, 'ENABLE_SOCIAL_AUTH', False),
+    })
 
 
 def login_view(request):
@@ -39,7 +43,11 @@ def login_view(request):
     else:
         form = LoginForm()
 
-    return render(request, 'accounts/login.html', {'form': form})
+    return render(request, 'accounts/login.html', {
+        'form': form,
+        'enable_social_auth': getattr(settings, 'ENABLE_SOCIAL_AUTH', False),
+    })
+
 
 
 def logout_view(request):

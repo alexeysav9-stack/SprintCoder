@@ -65,6 +65,11 @@ def oauth_login_view(request, provider: str):
     """
     Initiates the OAuth2 flow by redirecting the user to the provider consent page.
     """
+    from django.conf import settings
+    if not getattr(settings, 'ENABLE_SOCIAL_AUTH', False):
+        messages.info(request, 'Вход через сторонние сервисы временно отключён.')
+        return redirect('login')
+
     provider_config = OAUTH_PROVIDERS.get(provider.lower())
     if not provider_config:
         messages.error(request, f'Неподдерживаемый провайдер авторизации: {provider}')
