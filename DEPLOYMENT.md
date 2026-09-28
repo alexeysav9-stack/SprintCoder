@@ -4,6 +4,71 @@
 
 ---
 
+## 🌟 Вариант №0 (Самый простой): Neon.tech (База данных) + Render.com (Хостинг)
+
+Это наиболее современная, быстрая и бесплатная связка:
+- **Neon.tech** предоставляет серверную бессерверную базу данных PostgreSQL.
+- **Render.com** собирает проект напрямую из вашего GitHub, раздаёт статику через WhiteNoise, запускает Gunicorn и автоматически выдаёт бесплатный SSL-сертификат (HTTPS).
+
+### Шаг 1. Скопировать строку подключения из Neon.tech
+1. Откройте консоль [console.neon.tech](https://console.neon.tech/) и выберите ваш проект (`nameless-flower-41925418`).
+2. В блоке **Connection Details** (на главном экране дашборда):
+   - Убедитесь, что выбран переключатель **Pooled connection** (рекомендуется) или Direct.
+   - Скопируйте строку подключения (**Connection string**). Она выглядит так:
+     ```text
+     postgresql://neondb_owner:ПАРОЛЬ@ep-nameless-flower-41925418-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require
+     ```
+
+### Шаг 2. Развёртывание на Render.com
+1. Зарегистрируйтесь или войдите на [dashboard.render.com](https://dashboard.render.com/) (удобно войти через GitHub).
+2. Нажмите синюю кнопку **New +** в верхнем правом углу → выберите **Web Service**.
+3. Подключите ваш репозиторий **SprintCoder** (если репозиторий не отображается, нажмите *Configure account* и предоставьте доступ).
+4. Заполните параметры веб-сервиса:
+   - **Name**: `sprintcoder` (ваш сайт будет доступен по адресу `https://sprintcoder.onrender.com`)
+   - **Region**: `Frankfurt (EU Central)` (наиболее близкий регион с минимальным пингом)
+   - **Branch**: `main`
+   - **Runtime**: `Python 3`
+   - **Build Command**:
+     ```bash
+     ./render_build.sh
+     ```
+   - **Start Command**:
+     ```bash
+     gunicorn sprintcoder.wsgi:application
+     ```
+   - **Instance Type**: `Free` ($0/mo)
+
+5. В разделе **Environment Variables** (Переменные окружения) добавьте:
+   | Ключ (Key) | Значение (Value) | Описание |
+   | :--- | :--- | :--- |
+   | `DATABASE_URL` | *вставьте строку из Neon* | Строка подключения к PostgreSQL |
+   | `PYTHON_VERSION` | `3.12.8` | Версия Python |
+   | `SECRET_KEY` | *(нажмите «Generate»)* | Секретный ключ Django |
+   | `DEBUG` | `False` | Отключение режима отладки |
+   | `TIME_ZONE` | `Europe/Moscow` | Часовой пояс аналитики |
+
+6. Нажмите **Deploy Web Service**!
+
+### Шаг 3. Что произойдет автоматически
+Render запустит скрипт `./render_build.sh`:
+- Установит все зависимости из `requirements.txt`;
+- Соберёт и сожмёт статические файлы через WhiteNoise;
+- Автоматически накатит миграции на вашу базу в Neon;
+- Обнаружит пустую базу и сам наполнит её 280+ стартовыми сниппетами по всем 11 языкам;
+- Запустит Gunicorn и выдаст защищённый HTTPS-домен.
+
+### Шаг 4. Создание аккаунта администратора
+Когда деплой завершится:
+1. В дашборде вашего сервиса на Render перейдите на вкладку **Shell** (консоль в браузере).
+2. Выполните команду:
+   ```bash
+   python manage.py createsuperuser
+   ```
+3. Введите логин, email и пароль.
+4. Готово! Теперь вы можете войти в панель администратора `https://ваше-имя.onrender.com/admin/` и открыть панель аналитики `https://ваше-имя.onrender.com/admin/analytics/`!
+
+---
+
 ## 📋 Чек-лист: Что нужно подготовить пользователю перед запуском
 
 Вам потребуется создать файл `.env` на сервере (на основе шаблона `.env.example`) и заполнить следующие параметры:

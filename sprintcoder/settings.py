@@ -22,6 +22,15 @@ CSRF_TRUSTED_ORIGINS = config(
     cast=lambda v: [s.strip() for s in v.split(',') if s.strip()] if v else []
 )
 
+# Render.com automatic hostname and CSRF integration
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    if RENDER_EXTERNAL_HOSTNAME not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+    render_origin = f'https://{RENDER_EXTERNAL_HOSTNAME}'
+    if render_origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(render_origin)
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -66,9 +75,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'sprintcoder.wsgi.application'
 
 DATABASE_URL = config('DATABASE_URL', default=None)
+DB_CONN_MAX_AGE = config(
+    'DB_CONN_MAX_AGE',
+    default=0 if (DATABASE_URL and '-pooler' in DATABASE_URL) else 600,
+    cast=int
+)
 if DATABASE_URL:
     DATABASES = {
-        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
+        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=DB_CONN_MAX_AGE)
     }
 else:
     DATABASES = {
