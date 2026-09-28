@@ -1,0 +1,16 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.git/
+.gitignore
+.neon/
+node_modules/
+staticfiles/
+db.sqlite3
+*.log
+.DS_Store
+.directory
+deploy/

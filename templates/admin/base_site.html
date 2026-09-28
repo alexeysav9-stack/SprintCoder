@@ -1,0 +1,19 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | SprintCoder Admin{% endblock %}
+
+{% block branding %}
+<div id="site-name">
+  <a href="{% url 'admin:index' %}">
+    <span style="font-size: 1.15rem; font-weight: 800; color: #9e92ff;">⌨️ SprintCoder</span>
+    <span style="font-size: 0.85rem; color: #a0aec0; margin-left: 6px;">Управление</span>
+  </a>
+</div>
+{% endblock %}
+
+{% block userlinks %}
+  <a href="{% url 'admin_analytics' %}" style="background: #7c6cfc; color: #fff; padding: 4px 10px; border-radius: 4px; font-weight: 600; text-decoration: none; margin-right: 12px; display: inline-flex; align-items: center; gap: 4px;">
+    <span>📊 Аналитика платформы</span>
+  </a>
+  {{ block.super }}
+{% endblock %}

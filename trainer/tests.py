@@ -519,5 +519,368 @@ class SnippetModerationAndValidationTests(TestCase):
         self.assertTrue(Snippet.objects.filter(pk=good_snip.pk).exists())
 
 
+class UserStreakTests(TestCase):
+    """Unit tests for user daily practice streak calculation and views integration."""
+
+    def setUp(self):
+        import datetime
+        self.user = User.objects.create_user(username="streak_user", password="password123")
+        self.lang, _ = Language.objects.get_or_create(slug="python", defaults={"name": "Python"})
+        self.snippet = Snippet.objects.create(
+            language=self.lang,
+            difficulty="easy",
+            title="Hello World",
+            code="def hello():\n    print('Hello world')\n    return True\n",
+        )
+        self.client = Client()
+
+    def test_streak_zero_for_new_user(self):
+        """User with no attempts has streak 0, status 'new'."""
+        from trainer.utils import get_user_streak
+        streak = get_user_streak(self.user)
+        self.assertEqual(streak['current_streak'], 0)
+        self.assertEqual(streak['best_streak'], 0)
+        self.assertFalse(streak['practiced_today'])
+        self.assertEqual(streak['status'], 'new')
+        self.assertEqual(len(streak['recent_week']), 7)
+
+    def test_streak_guest_fallback(self):
+        """None or unauthenticated user returns guest streak defaults."""
+        from trainer.utils import get_user_streak
+        streak = get_user_streak(None)
+        self.assertEqual(streak['current_streak'], 0)
+        self.assertEqual(streak['status'], 'guest')
+        self.assertFalse(streak['streak_active'])
+
+    def test_streak_completed_today(self):
+        """User who completes an exercise today has streak 1."""
+        from django.utils import timezone
+        from trainer.utils import get_user_streak
+
+        Attempt.objects.create(
+            user=self.user,
+            snippet=self.snippet,
+            wpm=75.0,
+            cpm=375.0,
+            accuracy=98.0,
+            time_seconds=12.0,
+        )
+
+        streak = get_user_streak(self.user)
+        self.assertEqual(streak['current_streak'], 1)
+        self.assertEqual(streak['best_streak'], 1)
+        self.assertTrue(streak['practiced_today'])
+        self.assertEqual(streak['status'], 'completed_today')
+
+    def test_consecutive_days_streak(self):
+        """User who practiced for 3 consecutive days has streak 3."""
+        import datetime
+        from django.utils import timezone
+        from trainer.utils import get_user_streak
+
+        today = timezone.localdate()
+        for i in [2, 1, 0]:
+            attempt = Attempt.objects.create(
+                user=self.user,
+                snippet=self.snippet,
+                wpm=70.0 + i,
+                cpm=350.0,
+                accuracy=95.0,
+                time_seconds=15.0,
+            )
+            # Override created_at date
+            past_dt = timezone.now() - datetime.timedelta(days=i)
+            Attempt.objects.filter(pk=attempt.pk).update(created_at=past_dt)
+
+        streak = get_user_streak(self.user)
+        self.assertEqual(streak['current_streak'], 3)
+        self.assertEqual(streak['best_streak'], 3)
+        self.assertTrue(streak['practiced_today'])
+        self.assertTrue(streak['practiced_yesterday'])
+        self.assertEqual(streak['status'], 'completed_today')
+
+    def test_pending_today_streak_not_broken(self):
+        """If user practiced yesterday and day before, but not yet today, streak is alive and pending."""
+        import datetime
+        from django.utils import timezone
+        from trainer.utils import get_user_streak
+
+        for i in [2, 1]:
+            attempt = Attempt.objects.create(
+                user=self.user,
+                snippet=self.snippet,
+                wpm=80.0,
+                cpm=400.0,
+                accuracy=99.0,
+                time_seconds=10.0,
+            )
+            past_dt = timezone.now() - datetime.timedelta(days=i)
+            Attempt.objects.filter(pk=attempt.pk).update(created_at=past_dt)
+
+        streak = get_user_streak(self.user)
+        self.assertEqual(streak['current_streak'], 2)
+        self.assertEqual(streak['best_streak'], 2)
+        self.assertFalse(streak['practiced_today'])
+        self.assertTrue(streak['practiced_yesterday'])
+        self.assertTrue(streak['streak_active'])
+        self.assertEqual(streak['status'], 'pending_today')
+
+    def test_broken_streak_preserves_best_streak(self):
+        """When user misses a day, current streak resets to 0 but best streak is preserved."""
+        import datetime
+        from django.utils import timezone
+        from trainer.utils import get_user_streak
+
+        # Practiced 3 days in a row, 4 days ago
+        for i in [5, 4, 3]:
+            attempt = Attempt.objects.create(
+                user=self.user,
+                snippet=self.snippet,
+                wpm=60.0,
+                cpm=300.0,
+                accuracy=92.0,
+                time_seconds=18.0,
+            )
+            past_dt = timezone.now() - datetime.timedelta(days=i)
+            Attempt.objects.filter(pk=attempt.pk).update(created_at=past_dt)
+
+        streak = get_user_streak(self.user)
+        self.assertEqual(streak['current_streak'], 0)
+        self.assertEqual(streak['best_streak'], 3)
+        self.assertFalse(streak['practiced_today'])
+        self.assertFalse(streak['practiced_yesterday'])
+        self.assertEqual(streak['status'], 'broken')
+
+    def test_multiple_attempts_same_day_count_as_one(self):
+        """Multiple exercises on the same day count as 1 day for streak."""
+        from trainer.utils import get_user_streak
+
+        for _ in range(5):
+            Attempt.objects.create(
+                user=self.user,
+                snippet=self.snippet,
+                wpm=72.0,
+                cpm=360.0,
+                accuracy=96.0,
+                time_seconds=14.0,
+            )
+
+        streak = get_user_streak(self.user)
+        self.assertEqual(streak['current_streak'], 1)
+        self.assertEqual(streak['total_active_days'], 1)
+
+    def test_profile_model_helper(self):
+        """UserProfile.get_streak_info() returns the streak dictionary."""
+        profile = self.user.userprofile
+        streak = profile.get_streak_info()
+        self.assertIn('current_streak', streak)
+        self.assertIn('best_streak', streak)
+        self.assertIn('recent_week', streak)
+
+    def test_index_view_context_has_streak(self):
+        """Index page renders streak banner and week tracker for both auth and guest."""
+        from django.test import RequestFactory
+        from django.contrib.auth.models import AnonymousUser
+        from trainer.views import index
+
+        rf = RequestFactory()
+
+        # Authenticated user
+        req_auth = rf.get("/")
+        req_auth.user = self.user
+        res_auth = index(req_auth)
+        self.assertEqual(res_auth.status_code, 200)
+        self.assertIn(b"DAY STREAK", res_auth.content)
+        self.assertIn(b"hero-streak-card", res_auth.content)
+
+        # Guest user
+        req_guest = rf.get("/")
+        req_guest.user = AnonymousUser()
+        res_guest = index(req_guest)
+        self.assertEqual(res_guest.status_code, 200)
+        self.assertIn(b"DAY STREAK", res_guest.content)
+
+    def test_profile_view_has_streak(self):
+        """Profile view renders streak badges and streak activity section."""
+        from django.test import RequestFactory
+        from trainer.views import profile
+
+        rf = RequestFactory()
+        req = rf.get("/profile/")
+        req.user = self.user
+        res = profile(req)
+        self.assertEqual(res.status_code, 200)
+        self.assertIn(b"DAILY STREAK", res.content)
+        self.assertIn(b"Daily Practice Streak", res.content)
+        self.assertIn(b"streak-timeline-grid", res.content)
+
+    def test_save_attempt_returns_streak_json(self):
+        """save_attempt endpoint returns streak in JSON response."""
+        import json
+        self.client.force_login(self.user)
+        payload = {
+            "snippet_id": self.snippet.pk,
+            "wpm": 85.0,
+            "cpm": 425.0,
+            "accuracy": 99.0,
+            "time_seconds": 10.0,
+            "errors_json": {},
+        }
+        res = self.client.post("/api/save-attempt/", data=json.dumps(payload), content_type="application/json")
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertEqual(data["status"], "ok")
+        self.assertIn("streak", data)
+        self.assertEqual(data["streak"]["current_streak"], 1)
+        self.assertTrue(data["streak"]["practiced_today"])
+
+
+class AdminAnalyticsTests(TestCase):
+    def setUp(self):
+        self.admin = User.objects.create_superuser(
+            username='analytics_admin',
+            email='admin@test.com',
+            password='pass'
+        )
+        self.user = User.objects.create_user(
+            username='regular_dev',
+            email='dev@test.com',
+            password='pass'
+        )
+        self.lang = Language.objects.create(slug='python', name='Python', icon='🐍')
+        self.snippet = Snippet.objects.create(
+            language=self.lang,
+            difficulty='easy',
+            title='Test Snippet',
+            code='print("hello world")'
+        )
+        self.attempt = Attempt.objects.create(
+            user=self.user,
+            snippet=self.snippet,
+            wpm=75.0,
+            cpm=375.0,
+            accuracy=98.5,
+            time_seconds=20.0
+        )
+
+    def test_site_visit_model(self):
+        from trainer.models import SiteVisit
+        visit = SiteVisit.objects.create(
+            path='/',
+            ip_address='127.0.0.1',
+            user=self.user,
+            session_key='session_abc',
+            device_type='desktop',
+            browser='Chrome',
+            status_code=200
+        )
+        self.assertEqual(str(visit), f"[{visit.timestamp:%Y-%m-%d %H:%M}] / (regular_dev)")
+        self.assertEqual(visit.device_type, 'desktop')
+
+    def test_visit_tracking_middleware(self):
+        from trainer.models import SiteVisit
+        from trainer.middleware import VisitTrackingMiddleware
+        from django.test import RequestFactory
+        from django.http import HttpResponse
+        from django.contrib.sessions.backends.db import SessionStore
+
+        count_before = SiteVisit.objects.count()
+        rf = RequestFactory()
+
+        def dummy_view(request):
+            return HttpResponse("OK", content_type="text/html")
+
+        middleware = VisitTrackingMiddleware(dummy_view)
+
+        # 1. Regular GET request to /
+        req = rf.get('/', HTTP_USER_AGENT='Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X)')
+        req.session = SessionStore()
+        req.user = self.user
+
+        res = middleware(req)
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(SiteVisit.objects.count(), count_before + 1)
+
+        latest = SiteVisit.objects.latest('id')
+        self.assertEqual(latest.path, '/')
+        self.assertEqual(latest.device_type, 'mobile')
+        self.assertEqual(latest.user, self.user)
+
+        # 2. Static file should NOT be tracked
+        req_static = rf.get('/static/css/main.css')
+        req_static.session = SessionStore()
+        req_static.user = self.user
+        middleware(req_static)
+        self.assertEqual(SiteVisit.objects.count(), count_before + 1)
+
+        # 3. Admin path should NOT be tracked
+        req_admin = rf.get('/admin/login/')
+        req_admin.session = SessionStore()
+        req_admin.user = self.user
+        middleware(req_admin)
+        self.assertEqual(SiteVisit.objects.count(), count_before + 1)
+
+    def test_get_analytics_data(self):
+        from trainer.analytics import get_analytics_data
+        data = get_analytics_data(period='7d')
+
+        self.assertIn('kpis', data)
+        self.assertIn('daily', data)
+        self.assertIn('hourly', data)
+        self.assertIn('languages', data)
+        self.assertIn('difficulties', data)
+        self.assertIn('devices', data)
+        self.assertIn('top_snippets', data)
+        self.assertIn('top_users', data)
+
+        self.assertEqual(len(data['hourly']['labels']), 24)
+        self.assertTrue(len(data['languages']['table']) > 0)
+
+    def test_admin_analytics_permissions(self):
+        from django.test import RequestFactory
+        from django.contrib.auth.models import AnonymousUser
+        from trainer.analytics import admin_analytics_view
+        rf = RequestFactory()
+
+        # Anonymous user should be redirected to login
+        req_anon = rf.get('/admin/analytics/')
+        req_anon.user = AnonymousUser()
+        res_anon = admin_analytics_view(req_anon)
+        self.assertEqual(res_anon.status_code, 302)
+        self.assertIn('/admin/login/', res_anon.url)
+
+        # Regular non-staff user should be redirected
+        req_user = rf.get('/admin/analytics/')
+        req_user.user = self.user
+        res_user = admin_analytics_view(req_user)
+        self.assertEqual(res_user.status_code, 302)
+
+        # Staff user should get 200 OK
+        req_admin = rf.get('/admin/analytics/')
+        req_admin.user = self.admin
+        res_admin = admin_analytics_view(req_admin)
+        self.assertEqual(res_admin.status_code, 200)
+        self.assertIn(b'dailyTrafficChart', res_admin.content)
+        self.assertIn(b'hourlyTrafficChart', res_admin.content)
+
+    def test_admin_analytics_api(self):
+        self.client.force_login(self.admin)
+        res = self.client.get('/admin/analytics/api/?period=today')
+        self.assertEqual(res.status_code, 200)
+        json_data = res.json()
+        self.assertEqual(json_data['period'], 'today')
+        self.assertIn('kpis', json_data)
+
+    def test_admin_export_csv(self):
+        self.client.force_login(self.admin)
+        for export_type in ['daily', 'languages', 'visits']:
+            res = self.client.get(f'/admin/analytics/export/{export_type}/')
+            self.assertEqual(res.status_code, 200)
+            self.assertIn('text/csv', res['Content-Type'])
+            self.assertTrue(len(res.content) > 0)
+
+
+
+
 
 

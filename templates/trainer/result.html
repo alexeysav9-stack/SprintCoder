@@ -45,6 +45,18 @@
     </div>
   </div>
 
+  <!-- Daily Streak celebration banner -->
+  {% if streak_info and streak_info.current_streak > 0 %}
+    <div class="result-streak-banner">
+      <span class="result-streak-flame">🔥</span>
+      <div class="result-streak-info">
+        <span class="result-streak-title">{{ streak_info.current_streak }} Day Streak!</span>
+        <span class="result-streak-desc">You've completed your daily practice. Keep the momentum going tomorrow!</span>
+      </div>
+      <a href="{% url 'profile' %}#streak-section" class="result-streak-link">View in Profile →</a>
+    </div>
+  {% endif %}
+
   <!-- Error heatmap -->
   {% if errors %}
   <div class="error-section">

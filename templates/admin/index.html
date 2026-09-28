@@ -1,0 +1,19 @@
+{% extends "admin/index.html" %}
+
+{% block content %}
+<div style="background: linear-gradient(135deg, #131726, #1e243d); border: 1px solid #2f3659; border-radius: 10px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.25);">
+  <div>
+    <h2 style="margin: 0 0 6px 0; color: #fff; font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+      <span>📊 Аналитика и статистика SprintCoder</span>
+    </h2>
+    <p style="margin: 0; color: #94a3b8; font-size: 0.9rem;">
+      Посещаемость в сутки, 24-часовой почасовой график заходов, популярность языков, лидерборд и статистика тренировок.
+    </p>
+  </div>
+  <a href="{% url 'admin_analytics' %}" style="background: #7c6cfc; color: #fff; padding: 10px 20px; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 0.92rem; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(124, 108, 252, 0.4); transition: transform 0.15s ease;">
+    <span>📈 Открыть панель аналитики</span>
+  </a>
+</div>
+
+{{ block.super }}
+{% endblock %}

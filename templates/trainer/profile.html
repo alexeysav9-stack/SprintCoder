@@ -18,49 +18,171 @@
       <p class="profile-joined">Member since {{ user.date_joined|date:"M Y" }}</p>
     </div>
 
-    <!-- Practice time showcase badge in profile header -->
-    <div class="steam-profile-badge" title="Total time spent typing code exercises">
-      <div class="steam-badge-top">
-        <svg class="steam-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="10"></circle>
-          <polyline points="12 6 12 12 16 14"></polyline>
-        </svg>
-        <span class="steam-badge-label">TIME PRACTICED</span>
+    <!-- Header badges (Streak + Time Practiced) -->
+    <div class="profile-header-badges">
+      <!-- Streak showcase badge in profile header -->
+      <div class="streak-profile-badge" title="Daily exercise streak (consecutive days with at least one exercise completed)">
+        <div class="streak-badge-top">
+          <span class="streak-badge-flame">🔥</span>
+          <span class="streak-badge-title">DAILY STREAK</span>
+          {% if streak_info.practiced_today %}
+            <span class="streak-badge-status done">Today ✓</span>
+          {% elif streak_info.current_streak > 0 %}
+            <span class="streak-badge-status pending">Pending ⏳</span>
+          {% endif %}
+        </div>
+        <div class="streak-badge-val-row">
+          <span class="streak-badge-num">{{ streak_info.current_streak }}</span>
+          <span class="streak-badge-unit">day{{ streak_info.current_streak|pluralize }}</span>
+        </div>
+        <div class="streak-badge-sub">
+          <span class="streak-badge-record">🏆 Best: <strong>{{ streak_info.best_streak }}d</strong></span>
+          <span class="streak-badge-total">• {{ streak_info.total_active_days }} active day{{ streak_info.total_active_days|pluralize }}</span>
+        </div>
       </div>
-      <div class="steam-badge-time">
-        {% if user_time.hours > 0 %}
-          <span class="steam-val">{{ user_time.hours }}</span><span class="steam-lbl">hr{{ user_time.hours|pluralize }}</span>
-        {% endif %}
-        <span class="steam-val">{{ user_time.minutes }}</span><span class="steam-lbl">min{{ user_time.minutes|pluralize }}</span>
-      </div>
-      <div class="steam-badge-sub">
-        <span class="steam-pulse-dot"></span>
-        <span class="steam-sub-text">{{ user_time.steam_hours }} hrs on record</span>
+
+      <!-- Practice time showcase badge in profile header -->
+      <div class="steam-profile-badge" title="Total time spent typing code exercises">
+        <div class="steam-badge-top">
+          <svg class="steam-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span class="steam-badge-label">TIME PRACTICED</span>
+        </div>
+        <div class="steam-badge-time">
+          {% if user_time.hours > 0 %}
+            <span class="steam-val">{{ user_time.hours }}</span><span class="steam-lbl">hr{{ user_time.hours|pluralize }}</span>
+          {% endif %}
+          <span class="steam-val">{{ user_time.minutes }}</span><span class="steam-lbl">min{{ user_time.minutes|pluralize }}</span>
+        </div>
+        <div class="steam-badge-sub">
+          <span class="steam-pulse-dot"></span>
+          <span class="steam-sub-text">{{ user_time.steam_hours }} hrs on record</span>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Overall stats -->
-  <div class="overall-stats overall-stats-5">
+  <div class="overall-stats overall-stats-6">
+    <div class="overall-card overall-card-streak">
+      <div class="overall-value">{{ streak_info.current_streak }}</div>
+      <div class="overall-label">🔥 Current Streak</div>
+      <div class="overall-subtag">
+        {% if streak_info.practiced_today %}
+          Active today ✓
+        {% elif streak_info.current_streak > 0 %}
+          Practice today!
+        {% else %}
+          Start today!
+        {% endif %}
+      </div>
+    </div>
+    <div class="overall-card overall-card-streak-best">
+      <div class="overall-value">{{ streak_info.best_streak }}</div>
+      <div class="overall-label">🏆 Best Streak</div>
+      <div class="overall-subtag">Personal record</div>
+    </div>
     <div class="overall-card overall-card-steam">
       <div class="overall-value">{{ user_time.formatted }}</div>
       <div class="overall-label">⏱️ Time Practiced</div>
+      <div class="overall-subtag">{{ user_time.steam_hours }} hrs total</div>
     </div>
     <div class="overall-card">
       <div class="overall-value">{{ total_attempts }}</div>
       <div class="overall-label">Total Sessions</div>
+      <div class="overall-subtag">{{ lang_stats|length }} language{{ lang_stats|length|pluralize }}</div>
     </div>
     <div class="overall-card overall-card-accent">
       <div class="overall-value">{{ overall_best_wpm }}</div>
       <div class="overall-label">Best WPM</div>
+      <div class="overall-subtag">Top speed</div>
     </div>
     <div class="overall-card">
       <div class="overall-value">{{ overall_avg_wpm }}</div>
       <div class="overall-label">Avg WPM</div>
+      <div class="overall-subtag">Average speed</div>
     </div>
-    <div class="overall-card">
-      <div class="overall-value">{{ lang_stats|length }}</div>
-      <div class="overall-label">Languages Practiced</div>
+  </div>
+
+  <!-- Daily Practice Streak & Activity Tracker Section -->
+  <div class="streak-section" id="streak-section">
+    <div class="streak-section-header">
+      <div class="streak-section-title-wrap">
+        <span class="streak-section-icon">🔥</span>
+        <h2 class="streak-section-title">Daily Practice Streak</h2>
+      </div>
+      <div class="streak-section-summary">
+        <span class="streak-pill-large {% if streak_info.practiced_today %}done{% elif streak_info.current_streak > 0 %}pending{% else %}start{% endif %}">
+          {% if streak_info.practiced_today %}
+            ✓ Practiced Today
+          {% elif streak_info.current_streak > 0 %}
+            ⏳ Exercise Needed Today
+          {% else %}
+            ⚡ Ready to Start
+          {% endif %}
+        </span>
+      </div>
+    </div>
+
+    <div class="streak-section-body">
+      <div class="streak-banner-card">
+        <div class="streak-banner-stats">
+          <div class="streak-stat-box">
+            <span class="streak-stat-title">CURRENT STREAK</span>
+            <div class="streak-stat-main">
+              <span class="streak-flame-icon">🔥</span>
+              <span class="streak-stat-number">{{ streak_info.current_streak }}</span>
+              <span class="streak-stat-unit">day{{ streak_info.current_streak|pluralize }}</span>
+            </div>
+            <span class="streak-stat-desc">{{ streak_info.status_text }}</span>
+          </div>
+
+          <div class="streak-stat-box">
+            <span class="streak-stat-title">LONGEST STREAK</span>
+            <div class="streak-stat-main">
+              <span class="streak-trophy-icon">🏆</span>
+              <span class="streak-stat-number">{{ streak_info.best_streak }}</span>
+              <span class="streak-stat-unit">day{{ streak_info.best_streak|pluralize }}</span>
+            </div>
+            <span class="streak-stat-desc">All-time record</span>
+          </div>
+
+          <div class="streak-stat-box">
+            <span class="streak-stat-title">TOTAL ACTIVE DAYS</span>
+            <div class="streak-stat-main">
+              <span class="streak-calendar-icon">📅</span>
+              <span class="streak-stat-number">{{ streak_info.total_active_days }}</span>
+              <span class="streak-stat-unit">day{{ streak_info.total_active_days|pluralize }}</span>
+            </div>
+            <span class="streak-stat-desc">With completed exercises</span>
+          </div>
+        </div>
+
+        <!-- 14-day streak timeline tracker -->
+        <div class="streak-timeline-wrap">
+          <div class="streak-timeline-label">Last 14 Days Activity</div>
+          <div class="streak-timeline-grid">
+            {% for day in streak_info.recent_14_days %}
+              <div class="streak-timeline-day {% if day.completed %}done{% elif day.is_today %}today{% else %}missed{% endif %}"
+                   title="{{ day.date|date:'l, M j' }}: {% if day.completed %}Completed exercise ✓{% elif day.is_today %}Today (pending){% else %}Missed{% endif %}">
+                <span class="timeline-day-name">{{ day.day_name }}</span>
+                <div class="timeline-day-circle">
+                  {% if day.completed %}
+                    <span>✓</span>
+                  {% elif day.is_today %}
+                    <span class="timeline-dot"></span>
+                  {% else %}
+                    <span>·</span>
+                  {% endif %}
+                </div>
+                <span class="timeline-day-num">{{ day.day_number }}</span>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 

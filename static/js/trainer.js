@@ -234,10 +234,18 @@
     const cpm  = elapsed > 0 ? correctCount / (elapsed / 60) : 0;
     const acc  = typedCount > 0 ? (correctCount / typedCount) * 100 : 100;
 
-    // Update localStorage practice time
+    // Update localStorage practice time and streak dates
     try {
       const prev = parseFloat(localStorage.getItem('sc-practice-time') || '0');
       localStorage.setItem('sc-practice-time', (prev + elapsed).toString());
+
+      // Record date for daily streak tracking
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const storedDates = JSON.parse(localStorage.getItem('sc-practice-dates') || '[]');
+      if (!storedDates.includes(todayStr)) {
+        storedDates.push(todayStr);
+        localStorage.setItem('sc-practice-dates', JSON.stringify(storedDates));
+      }
     } catch (e) {}
 
     // Disable input

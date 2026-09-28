@@ -1,0 +1,1223 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Аналитика платформы — SprintCoder Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #0b0d14;
+      --bg-card: #131726;
+      --bg-card-hover: #171c2f;
+      --surface: #1a2035;
+      --border: #232a45;
+      --border-accent: rgba(124, 108, 252, 0.4);
+      --fg: #f0f2fc;
+      --fg-muted: #8b92b2;
+      --fg-dim: #5c6382;
+      --accent: #7c6cfc;
+      --accent-glow: rgba(124, 108, 252, 0.25);
+      --accent-light: #9e92ff;
+      --green: #10b981;
+      --green-bg: rgba(16, 185, 129, 0.12);
+      --yellow: #f59e0b;
+      --yellow-bg: rgba(245, 158, 11, 0.12);
+      --red: #ef4444;
+      --red-bg: rgba(239, 68, 68, 0.12);
+      --cyan: #06b6d4;
+      --cyan-bg: rgba(6, 182, 212, 0.12);
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--fg);
+      font-family: var(--font);
+      min-height: 100vh;
+      line-height: 1.5;
+      padding-bottom: 60px;
+    }
+
+    /* Top Navigation Bar */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 14px 28px;
+      background: rgba(11, 13, 20, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      font-size: 1.4rem;
+      background: linear-gradient(135deg, #7c6cfc, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge-admin {
+      background: var(--accent-glow);
+      color: var(--accent-light);
+      border: 1px solid var(--border-accent);
+      padding: 3px 8px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--fg);
+      transition: all 0.15s ease;
+    }
+
+    .btn:hover {
+      background: var(--surface);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-light);
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+
+    .period-selector {
+      display: flex;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 3px;
+    }
+
+    .period-tab {
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--fg-muted);
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .period-tab:hover {
+      color: var(--fg);
+    }
+
+    .period-tab.active {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 2px 8px var(--accent-glow);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 24px 28px;
+    }
+
+    /* Section Title */
+    .section-header {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: -0.3px;
+    }
+
+    .section-subtitle {
+      font-size: 0.85rem;
+      color: var(--fg-muted);
+    }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-accent);
+    }
+
+    .kpi-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .kpi-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--fg-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .kpi-icon {
+      font-size: 1.3rem;
+      opacity: 0.8;
+    }
+
+    .kpi-value {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #fff;
+      font-family: var(--font-mono);
+      margin-bottom: 4px;
+    }
+
+    .kpi-sub {
+      font-size: 0.8rem;
+      color: var(--fg-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .trend-up {
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    .trend-down {
+      color: var(--red);
+      font-weight: 600;
+    }
+
+    /* Chart Layout */
+    .charts-row {
+      display: grid;
+      grid-template-columns: 2fr 1.2fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 1080px) {
+      .charts-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chart-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chart-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .chart-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chart-badge {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--fg-muted);
+    }
+
+    .chart-badge-highlight {
+      background: var(--yellow-bg);
+      color: var(--yellow);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .chart-container {
+      position: relative;
+      flex-grow: 1;
+      min-height: 280px;
+      max-height: 360px;
+    }
+
+    /* Three column grid for secondary metrics */
+    .tri-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    /* Tables */
+    .table-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+      overflow-x: auto;
+    }
+
+    .custom-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.88rem;
+    }
+
+    .custom-table th {
+      padding: 12px 14px;
+      color: var(--fg-muted);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+      text-transform: uppercase;
+      font-size: 0.74rem;
+      letter-spacing: 0.5px;
+    }
+
+    .custom-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(35, 42, 69, 0.6);
+      color: var(--fg);
+    }
+
+    .custom-table tr:hover td {
+      background: var(--bg-card-hover);
+    }
+
+    .lang-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+    }
+
+    .pill-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.74rem;
+      font-weight: 700;
+    }
+
+    .pill-easy { background: var(--green-bg); color: var(--green); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .pill-medium { background: var(--yellow-bg); color: var(--yellow); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .pill-hard { background: var(--red-bg); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Progress bar */
+    .bar-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .progress-bar-bg {
+      flex: 1;
+      height: 8px;
+      background: var(--surface);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent), var(--cyan));
+    }
+
+    /* Export dropdown */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 100%;
+      margin-top: 6px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      min-width: 190px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      z-index: 200;
+      overflow: hidden;
+    }
+
+    .dropdown-content a {
+      color: var(--fg);
+      padding: 10px 14px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      transition: background 0.15s ease;
+    }
+
+    .dropdown-content a:hover {
+      background: var(--surface);
+      color: #fff;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    /* Live Feed */
+    .feed-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 380px;
+      overflow-y: auto;
+    }
+
+    .feed-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+    }
+
+    .feed-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .feed-path {
+      font-family: var(--font-mono);
+      color: var(--accent-light);
+      font-weight: 600;
+    }
+
+    .feed-time {
+      color: var(--fg-dim);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+
+    .feed-badge {
+      font-size: 0.72rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.06);
+      color: var(--fg-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="topbar">
+    <div class="brand-group">
+      <a href="{% url 'index' %}" class="brand-logo">
+        <span>⌨️ SprintCoder</span>
+      </a>
+      <span class="badge-admin">Analytics Dashboard</span>
+    </div>
+
+    <!-- Period Filter Pills -->
+    <div class="period-selector">
+      <a href="?period=today" class="period-tab {% if analytics.period == 'today' %}active{% endif %}">Сегодня</a>
+      <a href="?period=7d" class="period-tab {% if analytics.period == '7d' %}active{% endif %}">7 дней</a>
+      <a href="?period=30d" class="period-tab {% if analytics.period == '30d' %}active{% endif %}">30 дней</a>
+      <a href="?period=all" class="period-tab {% if analytics.period == 'all' %}active{% endif %}">Всё время</a>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="nav-actions">
+      <button class="btn" onclick="location.reload();" title="Обновить статистику">
+        <span>🔄</span> <span>Обновить</span>
+      </button>
+
+      <!-- CSV Export Dropdown -->
+      <div class="dropdown">
+        <button class="btn btn-primary">
+          <span>📥 Экспорт CSV</span> <span>▾</span>
+        </button>
+        <div class="dropdown-content">
+          <a href="{% url 'admin_export_csv' 'daily' %}">📊 Сводка по дням</a>
+          <a href="{% url 'admin_export_csv' 'languages' %}">💻 Популярность языков</a>
+          <a href="{% url 'admin_export_csv' 'visits' %}">🌐 Лог всех заходов</a>
+        </div>
+      </div>
+
+      <a href="/admin/" class="btn" title="Перейти в Django Admin">⚙️ Django Admin</a>
+      <a href="{% url 'index' %}" class="btn" title="Вернуться на главную">← На сайт</a>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- Section 1: Summary KPI Cards -->
+    <div class="section-header">
+      <div>
+        <h1 class="section-title">📊 Сводные показатели платформы</h1>
+        <p class="section-subtitle">Статистика за период: <strong>{{ analytics.days_count }} дн.</strong> (обновляется в реальном времени)</p>
+      </div>
+      <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--fg-muted);">
+        🕒 Пик посещаемости: <span style="color: var(--yellow); font-weight: 700;">{{ analytics.kpis.peak_hour_str }}</span> ({{ analytics.kpis.peak_hour_views }} визитов)
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <!-- KPI 1: Unique Visitors Today -->
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <span class="kpi-label">Уникальных сегодня</span>
+          <span class="kpi-icon">👥</span>
+        </div>
+        <div class="kpi-value">{{ analytics.kpis.today_unique }}</div>
+        <div class="kpi-sub">
+          <span>Вчера: {{ analytics.kpis.yesterday_unique }}</span>
+          {% if analytics.kpis.today_unique >= analytics.kpis.yesterday_unique %}
+            <span class="trend-up">▲</span>
+          {% else %}
+            <span class="trend-down">▼</span>
+          {% endif %}
+          <span style="margin-left: auto;">Период: <strong>{{ analytics.kpis.total_period_unique }}</strong></span>
+        </div>
+      </div>
+
+      <!-- KPI 2: Pageviews Today -->
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <span class="kpi-label">Просмотров сегодня</span>
+          <span class="kpi-icon">👁️</span>
+        </div>
+        <div class="kpi-value">{{ analytics.kpis.today_views }}</div>
+        <div class="kpi-sub">
+          <span>Вчера: {{ analytics.kpis.yesterday_views }}</span>
+          <span style="margin-left: auto;">Период: <strong>{{ analytics.kpis.total_period_views }}</strong></span>
+        </div>
+      </div>
+
+      <!-- KPI 3: Exercises Completed -->
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <span class="kpi-label">Тренировок за период</span>
+          <span class="kpi-icon">⌨️</span>
+        </div>
+        <div class="kpi-value">{{ analytics.kpis.total_attempts_period }}</div>
+        <div class="kpi-sub">
+          <span>Всего в базе: <strong>{{ analytics.kpis.total_attempts_all }}</strong></span>
+        </div>
+      </div>
+
+      <!-- KPI 4: Average Speed & Accuracy -->
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <span class="kpi-label">Средняя скорость / WPM</span>
+          <span class="kpi-icon">⚡</span>
+        </div>
+        <div class="kpi-value">{{ analytics.kpis.avg_wpm_period }} <span style="font-size: 1rem; color: var(--fg-muted);">WPM</span></div>
+        <div class="kpi-sub">
+          <span>Точность: <strong>{{ analytics.kpis.avg_acc_period }}%</strong></span>
+        </div>
+      </div>
+
+      <!-- KPI 5: Practice Time -->
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <span class="kpi-label">Время практики</span>
+          <span class="kpi-icon">⏱️</span>
+        </div>
+        <div class="kpi-value" style="font-size: 1.6rem;">{{ analytics.kpis.total_practice_formatted }}</div>
+        <div class="kpi-sub">
+          <span>Суммарно на платформе</span>
+        </div>
+      </div>
+
+      <!-- KPI 6: Registered Users -->
+      <div class="kpi-card">
+        <div class="kpi-top">
+          <span class="kpi-label">Пользователи</span>
+          <span class="kpi-icon">👤</span>
+        </div>
+        <div class="kpi-value">{{ analytics.kpis.total_registered_users }}</div>
+        <div class="kpi-sub">
+          <span>Активных сегодня: <strong>{{ analytics.kpis.today_active_users }}</strong></span>
+          <span style="margin-left: auto;">Новых: <strong>+{{ analytics.kpis.new_signups_period }}</strong></span>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Section 2: Core Charts: Daily Traffic & Hourly Traffic -->
+    <div class="charts-row">
+
+      <!-- Chart 1: Daily Traffic -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <h2 class="chart-title">
+            <span>📈</span> Сколько пользователей заходит в сутки
+          </h2>
+          <span class="chart-badge">Уникальные vs Просмотры vs Тренировки</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="dailyTrafficChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 2: Hourly Traffic Breakdown -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <h2 class="chart-title">
+            <span>🕒</span> Почасовой график захода на сайт
+          </h2>
+          <span class="chart-badge chart-badge-highlight">Пик: {{ analytics.kpis.peak_hour_str }}</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="hourlyTrafficChart"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- Section 3: Daily Statistics Table -->
+    <div class="table-container">
+      <div class="chart-card-header">
+        <h3 class="chart-title">📅 Детализация заходов по дням</h3>
+        <span class="chart-badge">История активности</span>
+      </div>
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Дата</th>
+            <th>Уникальные посетители</th>
+            <th>Просмотров страниц</th>
+            <th>Активные пользователи</th>
+            <th>Выполнено тренировок</th>
+            <th>Новых регистраций</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for day in analytics.daily.table %}
+            <tr>
+              <td><strong>{{ day.label }}</strong> ({{ day.date }})</td>
+              <td>
+                <span style="font-family: var(--font-mono); font-weight: 700; color: #fff;">{{ day.unique_visitors }}</span>
+              </td>
+              <td>
+                <span style="font-family: var(--font-mono); color: var(--cyan);">{{ day.pageviews }}</span>
+              </td>
+              <td>
+                <span style="font-family: var(--font-mono);">{{ day.active_users }}</span>
+              </td>
+              <td>
+                <span style="font-family: var(--font-mono); color: var(--green); font-weight: 600;">{{ day.attempts }}</span>
+              </td>
+              <td>
+                {% if day.signups > 0 %}
+                  <span style="font-family: var(--font-mono); color: var(--accent-light); font-weight: 700;">+{{ day.signups }}</span>
+                {% else %}
+                  <span style="color: var(--fg-dim);">0</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6" style="text-align: center; color: var(--fg-muted); padding: 24px;">
+                Нет данных за выбранный период. Заходы пользователей начнут регистрироваться автоматически.
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+
+    <!-- Section 4: Languages & Difficulties -->
+    <div class="charts-row">
+
+      <!-- Donut: Languages Popularity -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <h2 class="chart-title">
+            <span>💻</span> Популярность языков программирования
+          </h2>
+          <span class="chart-badge">Доля решённых упражнений</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: center;">
+          <div class="chart-container" style="min-height: 260px; max-height: 280px;">
+            <canvas id="languageDonutChart"></canvas>
+          </div>
+          <div class="chart-container" style="min-height: 260px; max-height: 280px;">
+            <canvas id="languageSpeedBarChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Difficulty & Devices Breakdown -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <h2 class="chart-title">
+            <span>📱</span> Устройства и сложность
+          </h2>
+          <span class="chart-badge">Распределение</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: center;">
+          <div class="chart-container" style="min-height: 240px; max-height: 260px;">
+            <canvas id="deviceChart"></canvas>
+          </div>
+          <div class="chart-container" style="min-height: 240px; max-height: 260px;">
+            <canvas id="difficultyChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- Section 5: Languages Detailed Table -->
+    <div class="table-container">
+      <div class="chart-card-header">
+        <h3 class="chart-title">📊 Сравнительная таблица по всем языкам</h3>
+        <span class="chart-badge">Всего языков: {{ analytics.languages.table|length }}</span>
+      </div>
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Язык</th>
+            <th>Выполнено попыток</th>
+            <th>Доля от общего числа</th>
+            <th>Суммарное время</th>
+            <th>Ср. скорость (WPM)</th>
+            <th>Ср. точность</th>
+            <th>Сниппетов в базе</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for lang in analytics.languages.table %}
+            <tr>
+              <td>
+                <span class="lang-chip">
+                  <span>{{ lang.icon }}</span>
+                  <strong>{{ lang.name }}</strong>
+                </span>
+              </td>
+              <td>
+                <span style="font-family: var(--font-mono); font-weight: 700;">{{ lang.attempts_count }}</span>
+                <span style="font-size: 0.75rem; color: var(--fg-dim);">({{ lang.all_time_attempts }} за всё время)</span>
+              </td>
+              <td>
+                <div class="bar-wrapper">
+                  <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" style="width: {{ lang.share_pct }}%;"></div>
+                  </div>
+                  <span style="font-family: var(--font-mono); font-size: 0.8rem; width: 44px;">{{ lang.share_pct }}%</span>
+                </div>
+              </td>
+              <td>{{ lang.total_time_formatted }}</td>
+              <td>
+                <span style="font-family: var(--font-mono); color: var(--accent-light); font-weight: 700;">{{ lang.avg_wpm }}</span> WPM
+              </td>
+              <td>
+                <span style="font-family: var(--font-mono); color: var(--green);">{{ lang.avg_accuracy }}%</span>
+              </td>
+              <td>
+                <span style="font-family: var(--font-mono);">{{ lang.snippets_count }}</span>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+
+    <!-- Section 6: Top Snippets & Leaderboard -->
+    <div class="charts-row">
+
+      <!-- Top Snippets -->
+      <div class="table-container" style="margin-bottom: 0;">
+        <div class="chart-card-header">
+          <h3 class="chart-title">🏆 Топ популярных упражнений</h3>
+          <span class="chart-badge">Самые проходимые</span>
+        </div>
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Сниппет</th>
+              <th>Язык</th>
+              <th>Сложность</th>
+              <th>Попыток</th>
+              <th>Ср. WPM</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for snip in analytics.top_snippets %}
+              <tr>
+                <td>
+                  <a href="/exercise/{{ snip.id }}/" style="color: var(--fg); text-decoration: none; font-weight: 600;" target="_blank">
+                    {{ snip.title|truncatechars:35 }}
+                  </a>
+                </td>
+                <td>{{ snip.language }}</td>
+                <td>
+                  {% if snip.difficulty == 'easy' %}
+                    <span class="pill-badge pill-easy">Easy</span>
+                  {% elif snip.difficulty == 'medium' %}
+                    <span class="pill-badge pill-medium">Medium</span>
+                  {% else %}
+                    <span class="pill-badge pill-hard">Hard</span>
+                  {% endif %}
+                </td>
+                <td><strong style="font-family: var(--font-mono);">{{ snip.attempts }}</strong></td>
+                <td><span style="font-family: var(--font-mono); color: var(--accent-light);">{{ snip.avg_wpm }}</span></td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5" style="text-align: center; color: var(--fg-muted);">Нет данных</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Top Users Leaderboard -->
+      <div class="table-container" style="margin-bottom: 0;">
+        <div class="chart-card-header">
+          <h3 class="chart-title">🥇 Лидерборд пользователей</h3>
+          <span class="chart-badge">Топ активности</span>
+        </div>
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Пользователь</th>
+              <th>Попыток</th>
+              <th>Время в коде</th>
+              <th>Ср. WPM</th>
+              <th>Рекорд WPM</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in analytics.top_users %}
+              <tr>
+                <td>
+                  <strong>{{ u.username }}</strong>
+                  {% if u.is_staff %}<span class="badge-admin" style="font-size: 0.65rem; padding: 2px 4px;">Staff</span>{% endif %}
+                </td>
+                <td><strong style="font-family: var(--font-mono);">{{ u.attempts }}</strong></td>
+                <td>{{ u.practice_time }}</td>
+                <td><span style="font-family: var(--font-mono); color: var(--accent-light);">{{ u.avg_wpm }}</span></td>
+                <td><span style="font-family: var(--font-mono); color: var(--green); font-weight: 700;">{{ u.max_wpm }}</span></td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5" style="text-align: center; color: var(--fg-muted);">Нет данных</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- Section 7: Live Activity Feed & Top Paths -->
+    <div class="charts-row" style="margin-top: 24px;">
+
+      <!-- Top Paths -->
+      <div class="table-container" style="margin-bottom: 0;">
+        <div class="chart-card-header">
+          <h3 class="chart-title">🌐 Популярные страницы</h3>
+          <span class="chart-badge">Топ URL заходов</span>
+        </div>
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Страница (URL)</th>
+              <th>Просмотров</th>
+              <th>Уникальных сессий</th>
+              <th>Доля</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in analytics.top_paths %}
+              <tr>
+                <td><code style="font-family: var(--font-mono); color: var(--cyan);">{{ p.path }}</code></td>
+                <td><strong style="font-family: var(--font-mono);">{{ p.views }}</strong></td>
+                <td><span style="font-family: var(--font-mono);">{{ p.unique }}</span></td>
+                <td>{{ p.share_pct }}%</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="4" style="text-align: center; color: var(--fg-muted);">Нет заходов</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Recent Live Feed -->
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <h3 class="chart-title">⚡ Живая лента активности</h3>
+          <span class="chart-badge">Последние 12 визитов</span>
+        </div>
+        <div class="feed-list">
+          {% for item in analytics.recent_activity %}
+            <div class="feed-item">
+              <div class="feed-left">
+                <span class="feed-time">{{ item.date }} {{ item.time }}</span>
+                <strong>{{ item.user }}</strong>
+                <span class="feed-path">{{ item.path }}</span>
+              </div>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <span class="feed-badge">{{ item.device }}</span>
+                <span class="feed-badge">{{ item.browser }}</span>
+              </div>
+            </div>
+          {% empty %}
+            <div style="text-align: center; color: var(--fg-muted); padding: 20px;">
+              Ожидание первых заходов...
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Interactive Charts Scripts via Chart.js -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const isDark = true;
+      const gridColor = 'rgba(255, 255, 255, 0.07)';
+      const textColor = '#8b92b2';
+
+      Chart.defaults.color = textColor;
+      Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+
+      // 1. Daily Traffic Chart (Уникальные + Просмотры + Попытки)
+      const dailyLabels = {{ analytics.daily.labels|safe }};
+      const dailyUnique = {{ analytics.daily.unique|safe }};
+      const dailyViews = {{ analytics.daily.views|safe }};
+      const dailyAttempts = {{ analytics.daily.attempts|safe }};
+
+      const ctxDaily = document.getElementById('dailyTrafficChart');
+      if (ctxDaily) {
+        new Chart(ctxDaily, {
+          type: 'line',
+          data: {
+            labels: dailyLabels,
+            datasets: [
+              {
+                label: 'Уникальные посетители (DAU)',
+                data: dailyUnique,
+                borderColor: '#7c6cfc',
+                backgroundColor: 'rgba(124, 108, 252, 0.15)',
+                fill: true,
+                tension: 0.35,
+                borderWidth: 3,
+                pointBackgroundColor: '#7c6cfc',
+                pointRadius: 4,
+              },
+              {
+                label: 'Всего просмотров',
+                data: dailyViews,
+                borderColor: '#06b6d4',
+                backgroundColor: 'rgba(6, 182, 212, 0.05)',
+                borderDash: [5, 5],
+                tension: 0.35,
+                borderWidth: 2,
+                pointBackgroundColor: '#06b6d4',
+                pointRadius: 3,
+              },
+              {
+                label: 'Тренировок выполнено',
+                data: dailyAttempts,
+                borderColor: '#10b981',
+                backgroundColor: 'transparent',
+                tension: 0.35,
+                borderWidth: 2,
+                pointBackgroundColor: '#10b981',
+                pointRadius: 3,
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            plugins: {
+              legend: {
+                position: 'top',
+                labels: { boxWidth: 12, boxHeight: 12, usePointStyle: true }
+              },
+              tooltip: {
+                backgroundColor: '#1a2035',
+                titleColor: '#fff',
+                bodyColor: '#e8eaf6',
+                borderColor: '#2a2e4a',
+                borderWidth: 1,
+                padding: 10,
+              }
+            },
+            scales: {
+              x: { grid: { color: gridColor }, ticks: { maxRotation: 0 } },
+              y: { grid: { color: gridColor }, beginAtZero: true, ticks: { precision: 0 } }
+            }
+          }
+        });
+      }
+
+      // 2. Hourly Traffic Chart (24 часа)
+      const hourlyLabels = {{ analytics.hourly.labels|safe }};
+      const hourlyViews = {{ analytics.hourly.views|safe }};
+      const peakHour = {{ analytics.hourly.peak_hour }};
+
+      const ctxHourly = document.getElementById('hourlyTrafficChart');
+      if (ctxHourly) {
+        // Highlight peak hour with yellow/accent gradient
+        const bgColors = hourlyLabels.map((_, idx) => idx === peakHour ? '#f59e0b' : 'rgba(124, 108, 252, 0.7)');
+
+        new Chart(ctxHourly, {
+          type: 'bar',
+          data: {
+            labels: hourlyLabels,
+            datasets: [{
+              label: 'Заходов в этот час',
+              data: hourlyViews,
+              backgroundColor: bgColors,
+              borderRadius: 4,
+              borderSkipped: false,
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: '#1a2035',
+                callbacks: {
+                  afterLabel: function (context) {
+                    if (context.dataIndex === peakHour) {
+                      return '🔥 Пиковый час активности!';
+                    }
+                    return '';
+                  }
+                }
+              }
+            },
+            scales: {
+              x: { grid: { display: false }, ticks: { maxTicksLimit: 12 } },
+              y: { grid: { color: gridColor }, beginAtZero: true, ticks: { precision: 0 } }
+            }
+          }
+        });
+      }
+
+      // 3. Languages Donut Chart
+      const langLabels = {{ analytics.languages.labels|safe }};
+      const langAttempts = {{ analytics.languages.attempts|safe }};
+      const palette = [
+        '#7c6cfc', '#06b6d4', '#10b981', '#f59e0b', '#ec4899',
+        '#8b5cf6', '#3b82f6', '#14b8a6', '#f97316', '#64748b', '#a855f7'
+      ];
+
+      const ctxLangDonut = document.getElementById('languageDonutChart');
+      if (ctxLangDonut && langLabels.length > 0) {
+        new Chart(ctxLangDonut, {
+          type: 'doughnut',
+          data: {
+            labels: langLabels,
+            datasets: [{
+              data: langAttempts,
+              backgroundColor: palette.slice(0, langLabels.length),
+              borderWidth: 2,
+              borderColor: '#131726',
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom', labels: { boxWidth: 10, usePointStyle: true, font: { size: 10 } } }
+            },
+            cutout: '65%'
+          }
+        });
+      }
+
+      // 4. Languages Speed Bar Chart
+      const langSpeeds = {{ analytics.languages.avg_wpms|safe }};
+      const ctxLangSpeed = document.getElementById('languageSpeedBarChart');
+      if (ctxLangSpeed && langLabels.length > 0) {
+        new Chart(ctxLangSpeed, {
+          type: 'bar',
+          data: {
+            labels: langLabels,
+            datasets: [{
+              label: 'Ср. скорость (WPM)',
+              data: langSpeeds,
+              backgroundColor: 'rgba(6, 182, 212, 0.75)',
+              borderRadius: 4,
+            }]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { color: gridColor }, beginAtZero: true },
+              y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+            }
+          }
+        });
+      }
+
+      // 5. Devices Breakdown Chart
+      const deviceLabels = {{ analytics.devices.labels|safe }};
+      const deviceCounts = {{ analytics.devices.counts|safe }};
+      const ctxDevice = document.getElementById('deviceChart');
+      if (ctxDevice && deviceLabels.length > 0) {
+        new Chart(ctxDevice, {
+          type: 'doughnut',
+          data: {
+            labels: deviceLabels,
+            datasets: [{
+              data: deviceCounts,
+              backgroundColor: ['#7c6cfc', '#10b981', '#f59e0b', '#64748b'],
+              borderWidth: 2,
+              borderColor: '#131726',
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } }
+            },
+            cutout: '60%'
+          }
+        });
+      }
+
+      // 6. Difficulty Breakdown Chart
+      const diffLabels = {{ analytics.difficulties.labels|safe }};
+      const diffCounts = {{ analytics.difficulties.counts|safe }};
+      const ctxDiff = document.getElementById('difficultyChart');
+      if (ctxDiff && diffLabels.length > 0) {
+        new Chart(ctxDiff, {
+          type: 'doughnut',
+          data: {
+            labels: diffLabels,
+            datasets: [{
+              data: diffCounts,
+              backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+              borderWidth: 2,
+              borderColor: '#131726',
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } }
+            },
+            cutout: '60%'
+          }
+        });
+      }
+
+    });
+  </script>
+</body>
+</html>

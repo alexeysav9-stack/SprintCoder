@@ -8,12 +8,12 @@ from django.views.decorators.http import require_POST
 from django.utils import timezone
 
 from .models import Language, Snippet, Attempt, UserProfile
-from .utils import format_exercise_time
+from .utils import format_exercise_time, get_user_streak
 from .snippet_validator import extract_categorized_snippets, is_excluded_file_path
 
 
 def index(request):
-    """Home page: language + difficulty picker."""
+    """Home page: language + difficulty picker with streak and practice time."""
     languages = Language.objects.all()
     difficulty_choices = Snippet.DIFFICULTY_CHOICES
 
@@ -26,12 +26,16 @@ def index(request):
             has_my_snippets = Snippet.objects.filter(imported_by=request.user).exists()
         total_seconds = profile.get_total_exercise_seconds()
         user_time = format_exercise_time(total_seconds)
+        streak_info = get_user_streak(request.user)
+    else:
+        streak_info = get_user_streak(None)
 
     return render(request, 'trainer/index.html', {
         'languages': languages,
         'difficulty_choices': difficulty_choices,
         'has_my_snippets': has_my_snippets,
         'user_time': user_time,
+        'streak_info': streak_info,
     })
 
 
@@ -152,15 +156,20 @@ def save_attempt(request):
         )
 
         user_time_info = None
+        streak_info = None
         if request.user.is_authenticated:
             profile, _ = UserProfile.objects.get_or_create(user=request.user)
             total_seconds = profile.get_total_exercise_seconds()
             user_time_info = format_exercise_time(total_seconds)
+            streak_info = get_user_streak(request.user)
+        else:
+            streak_info = get_user_streak(None)
 
         return JsonResponse({
             'status': 'ok',
             'attempt_id': attempt.pk,
             'total_time': user_time_info,
+            'streak': streak_info,
         })
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
@@ -199,9 +208,11 @@ def result(request, attempt_id):
     attempt = get_object_or_404(Attempt, pk=attempt_id)
     # Sort errors by frequency descending
     errors = sorted(attempt.errors_json.items(), key=lambda x: x[1], reverse=True)
+    streak_info = get_user_streak(attempt.user if attempt.user else None)
     return render(request, 'trainer/result.html', {
         'attempt': attempt,
         'errors': errors[:10],  # top 10 most mistyped chars
+        'streak_info': streak_info,
     })
 
 
@@ -221,6 +232,7 @@ def profile(request):
     profile_obj, _ = UserProfile.objects.get_or_create(user=user)
     total_exercise_seconds = profile_obj.get_total_exercise_seconds()
     user_time = format_exercise_time(total_exercise_seconds)
+    streak_info = get_user_streak(user)
 
     all_attempts = (
         user.attempts
@@ -284,6 +296,7 @@ def profile(request):
         'overall_best_wpm': overall_best_wpm,
         'overall_avg_wpm': overall_avg_wpm,
         'user_time': user_time,
+        'streak_info': streak_info,
     })
 
 

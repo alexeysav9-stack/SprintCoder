@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils import timezone
 
 
 class Language(models.Model):
@@ -97,6 +98,46 @@ class UserProfile(models.Model):
         attempt_time = self.user.attempts.aggregate(models.Sum('time_seconds'))['time_seconds__sum'] or 0.0
         return float(attempt_time) + float(self.extra_exercise_seconds)
 
+    def get_streak_info(self) -> dict:
+        """Return the user's daily exercise streak information."""
+        from .utils import get_user_streak
+        return get_user_streak(self.user)
+
+
+
+class SiteVisit(models.Model):
+    """Stores page visit records for admin analytics and traffic monitoring."""
+    DEVICE_CHOICES = [
+        ('desktop', 'Desktop'),
+        ('mobile', 'Mobile'),
+        ('tablet', 'Tablet'),
+        ('bot', 'Bot'),
+    ]
+
+    timestamp = models.DateTimeField(default=timezone.now, db_index=True)
+    path = models.CharField(max_length=255, db_index=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user = models.ForeignKey(
+        'auth.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='site_visits'
+    )
+    session_key = models.CharField(max_length=64, blank=True, db_index=True)
+    user_agent = models.CharField(max_length=500, blank=True)
+    device_type = models.CharField(max_length=20, choices=DEVICE_CHOICES, default='desktop', db_index=True)
+    browser = models.CharField(max_length=50, blank=True)
+    referer = models.CharField(max_length=500, blank=True)
+    status_code = models.PositiveSmallIntegerField(default=200)
+
+    class Meta:
+        ordering = ['-timestamp']
+        indexes = [
+            models.Index(fields=['timestamp', 'session_key']),
+            models.Index(fields=['timestamp', 'user']),
+            models.Index(fields=['timestamp', 'device_type']),
+        ]
+
+    def __str__(self):
+        user_str = self.user.username if self.user else (f"session:{self.session_key[:8]}" if self.session_key else 'guest')
+        return f"[{self.timestamp:%Y-%m-%d %H:%M}] {self.path} ({user_str})"
 
 
 @receiver(post_save, sender='auth.User')
@@ -104,4 +145,5 @@ def create_user_profile(sender, instance, created, **kwargs):
     """Automatically create a UserProfile when a new User is registered."""
     if created:
         UserProfile.objects.get_or_create(user=instance)
+
 
