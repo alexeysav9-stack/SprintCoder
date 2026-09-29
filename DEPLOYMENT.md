@@ -11,12 +11,12 @@
 - **Render.com** собирает проект напрямую из вашего GitHub, раздаёт статику через WhiteNoise, запускает Gunicorn и автоматически выдаёт бесплатный SSL-сертификат (HTTPS).
 
 ### Шаг 1. Скопировать строку подключения из Neon.tech
-1. Откройте консоль [console.neon.tech](https://console.neon.tech/) и выберите ваш проект (`nameless-flower-41925418`).
+1. Откройте консоль [console.neon.tech](https://console.neon.tech/) и выберите ваш проект (`floral-meadow-39633245`).
 2. В блоке **Connection Details** (на главном экране дашборда):
    - Убедитесь, что выбран переключатель **Pooled connection** (рекомендуется) или Direct.
    - Скопируйте строку подключения (**Connection string**). Она выглядит так:
      ```text
-     postgresql://neondb_owner:ПАРОЛЬ@ep-nameless-flower-41925418-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require
+     postgresql://neondb_owner:ПАРОЛЬ@ep-floral-meadow-39633245-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require
      ```
 
 ### Шаг 2. Развёртывание на Render.com
