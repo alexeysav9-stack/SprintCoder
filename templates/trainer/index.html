@@ -426,7 +426,7 @@
     const STORAGE_KEY = 'sc_quick_start_tip_v1';
     function hideToast() {
       if (toast) {
-        toast.classList.add('hidden');
+        toast.classList.remove('is-visible');
         try {
           localStorage.setItem(STORAGE_KEY, 'dismissed');
         } catch (e) {}
@@ -435,14 +435,16 @@
 
     function showToast() {
       if (toast) {
-        toast.classList.remove('hidden');
+        toast.classList.add('is-visible');
       }
     }
 
-    // Check if new user or already dismissed
+    // Only show to new users who haven't dismissed it yet, after a smooth delay
     try {
-      if (localStorage.getItem(STORAGE_KEY) === 'dismissed') {
-        if (toast) toast.classList.add('hidden');
+      if (localStorage.getItem(STORAGE_KEY) !== 'dismissed') {
+        setTimeout(function () {
+          showToast();
+        }, 800);
       }
     } catch (e) {}
 
@@ -450,7 +452,11 @@
     if (dismissBtn) dismissBtn.addEventListener('click', hideToast);
     if (triggerBtn) {
       triggerBtn.addEventListener('click', function () {
-        showToast();
+        if (toast && toast.classList.contains('is-visible')) {
+          hideToast();
+        } else {
+          showToast();
+        }
       });
     }
   })();

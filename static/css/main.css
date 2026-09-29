@@ -1372,20 +1372,20 @@ a:hover { color: var(--accent); }
   padding: 0.95rem 1.2rem;
   box-shadow: var(--shadow-lg), 0 0 24px var(--accent-glow);
   backdrop-filter: blur(14px);
-  animation: slideInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
-}
-
-.nav-tip-toast.hidden {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transform: translateY(12px);
+  transform: translateY(16px);
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes slideInUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
+.nav-tip-toast.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
 }
 
 .nav-tip-header {
