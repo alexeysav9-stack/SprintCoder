@@ -605,7 +605,61 @@ a:hover { color: var(--accent); }
 
 /* ── 7. Main content & Footer ─────────────────────────── */
 .main-content { flex: 1; padding: 2rem; max-width: 1200px; margin: 0 auto; width: 100%; position: relative; }
-.footer { border-top: none; padding: 1.25rem 2rem 1.75rem; text-align: center; color: var(--fg-3); font-size: .82rem; opacity: 0.8; }
+
+.footer {
+  border-top: none;
+  padding: 1.15rem 1.5rem 1.65rem;
+  text-align: center;
+  color: var(--fg-3);
+  font-size: .82rem;
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.55rem 0.85rem;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.footer-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--fg-2);
+  text-decoration: none;
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: color var(--transition), background var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+}
+
+.footer-link:hover {
+  color: var(--accent);
+  background: var(--surface-2);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.footer-icon {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  fill: currentColor;
+  transition: transform var(--transition);
+}
+
+.footer-link:hover .footer-icon {
+  transform: scale(1.12);
+}
 
 /* ── Steam Practice Time Corner Widget (Main Page) ────── */
 .steam-corner-widget {
