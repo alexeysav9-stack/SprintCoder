@@ -877,20 +877,20 @@ a:hover { color: var(--accent); }
 
 /* ── Hero Streak Tracker ───────────────────────────────── */
 .hero-streak-container {
-  max-width: 720px;
-  margin: 1.75rem auto 0;
+  max-width: 680px;
+  margin: 0.85rem auto 0;
   padding: 0 1rem;
 }
 
 .hero-streak-card {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  gap: 1rem;
   background: linear-gradient(135deg, var(--surface) 0%, var(--bg-2) 100%);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 1.15rem 1.4rem;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 1.15rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   position: relative;
   overflow: hidden;
   transition: all var(--transition);
@@ -908,7 +908,7 @@ a:hover { color: var(--accent); }
 
 .hero-streak-card.streak-completed {
   border-color: rgba(255, 138, 0, 0.45);
-  box-shadow: 0 8px 24px rgba(255, 122, 24, 0.12), 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 6px 18px rgba(255, 122, 24, 0.12), 0 3px 8px rgba(0, 0, 0, 0.25);
 }
 
 .hero-streak-card.streak-pending {
@@ -917,7 +917,7 @@ a:hover { color: var(--accent); }
 
 .hero-streak-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.3);
   border-color: rgba(255, 138, 0, 0.6);
 }
 
@@ -926,17 +926,17 @@ a:hover { color: var(--accent); }
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
-  height: 52px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: radial-gradient(circle, rgba(255, 122, 24, 0.22) 0%, rgba(255, 122, 24, 0.02) 70%);
   flex-shrink: 0;
 }
 
 .hero-streak-flame {
-  font-size: 2.1rem;
+  font-size: 1.65rem;
   line-height: 1;
-  filter: drop-shadow(0 0 8px rgba(255, 122, 24, 0.6));
+  filter: drop-shadow(0 0 6px rgba(255, 122, 24, 0.5));
   transition: transform 0.25s ease;
 }
 
@@ -1144,59 +1144,72 @@ a:hover { color: var(--accent); }
 /* ── 8. Home / Index Page ─────────────────────────────── */
 .hero {
   text-align: center;
-  padding: 4rem 1rem 2.5rem;
+  padding: 1.5rem 1rem 0.5rem;
 }
 .hero-title {
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: clamp(1.85rem, 3.8vw, 2.75rem);
   font-weight: 800;
-  letter-spacing: -.04em;
+  letter-spacing: -.03em;
   line-height: 1.1;
-  margin-bottom: .75rem;
+  margin-bottom: .35rem;
 }
 .accent { color: var(--accent-2); }
 .hero-subtitle {
-  font-size: 1.1rem;
+  font-size: 0.98rem;
   color: var(--fg-2);
-  max-width: 500px;
+  max-width: 520px;
   margin: 0 auto;
 }
 
 .picker-section {
-  max-width: 860px;
+  max-width: 960px;
   margin: 0 auto;
-  padding: 1rem 0 3rem;
+  padding: 0.5rem 1rem 1.75rem;
 }
 
 .section-label {
-  font-size: .8rem;
+  font-size: .74rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: .1em;
   color: var(--fg-3);
-  margin-bottom: .75rem;
+  margin-bottom: .5rem;
 }
 
-/* Language grid */
+/* Language grid: 6 columns on desktop (2 clean rows for 12 items) */
 .lang-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: .75rem;
+  grid-template-columns: repeat(6, 1fr);
+  gap: .55rem;
+}
+
+@media (max-width: 920px) {
+  .lang-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 @media (max-width: 580px) {
   .lang-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 380px) {
+  .lang-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
 .lang-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: .5rem;
-  padding: 1.2rem .75rem;
+  gap: .35rem;
+  padding: 0.8rem .5rem;
   background: var(--surface);
   border: 2px solid var(--border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition);
   user-select: none;
@@ -1212,8 +1225,8 @@ a:hover { color: var(--accent); }
   background: var(--accent-glow);
   box-shadow: 0 0 0 1px var(--accent), var(--shadow-glow);
 }
-.lang-icon { font-size: 2rem; }
-.lang-name { font-size: .82rem; font-weight: 600; color: var(--fg-2); text-align: center; }
+.lang-icon { font-size: 1.65rem; }
+.lang-name { font-size: .78rem; font-weight: 600; color: var(--fg-2); text-align: center; }
 .lang-card.selected .lang-name { color: var(--fg); }
 .dice-icon {
   display: inline-block;
@@ -1227,18 +1240,44 @@ a:hover { color: var(--accent); }
   transform: scale(1.12);
 }
 
-/* Difficulty row */
-.difficulty-row {
+/* ── Picker Action Bar: Difficulty + Repo toggle + Start Button ── */
+.picker-action-bar {
   display: flex;
-  gap: .6rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  margin-top: 1.15rem;
+  flex-wrap: wrap;
+  padding: 0.25rem 0;
+}
+
+.difficulty-group {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
   flex-wrap: wrap;
 }
+
+.section-label-inline {
+  font-size: .75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--fg-3);
+}
+
+.difficulty-row {
+  display: flex;
+  gap: .45rem;
+  flex-wrap: wrap;
+}
+
 .diff-btn {
-  padding: .55rem 1.4rem;
+  padding: .42rem 1.1rem;
   background: var(--surface);
   border: 2px solid var(--border);
   border-radius: 999px;
-  font-size: .9rem;
+  font-size: .84rem;
   font-weight: 600;
   cursor: pointer;
   transition: all var(--transition);
@@ -1253,7 +1292,26 @@ a:hover { color: var(--accent); }
   box-shadow: var(--shadow-glow);
 }
 
-.start-btn { margin-top: 2rem; font-size: 1.05rem; padding: .9rem 2.4rem; }
+.start-btn {
+  margin-top: 0;
+  font-size: 0.98rem;
+  padding: .65rem 1.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@media (max-width: 680px) {
+  .picker-action-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.9rem;
+  }
+  .start-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
 
 /* Features */
 .features-row {
@@ -2505,14 +2563,14 @@ a:hover { color: var(--accent); }
 }
 
 /* ── 16. My Repos toggle ──────────────────────────────── */
-.my-repos-row { margin-top: 1.5rem; }
+.my-repos-row { margin-top: 0; }
 .my-repos-toggle {
   display: inline-flex;
   align-items: center;
-  gap: .75rem;
+  gap: .65rem;
   cursor: pointer;
   user-select: none;
-  padding: .6rem 1rem;
+  padding: .42rem .85rem;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
