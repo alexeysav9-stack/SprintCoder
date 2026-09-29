@@ -158,14 +158,14 @@
     <!-- Language grid -->
     <div class="section-header-row">
       <div class="section-label">Choose a language</div>
-      <button type="button" class="shortcuts-tip-trigger" id="shortcuts-tip-trigger" title="Подсказка по управлению клавишами">
-        <span>⌨️</span> <span>Управление без мыши</span>
+      <button type="button" class="shortcuts-tip-trigger" id="shortcuts-tip-trigger" title="Keyboard navigation shortcuts">
+        <span>⌨️</span> <span>Keyboard Controls</span>
       </button>
     </div>
     <div class="lang-grid" id="lang-grid">
       {% for lang in languages %}
         <label class="lang-card {% if forloop.first %}selected{% endif %}" for="lang-{{ lang.slug }}"
-               title="Двойной щелчок ЛКМ или Enter — начать практику ({{ lang.name }})">
+               title="Double-click or Enter to start practice ({{ lang.name }})">
           <input type="radio" name="language" id="lang-{{ lang.slug }}"
                  value="{{ lang.slug }}" {% if forloop.first %}checked{% endif %} hidden />
           <span class="lang-icon">{% devicon lang.slug %}</span>
@@ -173,7 +173,7 @@
         </label>
       {% endfor %}
       <label class="lang-card lang-card-random" for="lang-random"
-             title="Двойной щелчок ЛКМ или Enter — случайный язык">
+             title="Double-click or Enter to start with Random language">
         <input type="radio" name="language" id="lang-random"
                value="random" hidden />
         <span class="lang-icon dice-icon">🎲</span>
@@ -236,27 +236,27 @@
 </section>
 
 <!-- Floating Keyboard & Double-Click Quick Start Toast for New Users -->
-<aside class="nav-tip-toast" id="nav-tip-toast" aria-label="Быстрый старт">
+<aside class="nav-tip-toast" id="nav-tip-toast" aria-label="Quick Start Guide">
   <div class="nav-tip-header">
-    <span class="nav-tip-title">💡 Быстрый старт</span>
-    <button type="button" class="nav-tip-close" id="nav-tip-close" aria-label="Закрыть" title="Закрыть">×</button>
+    <span class="nav-tip-title">💡 Quick Start</span>
+    <button type="button" class="nav-tip-close" id="nav-tip-close" aria-label="Close" title="Close">×</button>
   </div>
   <div class="nav-tip-list">
     <div class="nav-tip-item">
       <span class="nav-tip-keys"><kbd>🖱️×2</kbd></span>
-      <span><strong>Двойной щелчок</strong> по языку — мгновенно начинает практику.</span>
+      <span><strong>Double-click</strong> any language card to start practice instantly.</span>
     </div>
     <div class="nav-tip-item">
       <span class="nav-tip-keys"><kbd>←</kbd><kbd>↑</kbd><kbd>→</kbd><kbd>↓</kbd></span>
-      <span><strong>Стрелки клавиатуры</strong> — выбор языка, а стрелка <strong>↓</strong> вниз переходит к сложности.</span>
+      <span><strong>Arrow keys</strong> to navigate languages, and <strong>↓</strong> to choose difficulty.</span>
     </div>
     <div class="nav-tip-item">
       <span class="nav-tip-keys"><kbd>Enter ↵</kbd></span>
-      <span>Нажмите <strong>Enter</strong> для старта в один клик без мыши!</span>
+      <span>Press <strong>Enter</strong> anytime to start practice without a mouse!</span>
     </div>
   </div>
   <div class="nav-tip-footer">
-    <button type="button" class="nav-tip-btn" id="nav-tip-dismiss-btn">Понятно</button>
+    <button type="button" class="nav-tip-btn" id="nav-tip-dismiss-btn">Got it</button>
   </div>
 </aside>
 {% endblock %}

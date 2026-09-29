@@ -56,7 +56,7 @@
         <a href="{% url 'profile' %}" class="nav-link {% if request.resolver_match.url_name == 'profile' %}active{% endif %}">Profile</a>
         <a href="{% url 'settings' %}" class="nav-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">Settings</a>
         {% if user.is_staff %}
-          <a href="{% url 'admin_analytics' %}" class="nav-link" style="color: var(--accent-2); font-weight: 600;" title="Аналитика платформы">📊 Аналитика</a>
+          <a href="{% url 'admin_analytics' %}" class="nav-link" style="color: var(--accent-2); font-weight: 600;" title="Platform Analytics">📊 Analytics</a>
         {% endif %}
         <span class="nav-user">{{ user.username }}</span>
         <a href="{% url 'logout' %}" class="btn btn-ghost btn-sm">Logout</a>
