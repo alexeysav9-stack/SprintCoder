@@ -622,19 +622,19 @@ a:hover { color: var(--accent); }
 }
 
 .steam-widget-card {
-  background: linear-gradient(135deg, rgba(27, 40, 56, 0.95) 0%, rgba(23, 26, 33, 0.98) 100%);
-  border: 1px solid rgba(102, 192, 244, 0.35);
+  background: var(--surface);
+  border: 1px solid var(--border-2);
   border-radius: var(--radius-md);
   padding: 0.85rem 1.15rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 16px rgba(102, 192, 244, 0.12);
+  box-shadow: var(--shadow-lg), 0 0 16px var(--accent-glow);
   backdrop-filter: blur(12px);
   min-width: 215px;
-  transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+  transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition), background var(--transition), color var(--transition);
 }
 
 .steam-widget-card:hover {
-  border-color: rgba(102, 192, 244, 0.6);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55), 0 0 22px rgba(102, 192, 244, 0.22);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-lg), 0 0 22px var(--accent-glow);
   transform: translateY(-2px);
 }
 
@@ -644,33 +644,33 @@ a:hover { color: var(--accent); }
   justify-content: space-between;
   margin-bottom: 0.5rem;
   padding-bottom: 0.4rem;
-  border-bottom: 1px solid rgba(102, 192, 244, 0.15);
+  border-bottom: 1px solid var(--border);
 }
 
 .steam-brand {
   display: flex;
   align-items: center;
   gap: 0.45rem;
-  color: #66c0f4;
+  color: var(--accent);
 }
 
 .steam-icon {
   flex-shrink: 0;
-  filter: drop-shadow(0 0 4px rgba(102, 192, 244, 0.4));
+  filter: drop-shadow(0 0 4px var(--accent-glow));
 }
 
 .steam-header-title {
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.12em;
-  color: #8f98a0;
+  color: var(--fg-3);
   text-transform: uppercase;
 }
 
 .steam-toggle-btn {
   background: none;
   border: none;
-  color: #8f98a0;
+  color: var(--fg-3);
   cursor: pointer;
   font-size: 1.1rem;
   line-height: 1;
@@ -679,8 +679,8 @@ a:hover { color: var(--accent); }
   transition: color var(--transition), background var(--transition);
 }
 .steam-toggle-btn:hover {
-  color: #ffffff;
-  background: rgba(255, 255, 255, 0.1);
+  color: var(--fg);
+  background: var(--bg-3);
 }
 
 .steam-widget-link {
@@ -706,16 +706,15 @@ a:hover { color: var(--accent); }
   font-family: var(--font-code);
   font-size: 1.55rem;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--fg);
   line-height: 1.1;
   letter-spacing: -0.02em;
-  text-shadow: 0 0 12px rgba(255, 255, 255, 0.25);
 }
 
 .steam-unit {
   font-size: 0.8rem;
   font-weight: 700;
-  color: #66c0f4;
+  color: var(--accent);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-right: 0.35rem;
@@ -732,20 +731,20 @@ a:hover { color: var(--accent); }
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #66c0f4;
-  box-shadow: 0 0 8px #66c0f4;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
   flex-shrink: 0;
   animation: steamDotPulse 2s infinite ease-in-out;
 }
 
 @keyframes steamDotPulse {
   0%, 100% { transform: scale(1); opacity: 0.8; }
-  50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 12px #66c0f4; }
+  50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 12px var(--accent); }
 }
 
 .steam-sub-text {
   font-size: 0.72rem;
-  color: #66c0f4;
+  color: var(--fg-2);
   font-weight: 500;
   letter-spacing: 0.02em;
 }
@@ -755,20 +754,20 @@ a:hover { color: var(--accent); }
   display: none;
   align-items: center;
   gap: 0.45rem;
-  background: linear-gradient(135deg, rgba(27, 40, 56, 0.95), rgba(23, 26, 33, 0.98));
-  border: 1px solid rgba(102, 192, 244, 0.4);
+  background: var(--surface);
+  border: 1px solid var(--border-2);
   border-radius: 999px;
   padding: 0.4rem 0.85rem;
-  color: #66c0f4;
+  color: var(--accent);
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-md);
   backdrop-filter: blur(12px);
   transition: all var(--transition);
 }
 
 .steam-pill-minimized:hover {
-  border-color: #66c0f4;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 14px rgba(102, 192, 244, 0.25);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-lg), 0 0 14px var(--accent-glow);
   transform: scale(1.05);
 }
 
@@ -776,7 +775,7 @@ a:hover { color: var(--accent); }
   font-family: var(--font-code);
   font-size: 0.82rem;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--fg);
 }
 
 .steam-corner-widget.minimized .steam-widget-card {
@@ -817,14 +816,14 @@ a:hover { color: var(--accent); }
   gap: 0.4rem;
   margin-top: 0.45rem;
   padding-top: 0.35rem;
-  border-top: 1px dashed rgba(102, 192, 244, 0.2);
+  border-top: 1px dashed var(--border);
   font-size: 0.76rem;
 }
 
 .steam-streak-icon {
   font-size: 0.85rem;
   line-height: 1;
-  filter: drop-shadow(0 0 4px rgba(255, 120, 40, 0.5));
+  filter: drop-shadow(0 0 4px rgba(255, 120, 40, 0.4));
 }
 
 .steam-streak-count {
@@ -835,7 +834,7 @@ a:hover { color: var(--accent); }
 }
 
 .steam-streak-lbl {
-  color: #8f98a0;
+  color: var(--fg-3);
   font-size: 0.72rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -852,21 +851,21 @@ a:hover { color: var(--accent); }
 }
 
 .steam-streak-tag.done {
-  background: rgba(34, 197, 94, 0.18);
-  color: #4ade80;
-  border: 1px solid rgba(34, 197, 94, 0.35);
+  background: var(--green-bg);
+  color: var(--green);
+  border: 1px solid rgba(74, 222, 128, 0.35);
 }
 
 .steam-streak-tag.pending {
-  background: rgba(245, 158, 11, 0.18);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.35);
+  background: var(--yellow-bg);
+  color: var(--yellow);
+  border: 1px solid rgba(251, 191, 36, 0.35);
 }
 
 .steam-streak-tag.start {
-  background: rgba(148, 163, 184, 0.12);
-  color: #94a3b8;
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: var(--bg-3);
+  color: var(--fg-3);
+  border: 1px solid var(--border);
 }
 
 .steam-pill-streak {
@@ -1903,22 +1902,22 @@ a:hover { color: var(--accent); }
 
 /* ── Streak Profile Badge ──────────────────────────────── */
 .streak-profile-badge {
-  background: linear-gradient(135deg, rgba(38, 23, 14, 0.95) 0%, rgba(20, 16, 14, 0.98) 100%);
-  border: 1px solid rgba(255, 122, 24, 0.38);
+  background: var(--surface);
+  border: 1px solid var(--border-2);
   border-radius: var(--radius-lg);
   padding: 0.95rem 1.35rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 16px rgba(255, 122, 24, 0.12);
+  box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
   min-width: 220px;
   backdrop-filter: blur(12px);
-  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition), background var(--transition);
 }
 
 .streak-profile-badge:hover {
   border-color: rgba(255, 122, 24, 0.65);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55), 0 0 24px rgba(255, 122, 24, 0.25);
+  box-shadow: var(--shadow-lg), 0 0 24px rgba(255, 122, 24, 0.25);
   transform: translateY(-2px);
 }
 
@@ -1926,7 +1925,7 @@ a:hover { color: var(--accent); }
   display: flex;
   align-items: center;
   gap: 0.45rem;
-  border-bottom: 1px solid rgba(255, 122, 24, 0.18);
+  border-bottom: 1px solid var(--border);
   padding-bottom: 0.35rem;
 }
 
@@ -1953,15 +1952,15 @@ a:hover { color: var(--accent); }
 }
 
 .streak-badge-status.done {
-  background: rgba(34, 197, 94, 0.18);
-  color: #4ade80;
-  border: 1px solid rgba(34, 197, 94, 0.35);
+  background: var(--green-bg);
+  color: var(--green);
+  border: 1px solid rgba(74, 222, 128, 0.35);
 }
 
 .streak-badge-status.pending {
-  background: rgba(245, 158, 11, 0.18);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.35);
+  background: var(--yellow-bg);
+  color: var(--yellow);
+  border: 1px solid rgba(251, 191, 36, 0.35);
 }
 
 .streak-badge-val-row {
@@ -1974,10 +1973,9 @@ a:hover { color: var(--accent); }
   font-family: var(--font-code);
   font-size: 1.65rem;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--fg);
   line-height: 1.1;
   letter-spacing: -0.02em;
-  text-shadow: 0 0 12px rgba(255, 157, 66, 0.35);
 }
 
 .streak-badge-unit {
@@ -1999,31 +1997,31 @@ a:hover { color: var(--accent); }
 }
 
 .streak-badge-sub strong {
-  color: #ffffff;
+  color: var(--fg);
 }
 
 .streak-badge-total {
-  color: #94a3b8;
+  color: var(--fg-3);
 }
 
 /* ── Steam Profile Badge ──────────────────────────────── */
 .steam-profile-badge {
-  background: linear-gradient(135deg, rgba(27, 40, 56, 0.95) 0%, rgba(23, 26, 33, 0.98) 100%);
-  border: 1px solid rgba(102, 192, 244, 0.35);
+  background: var(--surface);
+  border: 1px solid var(--border-2);
   border-radius: var(--radius-lg);
   padding: 0.95rem 1.35rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 16px rgba(102, 192, 244, 0.12);
+  box-shadow: var(--shadow-md);
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
   min-width: 220px;
   backdrop-filter: blur(12px);
-  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition), background var(--transition);
 }
 
 .steam-profile-badge:hover {
-  border-color: rgba(102, 192, 244, 0.6);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55), 0 0 24px rgba(102, 192, 244, 0.22);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-lg), 0 0 24px var(--accent-glow);
   transform: translateY(-2px);
 }
 
@@ -2031,8 +2029,8 @@ a:hover { color: var(--accent); }
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #66c0f4;
-  border-bottom: 1px solid rgba(102, 192, 244, 0.15);
+  color: var(--accent);
+  border-bottom: 1px solid var(--border);
   padding-bottom: 0.35rem;
 }
 
@@ -2040,7 +2038,7 @@ a:hover { color: var(--accent); }
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.12em;
-  color: #8f98a0;
+  color: var(--fg-3);
   text-transform: uppercase;
 }
 
@@ -2055,16 +2053,15 @@ a:hover { color: var(--accent); }
   font-family: var(--font-code);
   font-size: 1.65rem;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--fg);
   line-height: 1.1;
   letter-spacing: -0.02em;
-  text-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
 }
 
 .steam-lbl {
   font-size: 0.82rem;
   font-weight: 700;
-  color: #66c0f4;
+  color: var(--accent);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-right: 0.35rem;
@@ -2075,7 +2072,7 @@ a:hover { color: var(--accent); }
   align-items: center;
   gap: 0.45rem;
   font-size: 0.72rem;
-  color: #66c0f4;
+  color: var(--fg-2);
   font-weight: 500;
 }
 
