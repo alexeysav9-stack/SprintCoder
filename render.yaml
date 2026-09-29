@@ -16,7 +16,7 @@ services:
       - key: ALLOWED_HOSTS
         value: "*"
       - key: TIME_ZONE
-        value: Europe/Moscow
+        value: Europe/Istanbul
       - key: ENABLE_SOCIAL_AUTH
         value: "False"
       - key: DATABASE_URL

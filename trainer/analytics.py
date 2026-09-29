@@ -1,5 +1,6 @@
 import csv
 from datetime import timedelta
+import zoneinfo
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import get_user_model
 from django.db.models import Avg, Count, Max, Q, Sum
@@ -11,6 +12,8 @@ from django.utils import timezone
 from .models import Attempt, Language, SiteVisit, Snippet
 
 User = get_user_model()
+
+ISTANBUL_TZ = zoneinfo.ZoneInfo('Europe/Istanbul')
 
 
 def format_duration(seconds: float) -> str:
@@ -28,13 +31,15 @@ def format_duration(seconds: float) -> str:
 def get_analytics_data(period: str = '7d') -> dict:
     """
     Computes comprehensive analytics data for the admin dashboard:
+    - Synchronized with Istanbul time (Europe/Istanbul, UTC+3)
     - Daily visits and unique visitors
     - 24-hour hourly traffic pattern
     - Language popularity and typing performance
     - Device and browser breakdown
     - Popular snippets and leaderboard
     """
-    now = timezone.now()
+    tz = ISTANBUL_TZ
+    now = timezone.localtime(timezone.now(), tz)
     today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
     yesterday_start = today_start - timedelta(days=1)
 
@@ -47,7 +52,7 @@ def get_analytics_data(period: str = '7d') -> dict:
     elif period == 'all':
         days_count = 60
         first_visit = SiteVisit.objects.order_by('timestamp').first()
-        start_date = first_visit.timestamp if first_visit else (today_start - timedelta(days=29))
+        start_date = timezone.localtime(first_visit.timestamp, tz) if first_visit else (today_start - timedelta(days=29))
     else:  # default '7d'
         days_count = 7
         start_date = today_start - timedelta(days=days_count - 1)
@@ -112,7 +117,7 @@ def get_analytics_data(period: str = '7d') -> dict:
     curr = start_date.date()
     end_curr = now.date()
     while curr <= end_curr:
-        day_start = timezone.make_aware(timezone.datetime.combine(curr, timezone.datetime.min.time()))
+        day_start = timezone.make_aware(timezone.datetime.combine(curr, timezone.datetime.min.time()), tz)
         day_end = day_start + timedelta(days=1)
 
         d_visits = SiteVisit.objects.filter(timestamp__gte=day_start, timestamp__lt=day_end)
@@ -147,14 +152,14 @@ def get_analytics_data(period: str = '7d') -> dict:
         })
         curr += timedelta(days=1)
 
-    # 3. Hourly Breakdown (Почасовой график захода на сайт 00:00 - 23:00)
+    # 3. Hourly Breakdown (Почасовой график захода на сайт 00:00 - 23:00 по времени Стамбула)
     hourly_views = [0] * 24
     hourly_unique = [0] * 24
     hourly_labels = [f"{h:02d}:00" for h in range(24)]
 
-    # Compute hourly traffic for the selected period
+    # Compute hourly traffic for the selected period in Istanbul timezone
     hourly_records = (
-        visits_qs.annotate(hour=ExtractHour('timestamp', tzinfo=timezone.get_current_timezone()))
+        visits_qs.annotate(hour=ExtractHour('timestamp', tzinfo=tz))
         .values('hour')
         .annotate(
             views=Count('id'),
@@ -312,19 +317,20 @@ def get_analytics_data(period: str = '7d') -> dict:
             'practice_time': format_duration(u.total_seconds),
             'avg_wpm': round(u.avg_wpm or 0, 1),
             'max_wpm': round(u.max_wpm or 0, 1),
-            'joined': u.date_joined.strftime('%d.%m.%Y'),
+            'joined': timezone.localtime(u.date_joined, tz).strftime('%d.%m.%Y'),
         }
         for u in top_users_qs
     ]
 
-    # 10. Recent Activity Log (12 items)
+    # 10. Recent Activity Log (12 items in Istanbul time)
     recent_visits = SiteVisit.objects.select_related('user').order_by('-timestamp')[:12]
     recent_activity = []
     for v in recent_visits:
         user_display = v.user.username if v.user else 'Гость'
+        loc_time = timezone.localtime(v.timestamp, tz)
         recent_activity.append({
-            'time': v.timestamp.strftime('%H:%M:%S'),
-            'date': v.timestamp.strftime('%d.%m'),
+            'time': loc_time.strftime('%H:%M:%S'),
+            'date': loc_time.strftime('%d.%m'),
             'type': 'visit',
             'user': user_display,
             'is_auth': bool(v.user),
@@ -335,6 +341,8 @@ def get_analytics_data(period: str = '7d') -> dict:
         })
 
     return {
+        'timezone': 'Europe/Istanbul (UTC+3)',
+        'timezone_name': 'Стамбул (UTC+3)',
         'period': period,
         'days_count': days_count,
         'kpis': {
@@ -416,9 +424,11 @@ def admin_analytics_api(request):
 
 @staff_member_required(login_url='admin:login')
 def admin_export_csv(request, export_type: str):
-    """Export analytics data to CSV format for reporting."""
+    """Export analytics data to CSV format for reporting with Istanbul timestamps."""
+    tz = ISTANBUL_TZ
     response = HttpResponse(content_type='text/csv; charset=utf-8')
-    response['Content-Disposition'] = f'attachment; filename="sprintcoder_{export_type}_{timezone.now():%Y%m%d}.csv"'
+    now_istanbul = timezone.localtime(timezone.now(), tz)
+    response['Content-Disposition'] = f'attachment; filename="sprintcoder_{export_type}_{now_istanbul:%Y%m%d}.csv"'
     # BOM for Excel utf-8 compatibility
     response.write('\ufeff'.encode('utf-8'))
 
@@ -436,12 +446,13 @@ def admin_export_csv(request, export_type: str):
             writer.writerow([lang.name, lang.slug, cnt, avg_wpm, avg_acc, snips])
 
     elif export_type == 'visits':
-        writer.writerow(['Дата и время (UTC)', 'Путь', 'Пользователь', 'Устройство', 'Браузер', 'IP-адрес', 'Статус'])
+        writer.writerow(['Дата и время (UTC+3, Стамбул)', 'Путь', 'Пользователь', 'Устройство', 'Браузер', 'IP-адрес', 'Статус'])
         visits = SiteVisit.objects.select_related('user').order_by('-timestamp')[:5000]
         for v in visits:
             u_name = v.user.username if v.user else 'Гость'
+            loc_time = timezone.localtime(v.timestamp, tz)
             writer.writerow([
-                v.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                loc_time.strftime('%Y-%m-%d %H:%M:%S'),
                 v.path,
                 u_name,
                 v.device_type,
@@ -452,7 +463,7 @@ def admin_export_csv(request, export_type: str):
     else:
         # Default daily summary
         data = get_analytics_data('30d')
-        writer.writerow(['Дата', 'Уникальные посетители', 'Просмотры страниц', 'Активные пользователи', 'Тренировок выполнено', 'Новых регистраций'])
+        writer.writerow(['Дата (Стамбул)', 'Уникальные посетители', 'Просмотры страниц', 'Активные пользователи', 'Тренировок выполнено', 'Новых регистраций'])
         for row in data['daily']['table']:
             writer.writerow([
                 row['date'],

@@ -891,6 +891,39 @@ class AdminAnalyticsTests(TestCase):
             self.assertIn('text/csv', res['Content-Type'])
             self.assertTrue(len(res.content) > 0)
 
+    def test_admin_analytics_istanbul_timezone(self):
+        from trainer.analytics import get_analytics_data, ISTANBUL_TZ
+        from trainer.models import SiteVisit
+        import datetime
+
+        # Create visit at 10:30:00 UTC -> should be 13:30:00 in Istanbul (UTC+3)
+        utc_time = datetime.datetime(2026, 9, 29, 10, 30, 0, tzinfo=datetime.timezone.utc)
+        visit = SiteVisit.objects.create(
+            timestamp=utc_time,
+            path='/practice/test/',
+            ip_address='192.168.1.1',
+            device_type='desktop',
+            browser='Firefox',
+            user=self.user,
+        )
+
+        data = get_analytics_data(period='7d')
+        self.assertIn('timezone', data)
+        self.assertEqual(data['timezone'], 'Europe/Istanbul (UTC+3)')
+
+        # Find the visit in recent activity
+        matching = [item for item in data['recent_activity'] if item['path'] == '/practice/test/']
+        self.assertTrue(len(matching) > 0)
+        self.assertEqual(matching[0]['time'], '13:30:00')
+
+        # Test CSV visits export output in Istanbul timezone
+        self.client.force_login(self.admin)
+        res = self.client.get('/admin/analytics/export/visits/')
+        self.assertEqual(res.status_code, 200)
+        content_str = res.content.decode('utf-8')
+        self.assertIn('2026-09-29 13:30:00', content_str)
+        self.assertIn('UTC+3, Стамбул', content_str)
+
 
 
 

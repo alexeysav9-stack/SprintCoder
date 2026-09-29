@@ -552,7 +552,7 @@
     <div class="section-header">
       <div>
         <h1 class="section-title">📊 Сводные показатели платформы</h1>
-        <p class="section-subtitle">Статистика за период: <strong>{{ analytics.days_count }} дн.</strong> (обновляется в реальном времени)</p>
+        <p class="section-subtitle">Статистика за период: <strong>{{ analytics.days_count }} дн.</strong> (обновляется в реальном времени) • <span style="color: var(--accent-light); font-weight: 600;">🕒 Время: Стамбул (UTC+3)</span></p>
       </div>
       <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--fg-muted);">
         🕒 Пик посещаемости: <span style="color: var(--yellow); font-weight: 700;">{{ analytics.kpis.peak_hour_str }}</span> ({{ analytics.kpis.peak_hour_views }} визитов)
@@ -662,7 +662,7 @@
       <div class="chart-card">
         <div class="chart-card-header">
           <h2 class="chart-title">
-            <span>🕒</span> Почасовой график захода на сайт
+            <span>🕒</span> Почасовой график захода на сайт (Стамбул, UTC+3)
           </h2>
           <span class="chart-badge chart-badge-highlight">Пик: {{ analytics.kpis.peak_hour_str }}</span>
         </div>
@@ -946,13 +946,13 @@
       <div class="chart-card">
         <div class="chart-card-header">
           <h3 class="chart-title">⚡ Живая лента активности</h3>
-          <span class="chart-badge">Последние 12 визитов</span>
+          <span class="chart-badge">Последние 12 визитов (UTC+3, Стамбул)</span>
         </div>
         <div class="feed-list">
           {% for item in analytics.recent_activity %}
             <div class="feed-item">
               <div class="feed-left">
-                <span class="feed-time">{{ item.date }} {{ item.time }}</span>
+                <span class="feed-time" title="Время визита (UTC+3 Стамбул)">{{ item.date }} {{ item.time }}</span>
                 <strong>{{ item.user }}</strong>
                 <span class="feed-path">{{ item.path }}</span>
               </div>
