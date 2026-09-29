@@ -156,17 +156,24 @@
   <form id="picker-form" action="{% url 'random_snippet' %}" method="get">
 
     <!-- Language grid -->
-    <div class="section-label">Choose a language</div>
+    <div class="section-header-row">
+      <div class="section-label">Choose a language</div>
+      <button type="button" class="shortcuts-tip-trigger" id="shortcuts-tip-trigger" title="Подсказка по управлению клавишами">
+        <span>⌨️</span> <span>Управление без мыши</span>
+      </button>
+    </div>
     <div class="lang-grid" id="lang-grid">
       {% for lang in languages %}
-        <label class="lang-card {% if forloop.first %}selected{% endif %}" for="lang-{{ lang.slug }}">
+        <label class="lang-card {% if forloop.first %}selected{% endif %}" for="lang-{{ lang.slug }}"
+               title="Двойной щелчок ЛКМ или Enter — начать практику ({{ lang.name }})">
           <input type="radio" name="language" id="lang-{{ lang.slug }}"
                  value="{{ lang.slug }}" {% if forloop.first %}checked{% endif %} hidden />
           <span class="lang-icon">{% devicon lang.slug %}</span>
           <span class="lang-name">{{ lang.name }}</span>
         </label>
       {% endfor %}
-      <label class="lang-card lang-card-random" for="lang-random">
+      <label class="lang-card lang-card-random" for="lang-random"
+             title="Двойной щелчок ЛКМ или Enter — случайный язык">
         <input type="radio" name="language" id="lang-random"
                value="random" hidden />
         <span class="lang-icon dice-icon">🎲</span>
@@ -227,53 +234,226 @@
     <p>History of all your attempts — see how fast you're improving.</p>
   </div>
 </section>
+
+<!-- Floating Keyboard & Double-Click Quick Start Toast for New Users -->
+<aside class="nav-tip-toast" id="nav-tip-toast" aria-label="Быстрый старт">
+  <div class="nav-tip-header">
+    <span class="nav-tip-title">💡 Быстрый старт</span>
+    <button type="button" class="nav-tip-close" id="nav-tip-close" aria-label="Закрыть" title="Закрыть">×</button>
+  </div>
+  <div class="nav-tip-list">
+    <div class="nav-tip-item">
+      <span class="nav-tip-keys"><kbd>🖱️×2</kbd></span>
+      <span><strong>Двойной щелчок</strong> по языку — мгновенно начинает практику.</span>
+    </div>
+    <div class="nav-tip-item">
+      <span class="nav-tip-keys"><kbd>←</kbd><kbd>↑</kbd><kbd>→</kbd><kbd>↓</kbd></span>
+      <span><strong>Стрелки клавиатуры</strong> — выбор языка, а стрелка <strong>↓</strong> вниз переходит к сложности.</span>
+    </div>
+    <div class="nav-tip-item">
+      <span class="nav-tip-keys"><kbd>Enter ↵</kbd></span>
+      <span>Нажмите <strong>Enter</strong> для старта в один клик без мыши!</span>
+    </div>
+  </div>
+  <div class="nav-tip-footer">
+    <button type="button" class="nav-tip-btn" id="nav-tip-dismiss-btn">Понятно</button>
+  </div>
+</aside>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
-  // Language card selection & double-click to start immediately
-  document.querySelectorAll('.lang-card').forEach(card => {
-    card.addEventListener('click', function () {
-      document.querySelectorAll('.lang-card').forEach(c => c.classList.remove('selected'));
-      this.classList.add('selected');
-      const radio = this.querySelector('input[type="radio"]');
-      if (radio) radio.checked = true;
-    });
-    card.addEventListener('dblclick', function () {
-      const form = document.getElementById('picker-form');
-      if (form) {
-        if (typeof form.requestSubmit === 'function') {
-          form.requestSubmit();
+  // ── Keyboard Navigation & Double-Click Quick Start ──
+  (function initKeyboardAndQuickStart() {
+    const pickerForm = document.getElementById('picker-form');
+    const startBtn = document.getElementById('start-btn');
+    const langGrid = document.getElementById('lang-grid');
+    const langCards = Array.from(document.querySelectorAll('.lang-card'));
+    const diffBtns = Array.from(document.querySelectorAll('.diff-btn'));
+    const toast = document.getElementById('nav-tip-toast');
+    const closeBtn = document.getElementById('nav-tip-close');
+    const dismissBtn = document.getElementById('nav-tip-dismiss-btn');
+    const triggerBtn = document.getElementById('shortcuts-tip-trigger');
+
+    let activeZone = 'lang'; // 'lang' or 'diff'
+
+    function triggerSubmit() {
+      if (startBtn) startBtn.classList.add('loading');
+      if (pickerForm) {
+        if (typeof pickerForm.requestSubmit === 'function') {
+          pickerForm.requestSubmit();
         } else {
-          form.submit();
+          pickerForm.submit();
+        }
+      }
+    }
+
+    // Select language helper
+    function selectLanguage(idx) {
+      idx = Math.max(0, Math.min(idx, langCards.length - 1));
+      langCards.forEach((c, i) => {
+        c.classList.toggle('selected', i === idx);
+        const radio = c.querySelector('input[type="radio"]');
+        if (radio) radio.checked = (i === idx);
+      });
+      activeZone = 'lang';
+    }
+
+    // Select difficulty helper
+    function selectDifficulty(idx) {
+      idx = Math.max(0, Math.min(idx, diffBtns.length - 1));
+      diffBtns.forEach((b, i) => {
+        b.classList.toggle('selected', i === idx);
+        const radio = b.querySelector('input[type="radio"]');
+        if (radio) radio.checked = (i === idx);
+      });
+      activeZone = 'diff';
+    }
+
+    // Language click & double-click
+    langCards.forEach((card, idx) => {
+      card.addEventListener('click', function () {
+        selectLanguage(idx);
+      });
+      card.addEventListener('dblclick', function (e) {
+        e.preventDefault();
+        selectLanguage(idx);
+        triggerSubmit();
+      });
+    });
+
+    // Difficulty click
+    diffBtns.forEach((btn, idx) => {
+      btn.addEventListener('click', function () {
+        selectDifficulty(idx);
+      });
+    });
+
+    // Compute dynamic number of columns in the language grid
+    function getGridColumns() {
+      if (!langGrid) return 6;
+      try {
+        const computed = window.getComputedStyle(langGrid).gridTemplateColumns;
+        if (computed) {
+          const count = computed.split(' ').filter(Boolean).length;
+          if (count > 0) return count;
+        }
+      } catch (err) {}
+      if (window.innerWidth <= 380) return 2;
+      if (window.innerWidth <= 580) return 3;
+      if (window.innerWidth <= 920) return 4;
+      return 6;
+    }
+
+    // Global keyboard listener
+    window.addEventListener('keydown', function (e) {
+      const tag = (e.target.tagName || '').toLowerCase();
+      // Do not intercept if user is typing in text inputs or textareas
+      if (tag === 'textarea' || (tag === 'input' && e.target.type !== 'radio' && e.target.type !== 'checkbox')) {
+        return;
+      }
+      if (e.target.isContentEditable) return;
+
+      const cols = getGridColumns();
+      let currentLangIdx = langCards.findIndex(c => c.classList.contains('selected'));
+      if (currentLangIdx === -1) currentLangIdx = 0;
+
+      let currentDiffIdx = diffBtns.findIndex(b => b.classList.contains('selected'));
+      if (currentDiffIdx === -1) currentDiffIdx = 0;
+
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        triggerSubmit();
+        return;
+      }
+
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        if (activeZone === 'lang') {
+          selectLanguage((currentLangIdx + 1) % langCards.length);
+        } else {
+          selectDifficulty((currentDiffIdx + 1) % diffBtns.length);
+        }
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        if (activeZone === 'lang') {
+          selectLanguage((currentLangIdx - 1 + langCards.length) % langCards.length);
+        } else {
+          selectDifficulty((currentDiffIdx - 1 + diffBtns.length) % diffBtns.length);
+        }
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (activeZone === 'lang') {
+          if (currentLangIdx + cols < langCards.length) {
+            // Move down to next row in grid
+            selectLanguage(currentLangIdx + cols);
+          } else {
+            // Reached bottom row of languages -> move down to difficulty!
+            const col = currentLangIdx % cols;
+            const diffTarget = Math.min(diffBtns.length - 1, Math.floor((col / cols) * diffBtns.length));
+            selectDifficulty(diffTarget);
+          }
+        }
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (activeZone === 'diff') {
+          // Move up from difficulty back into languages bottom row
+          const col = Math.min(cols - 1, Math.floor((currentDiffIdx / diffBtns.length) * cols));
+          const lastRowStart = Math.floor((langCards.length - 1) / cols) * cols;
+          selectLanguage(Math.min(langCards.length - 1, lastRowStart + col));
+        } else if (activeZone === 'lang') {
+          if (currentLangIdx - cols >= 0) {
+            // Move up to previous row in grid
+            selectLanguage(currentLangIdx - cols);
+          }
         }
       }
     });
-  });
 
-  // Difficulty button selection
-  document.querySelectorAll('.diff-btn').forEach(btn => {
-    btn.addEventListener('click', function () {
-      document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('selected'));
-      this.classList.add('selected');
-      const radio = this.querySelector('input[type="radio"]');
-      if (radio) radio.checked = true;
+    // Start button loading state on form submit
+    if (pickerForm && startBtn) {
+      pickerForm.addEventListener('submit', function () {
+        startBtn.classList.add('loading');
+      });
+    }
+
+    // Clear loading state when page is shown
+    window.addEventListener('pageshow', function () {
+      if (startBtn) startBtn.classList.remove('loading');
     });
-  });
 
-  // Start button loading state on form submit
-  const pickerForm = document.getElementById('picker-form');
-  const startBtn = document.getElementById('start-btn');
-  if (pickerForm && startBtn) {
-    pickerForm.addEventListener('submit', function () {
-      startBtn.classList.add('loading');
-    });
-  }
+    // ── Onboarding Toast Logic ──
+    const STORAGE_KEY = 'sc_quick_start_tip_v1';
+    function hideToast() {
+      if (toast) {
+        toast.classList.add('hidden');
+        try {
+          localStorage.setItem(STORAGE_KEY, 'dismissed');
+        } catch (e) {}
+      }
+    }
 
-  // Clear loading state when page is shown
-  window.addEventListener('pageshow', function () {
-    if (startBtn) startBtn.classList.remove('loading');
-  });
+    function showToast() {
+      if (toast) {
+        toast.classList.remove('hidden');
+      }
+    }
+
+    // Check if new user or already dismissed
+    try {
+      if (localStorage.getItem(STORAGE_KEY) === 'dismissed') {
+        if (toast) toast.classList.add('hidden');
+      }
+    } catch (e) {}
+
+    if (closeBtn) closeBtn.addEventListener('click', hideToast);
+    if (dismissBtn) dismissBtn.addEventListener('click', hideToast);
+    if (triggerBtn) {
+      triggerBtn.addEventListener('click', function () {
+        showToast();
+      });
+    }
+  })();
 
   // Steam corner widget logic
   (function initSteamWidget() {
