@@ -820,6 +820,18 @@ class AdminAnalyticsTests(TestCase):
         middleware(req_admin)
         self.assertEqual(SiteVisit.objects.count(), count_before + 1)
 
+        # 4. Bot / monitoring user agent should NOT be tracked
+        req_bot = rf.get('/', HTTP_USER_AGENT='Mozilla/5.0 (compatible; UptimeRobot/2.0; http://www.uptimerobot.com/)')
+        req_bot.session = SessionStore()
+        middleware(req_bot)
+        self.assertEqual(SiteVisit.objects.count(), count_before + 1)
+
+        # 5. /healthz path should NOT be tracked
+        req_health = rf.get('/healthz/')
+        req_health.session = SessionStore()
+        middleware(req_health)
+        self.assertEqual(SiteVisit.objects.count(), count_before + 1)
+
     def test_get_analytics_data(self):
         from trainer.analytics import get_analytics_data
         data = get_analytics_data(period='7d')

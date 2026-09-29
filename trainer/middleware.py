@@ -9,6 +9,8 @@ IGNORE_PREFIXES = (
     '/robots.txt',
     '/admin/',
     '/api/',
+    '/healthz',
+    '/ping',
 )
 
 ASSET_REGEX = re.compile(r'\.(css|js|map|png|jpe?g|gif|ico|svg|woff2?|ttf|eot)$', re.IGNORECASE)
@@ -61,9 +63,13 @@ class VisitTrackingMiddleware:
                 ip = request.META.get('REMOTE_ADDR')
 
             ua = request.META.get('HTTP_USER_AGENT', '')
-            referer = request.META.get('HTTP_REFERER', '')[:500]
-
             device_type = self.detect_device(ua)
+
+            # Never record automated bots, crawlers, or uptime monitoring pings in visitor analytics
+            if device_type == 'bot':
+                return
+
+            referer = request.META.get('HTTP_REFERER', '')[:500]
             browser = self.detect_browser(ua)
 
             status_code = getattr(response, 'status_code', 200)
@@ -88,7 +94,11 @@ class VisitTrackingMiddleware:
     @staticmethod
     def detect_device(ua: str) -> str:
         ua_lower = ua.lower()
-        if any(b in ua_lower for b in ('bot', 'crawl', 'spider', 'slurp', 'mediapartners', 'lighthouse')):
+        if any(b in ua_lower for b in (
+            'bot', 'crawl', 'spider', 'slurp', 'mediapartners', 'lighthouse',
+            'uptimerobot', 'pingdom', 'cron-job', 'betteruptime', 'healthcheck',
+            'monitor', 'kuma', 'curl', 'wget', 'python-requests', 'urllib',
+        )):
             return 'bot'
         if any(t in ua_lower for t in ('ipad', 'tablet', 'kindle', 'playbook')):
             return 'tablet'
