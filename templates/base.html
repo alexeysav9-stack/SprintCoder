@@ -41,12 +41,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inconsolata:wght@400;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Roboto+Mono:wght@400;500;700&family=Source+Code+Pro:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{% static 'css/main.css' %}?v={% now 'U' %}" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css" />
+  <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}" />
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon-32x32.png' %}" />
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon-16x16.png' %}" />
+  <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/apple-touch-icon.png' %}" />
   {% block extra_head %}{% endblock %}
 </head>
 <body>
   <header class="navbar">
-    <a href="{% url 'index' %}" class="navbar-brand">
-      <span class="brand-icon">⌨️</span>
+    <a href="{% url 'index' %}" class="navbar-brand" title="SprintCoder">
+      <picture class="brand-logo-wrap">
+        <source srcset="{% static 'images/logo.webp' %}" type="image/webp" />
+        <img src="{% static 'images/logo.png' %}" alt="SprintCoder Logo" class="brand-logo-img" width="38" height="30" />
+      </picture>
       <span class="brand-name">Sprint<span class="brand-accent">Coder</span></span>
     </a>
     <nav class="navbar-nav">
