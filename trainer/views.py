@@ -319,7 +319,8 @@ def settings_view(request):
             messages.success(request, 'Settings saved. No repositories to import.')
             return redirect('settings')
 
-        # Check for GitHub token
+        # Try to get a GitHub token (optional — public repos work without one,
+        # but unauthenticated requests are limited to 60/hour per IP).
         token = os.environ.get('GITHUB_TOKEN', '')
         if not token:
             try:
@@ -329,12 +330,11 @@ def settings_view(request):
                 pass
 
         if not token:
-            messages.warning(
+            messages.info(
                 request,
-                'Repositories saved, but GITHUB_TOKEN is not configured on the server — '
-                'snippets cannot be imported right now.'
+                'Tip: adding a GITHUB_TOKEN env var on the server increases the API rate limit '
+                'from 60 to 5 000 requests/hour. Import will proceed without a token.'
             )
-            return redirect('settings')
 
         # Import snippets from the user's repos
         try:
@@ -465,11 +465,13 @@ def _import_user_repos(user, profile, token: str, max_per_lang: int = 18) -> int
     }
 
     session = req.Session()
-    session.headers.update({
-        'Authorization': f'Bearer {token}',
+    gh_headers = {
         'Accept': 'application/vnd.github+json',
         'X-GitHub-Api-Version': '2022-11-28',
-    })
+    }
+    if token:
+        gh_headers['Authorization'] = f'Bearer {token}'
+    session.headers.update(gh_headers)
 
     # Cache Language objects
     lang_cache = {lang.slug: lang for lang in Language.objects.all()}
@@ -487,6 +489,11 @@ def _import_user_repos(user, profile, token: str, max_per_lang: int = 18) -> int
             r = session.get(f'https://api.github.com/repos/{repo}', timeout=10)
             if r.status_code == 404:
                 continue
+            if r.status_code == 403:
+                raise Exception(
+                    'GitHub API rate limit exceeded (60 req/hr for unauthenticated requests). '
+                    'Add a GITHUB_TOKEN env var on the server to raise the limit to 5 000/hr.'
+                )
             r.raise_for_status()
             branch = r.json().get('default_branch', 'main')
 
